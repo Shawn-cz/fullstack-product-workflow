@@ -1,0 +1,8 @@
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Optional: Historical baseline archives (excluded from git to keep repo lightweight)
+历史归档_勿喂给AI/

@@ -1,0 +1,217 @@
+{
+    "workflow_version":  "0.8.0",
+    "packaged_at":  "2026-11-16",
+    "note":  "已消除双层同名目录嵌套；内置 .agents/skills/ 与 规范文件/templates/ 独立模板；清单不包含自身",
+    "files":  [
+                  {
+                      "path":  ".agents/skills/fullstack-product-delivery/references/stage-routing.md",
+                      "sha256":  "e1099407c0f7ec48a572d4cd32a9a1257374617a2b79a71c5e5863f0be6654e3",
+                      "bytes":  4392
+                  },
+                  {
+                      "path":  ".agents/skills/fullstack-product-delivery/SKILL.md",
+                      "sha256":  "3e6ebdb172e6c36eb63e4b7f67e126815b52eaaa997afc12a9810785c1fd558b",
+                      "bytes":  6401
+                  },
+                  {
+                      "path":  "AGENTS.md",
+                      "sha256":  "69d49d238e60dfc966ac174f70c29acc36e5f9ee911d54bd9baa00b9bf315fc9",
+                      "bytes":  2472
+                  },
+                  {
+                      "path":  "规范文件/00_主流程.md",
+                      "sha256":  "7fe3694c9b276f5faad4fab247b5769daa2b5a2c5f8568fda35ecda9987684f8",
+                      "bytes":  23627
+                  },
+                  {
+                      "path":  "规范文件/01_规则库.md",
+                      "sha256":  "b86a1689b45841ead21a212aa0e862fbcc73ced3637558af89de82308ecc1cc4",
+                      "bytes":  40652
+                  },
+                  {
+                      "path":  "规范文件/02_模板包.md",
+                      "sha256":  "cc3fc206d9cce106b7f269cc638ee2f87b2b1030cae0b595d80f82048029a13e",
+                      "bytes":  33249
+                  },
+                  {
+                      "path":  "规范文件/03_贯穿案例_工单.md",
+                      "sha256":  "93c5558c731bb85552a858192c417e8d56f920f1a12559d08ada3258d59c3d3c",
+                      "bytes":  19565
+                  },
+                  {
+                      "path":  "规范文件/04_AI项目执行说明.md",
+                      "sha256":  "a564fc0a547961727e6d0a387f3bf5cc98335a88cb716083aa7fb6cfd4f6e6ba",
+                      "bytes":  10300
+                  },
+                  {
+                      "path":  "规范文件/05_来源与更新机制.md",
+                      "sha256":  "8a8c4d320a069b27fb483b68afbcc2a441f93968a8de6a6750c035ea70584ad4",
+                      "bytes":  17579
+                  },
+                  {
+                      "path":  "规范文件/06_工程质量与审计验收基线.md",
+                      "sha256":  "8f3760bf90359171377f0698fe100073f3fb986a100d47e7b5a315c9d4c084b6",
+                      "bytes":  28031
+                  },
+                  {
+                      "path":  "规范文件/07_项目推进与多agent执行.md",
+                      "sha256":  "25a05d076e44d245f428896d67c3cb663fa14609076ff3dcd464fae7863a7ca4",
+                      "bytes":  11193
+                  },
+                  {
+                      "path":  "规范文件/08_移动App专项.md",
+                      "sha256":  "a1e3732ec656e73ab6f3397ff205ceb1aa34596fee06ab4ad6d6d9055e607582",
+                      "bytes":  13533
+                  },
+                  {
+                      "path":  "规范文件/ARCHITECTURE.md",
+                      "sha256":  "7ee85a81129f9a5dda1c591d84ea544ea1b342ac700a1d96f0aea8ba366bf154",
+                      "bytes":  3524
+                  },
+                  {
+                      "path":  "规范文件/CHANGELOG.md",
+                      "sha256":  "780c2ce39efa0b014fcda79b5bf0adac3bd8929463aa069b4689a210e107b25d",
+                      "bytes":  7589
+                  },
+                  {
+                      "path":  "规范文件/README.md",
+                      "sha256":  "14737339068ca8a76b70a26da47b8d5818827fa2d02b85ab9ee4c2c1773ab032",
+                      "bytes":  4687
+                  },
+                  {
+                      "path":  "规范文件/session_handoff.md",
+                      "sha256":  "f45effe0e118deb2ac0c80f549c80d2b2ef3129cf5f5cfe9d0703801f495c720",
+                      "bytes":  2785
+                  },
+                  {
+                      "path":  "规范文件/templates/T01_项目启动与裁剪卡.md",
+                      "sha256":  "a8da4edf83ac85e7f4a112fa72e3175e4145ee9233c62d32173194e61c0ed6a5",
+                      "bytes":  2181
+                  },
+                  {
+                      "path":  "规范文件/templates/T02_问题与证据卡.md",
+                      "sha256":  "c55ae13a435f673849470dc4b742aded0f321051d64b51ace79f97a9df9fa238",
+                      "bytes":  1014
+                  },
+                  {
+                      "path":  "规范文件/templates/T03_蓝图与需求规格.md",
+                      "sha256":  "abcb76a0b8ac4d377893228eddcc66bc6b30e380bbfb37e1e1c8aff92c988450",
+                      "bytes":  2619
+                  },
+                  {
+                      "path":  "规范文件/templates/T04_业务对象权限状态与行为.md",
+                      "sha256":  "df85f104fb4143e5e1bb673b44026c06e042c39c908fc14dbe451246867bc99b",
+                      "bytes":  1609
+                  },
+                  {
+                      "path":  "规范文件/templates/T05_技术决策数据接口与复用.md",
+                      "sha256":  "48afd83dedd2e5737e05d25344bd14d96972dfdddbd7c891e264713fac003f7f",
+                      "bytes":  7220
+                  },
+                  {
+                      "path":  "规范文件/templates/T06_交互与组件规格.md",
+                      "sha256":  "9f966b151b5553e6e7aaaa28e8648901041261afd2149c227ef2e2a2cb1f3727",
+                      "bytes":  3547
+                  },
+                  {
+                      "path":  "规范文件/templates/T07_测试与验收规格.md",
+                      "sha256":  "6e92295b185c3a579ffe4d33ecb89cc1f61cfec7db9df8af44e83ad610ab48ba",
+                      "bytes":  1913
+                  },
+                  {
+                      "path":  "规范文件/templates/T08_实施任务与追溯.md",
+                      "sha256":  "d13890f965c838d606f2938ec7e1bdc7562b2a391346808611fac6822ef66485",
+                      "bytes":  2942
+                  },
+                  {
+                      "path":  "规范文件/templates/T09_发布与运行卡.md",
+                      "sha256":  "1d55050d817647b1c402891bee7e34ba9a8afd79175951317f8fe570b4fe4740",
+                      "bytes":  1170
+                  },
+                  {
+                      "path":  "规范文件/templates/T10_复盘变更与交接.md",
+                      "sha256":  "731f548085d11912170b98fafa9c62ed68b0315942f3d76329115e62fadf0eab",
+                      "bytes":  1036
+                  },
+                  {
+                      "path":  "规范文件/templates/T11_AI产品专项.md",
+                      "sha256":  "f01458b7dde923b5dc21e766435347e1d918102d352d667667bae48a31b84c71",
+                      "bytes":  1218
+                  },
+                  {
+                      "path":  "规范文件/templates/T12_审计与验收包.md",
+                      "sha256":  "d437c523ea564838e62ccbb6603626118d2d25689e3243aa785e1496580ff8f2",
+                      "bytes":  4362
+                  },
+                  {
+                      "path":  "规范文件/templates/T13_移动App项目补充卡.md",
+                      "sha256":  "6cb1b457f2c9a9fcb3b7989b4085944d1e29ca060296eb6295fc55a2d8c37b94",
+                      "bytes":  3689
+                  },
+                  {
+                      "path":  "规范文件/审计报告_v0.8.md",
+                      "sha256":  "e2b72852341fff91f37a62fff6fd5026b20b82c60cd87e537abeaa7b9a542e30",
+                      "bytes":  5957
+                  },
+                  {
+                      "path":  "规范文件/文档检查结果.json",
+                      "sha256":  "50454389b2f91efc09d949e72fcd3dbefea1a0e85a69fc01d6e2a166820b83de",
+                      "bytes":  4280
+                  },
+                  {
+                      "path":  "规范文件/验证记录.md",
+                      "sha256":  "5bb60fe6ea427fdf52fc74aad6bfce7037534803b416935abbb5c978158c368a",
+                      "bytes":  1813
+                  },
+                  {
+                      "path":  "开始使用.md",
+                      "sha256":  "38e11fe44bb40609becb459b8c0210ff814d9a7b3bafb3d1a6c731715bfb8833",
+                      "bytes":  6412
+                  },
+                  {
+                      "path":  "历史归档_勿喂给AI/2026-11-14_至_2026-11-16/v0.5.0-baseline.zip",
+                      "sha256":  "ddf64775fb5c93de608d5692d950e3e67cef773155aba2c9551df7ecf7685b9c",
+                      "bytes":  74441
+                  },
+                  {
+                      "path":  "历史归档_勿喂给AI/2026-11-14_至_2026-11-16/v0.5.0-manifest.json",
+                      "sha256":  "1a08d454f62da24dc9a4d6a43a5a0a5706e90857f75ebe12a455da09f5bcf200",
+                      "bytes":  2119
+                  },
+                  {
+                      "path":  "历史归档_勿喂给AI/2026-11-14_至_2026-11-16/v0.5-to-v0.6.diff",
+                      "sha256":  "bc5283d157d31a1ceee96400ac38f68859e16d9e3e3f41de948cf3db7bd93360",
+                      "bytes":  79267
+                  },
+                  {
+                      "path":  "历史归档_勿喂给AI/2026-11-14_至_2026-11-16/v0.6.0-baseline.zip",
+                      "sha256":  "536d553859ed578d83d6a5def24c58ac568e560ccc5db86537a957fa2f6a2431",
+                      "bytes":  86875
+                  },
+                  {
+                      "path":  "历史归档_勿喂给AI/2026-11-14_至_2026-11-16/v0.6.0-manifest.json",
+                      "sha256":  "66dc0d0c5439d6a47b7b421ca991b40fde090ba2927fdc13c937903559db1445",
+                      "bytes":  2185
+                  },
+                  {
+                      "path":  "历史归档_勿喂给AI/2026-11-14_至_2026-11-16/v0.7.0-baseline.zip",
+                      "sha256":  "bd041ec83c44136c0bd288f84324ad0c29a3f109d2cff0c977a1a92d11716949",
+                      "bytes":  99779
+                  },
+                  {
+                      "path":  "历史归档_勿喂给AI/2026-11-14_至_2026-11-16/v0.7.0-manifest.json",
+                      "sha256":  "9425296b994dd0e55135b0781cb41b571091f74143cb7899accc92575afb96fd",
+                      "bytes":  5217
+                  },
+                  {
+                      "path":  "历史归档_勿喂给AI/README_归档说明.md",
+                      "sha256":  "19a5a6c2ac2d3b7cd23a72bc5f073962d263f7ef0f37ea2de4d3d69b10d1da4b",
+                      "bytes":  785
+                  },
+                  {
+                      "path":  "历史归档_勿喂给AI/审计报告_v0.6.md",
+                      "sha256":  "026cf1b8d94e4e09449e3d9de49abc2d8b125ccafeea6a3fc5e582789cd6cae3",
+                      "bytes":  7797
+                  }
+              ]
+}

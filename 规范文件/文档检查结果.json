@@ -1,0 +1,89 @@
+{
+    "date":  "2026-11-16",
+    "workflow_version":  "0.8.0",
+    "scope":  "面向零开发经验团队的专项升级（黄金技术栈、Git救生、黑盒验真、独立模板拆分与Skill封装）结构与基线检查",
+    "status":  "passed",
+    "counts":  {
+                   "markdown_files":  15,
+                   "standalone_template_files":  13,
+                   "skill_and_agent_files":  3,
+                   "stages":  10,
+                   "stage_task_objectives":  10,
+                   "rules":  112,
+                   "unique_rule_ids":  112,
+                   "templates":  13,
+                   "sources":  46,
+                   "quality_gates":  4,
+                   "mobile_rules":  16
+               },
+    "errors":  [
+
+               ],
+    "historical_documents":  [
+                                 "../历史归档_勿喂给AI/审计报告_v0.6.md"
+                             ],
+    "baseline_manifest":  "../历史归档_勿喂给AI/2026-11-14_至_2026-11-16/v0.7.0-manifest.json",
+    "files":  [
+                  {
+                      "path":  "00_主流程.md",
+                      "sha256":  "7fe3694c9b276f5faad4fab247b5769daa2b5a2c5f8568fda35ecda9987684f8"
+                  },
+                  {
+                      "path":  "01_规则库.md",
+                      "sha256":  "b86a1689b45841ead21a212aa0e862fbcc73ced3637558af89de82308ecc1cc4"
+                  },
+                  {
+                      "path":  "02_模板包.md",
+                      "sha256":  "cc3fc206d9cce106b7f269cc638ee2f87b2b1030cae0b595d80f82048029a13e"
+                  },
+                  {
+                      "path":  "03_贯穿案例_工单.md",
+                      "sha256":  "93c5558c731bb85552a858192c417e8d56f920f1a12559d08ada3258d59c3d3c"
+                  },
+                  {
+                      "path":  "04_AI项目执行说明.md",
+                      "sha256":  "a564fc0a547961727e6d0a387f3bf5cc98335a88cb716083aa7fb6cfd4f6e6ba"
+                  },
+                  {
+                      "path":  "05_来源与更新机制.md",
+                      "sha256":  "8a8c4d320a069b27fb483b68afbcc2a441f93968a8de6a6750c035ea70584ad4"
+                  },
+                  {
+                      "path":  "06_工程质量与审计验收基线.md",
+                      "sha256":  "8f3760bf90359171377f0698fe100073f3fb986a100d47e7b5a315c9d4c084b6"
+                  },
+                  {
+                      "path":  "07_项目推进与多agent执行.md",
+                      "sha256":  "25a05d076e44d245f428896d67c3cb663fa14609076ff3dcd464fae7863a7ca4"
+                  },
+                  {
+                      "path":  "08_移动App专项.md",
+                      "sha256":  "a1e3732ec656e73ab6f3397ff205ceb1aa34596fee06ab4ad6d6d9055e607582"
+                  },
+                  {
+                      "path":  "ARCHITECTURE.md",
+                      "sha256":  "7ee85a81129f9a5dda1c591d84ea544ea1b342ac700a1d96f0aea8ba366bf154"
+                  },
+                  {
+                      "path":  "CHANGELOG.md",
+                      "sha256":  "780c2ce39efa0b014fcda79b5bf0adac3bd8929463aa069b4689a210e107b25d"
+                  },
+                  {
+                      "path":  "README.md",
+                      "sha256":  "14737339068ca8a76b70a26da47b8d5818827fa2d02b85ab9ee4c2c1773ab032"
+                  },
+                  {
+                      "path":  "session_handoff.md",
+                      "sha256":  "f45effe0e118deb2ac0c80f549c80d2b2ef3129cf5f5cfe9d0703801f495c720"
+                  },
+                  {
+                      "path":  "审计报告_v0.8.md",
+                      "sha256":  "e2b72852341fff91f37a62fff6fd5026b20b82c60cd87e537abeaa7b9a542e30"
+                  },
+                  {
+                      "path":  "验证记录.md",
+                      "sha256":  "5bb60fe6ea427fdf52fc74aad6bfce7037534803b416935abbb5c978158c368a"
+                  }
+              ],
+    "packaging_note":  "交付整理前核对全部文件摘要一致；历史压缩包与旧审计报告已移入顶层 历史归档_勿喂给AI/ 目录避免污染 AI 上下文。"
+}
