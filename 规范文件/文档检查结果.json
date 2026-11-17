@@ -1,18 +1,20 @@
 {
-    "date":  "2026-11-16",
-    "workflow_version":  "0.8.0",
-    "scope":  "面向零开发经验团队的专项升级（黄金技术栈、Git救生、黑盒验真、独立模板拆分与Skill封装）结构与基线检查",
+    "date":  "2026-11-17",
+    "workflow_version":  "0.9.0",
+    "scope":  "React+Preline/Meta+PostgreSQL 黄金栈、通用契约包、CI四道硬门禁、ATDD闭环、三重SHA-256指纹与移动端双模式改造核验",
     "status":  "passed",
     "counts":  {
                    "markdown_files":  15,
                    "standalone_template_files":  13,
+                   "contract_files":  3,
+                   "ci_files":  4,
                    "skill_and_agent_files":  3,
                    "stages":  10,
                    "stage_task_objectives":  10,
-                   "rules":  112,
-                   "unique_rule_ids":  112,
+                   "rules":  116,
+                   "unique_rule_ids":  116,
                    "templates":  13,
-                   "sources":  46,
+                   "sources":  50,
                    "quality_gates":  4,
                    "mobile_rules":  16
                },
@@ -20,70 +22,71 @@
 
                ],
     "historical_documents":  [
-                                 "../历史归档_勿喂给AI/审计报告_v0.6.md"
+                                 "../历史归档_勿喂给AI/审计报告_v0.6.md",
+                                 "../历史归档_勿喂给AI/审计报告_v0.8.md"
                              ],
-    "baseline_manifest":  "../历史归档_勿喂给AI/2026-11-14_至_2026-11-16/v0.7.0-manifest.json",
+    "baseline_manifest":  "../历史归档_勿喂给AI/2026-11-14_至_2026-11-16/v0.8.0-manifest.json",
     "files":  [
                   {
                       "path":  "00_主流程.md",
-                      "sha256":  "7fe3694c9b276f5faad4fab247b5769daa2b5a2c5f8568fda35ecda9987684f8"
+                      "sha256":  "108cbc9958be71783dbb1dcbd15eac234fcdc2e7fcdeca9db6ca3be85a24f007"
                   },
                   {
                       "path":  "01_规则库.md",
-                      "sha256":  "b86a1689b45841ead21a212aa0e862fbcc73ced3637558af89de82308ecc1cc4"
+                      "sha256":  "f57f5b0ba62812965e9389c4db00c5cd9f2fc68420366bb0fc0453d3d8e05748"
                   },
                   {
                       "path":  "02_模板包.md",
-                      "sha256":  "cc3fc206d9cce106b7f269cc638ee2f87b2b1030cae0b595d80f82048029a13e"
+                      "sha256":  "c964eac55f4817a3f3186daac5da78334de4b4db1c32d15151b4ad3d60f803d7"
                   },
                   {
                       "path":  "03_贯穿案例_工单.md",
-                      "sha256":  "93c5558c731bb85552a858192c417e8d56f920f1a12559d08ada3258d59c3d3c"
+                      "sha256":  "521d78bb07d45d9f451951491ab1e226031f44dbab3014da9a62286611dda610"
                   },
                   {
                       "path":  "04_AI项目执行说明.md",
-                      "sha256":  "a564fc0a547961727e6d0a387f3bf5cc98335a88cb716083aa7fb6cfd4f6e6ba"
+                      "sha256":  "efd60d6cbf029a65174d61186971d1dc4fd4a0c8f8dbbd553e162a483c3fd2b1"
                   },
                   {
                       "path":  "05_来源与更新机制.md",
-                      "sha256":  "8a8c4d320a069b27fb483b68afbcc2a441f93968a8de6a6750c035ea70584ad4"
+                      "sha256":  "2b97a53167964727b3e8b7fcf0494a6c5910233e7f50ddcb346fd1725e02d457"
                   },
                   {
                       "path":  "06_工程质量与审计验收基线.md",
-                      "sha256":  "8f3760bf90359171377f0698fe100073f3fb986a100d47e7b5a315c9d4c084b6"
+                      "sha256":  "5f7003a25fce38cf89f4b4716b9405b7a2b427633b6851729b401b8d30e76043"
                   },
                   {
                       "path":  "07_项目推进与多agent执行.md",
-                      "sha256":  "25a05d076e44d245f428896d67c3cb663fa14609076ff3dcd464fae7863a7ca4"
+                      "sha256":  "515480e5e79b08197447615a25617e937d242afabbf13b6d1306a952d8550779"
                   },
                   {
                       "path":  "08_移动App专项.md",
-                      "sha256":  "a1e3732ec656e73ab6f3397ff205ceb1aa34596fee06ab4ad6d6d9055e607582"
+                      "sha256":  "2bef7ab23bb42e03cbf6e8e97383dddd9cb6537bf9ce0bb09a887163184e8e89"
                   },
                   {
                       "path":  "ARCHITECTURE.md",
-                      "sha256":  "7ee85a81129f9a5dda1c591d84ea544ea1b342ac700a1d96f0aea8ba366bf154"
+                      "sha256":  "d8ff113e4d4fe7ee4e651a94f63658fc4caf4b779c16ba631ced2e3b8183f025"
                   },
                   {
                       "path":  "CHANGELOG.md",
-                      "sha256":  "780c2ce39efa0b014fcda79b5bf0adac3bd8929463aa069b4689a210e107b25d"
+                      "sha256":  "080678bb45cfde526d3cc13cae4308fb6fd17aa7d17e20733b3d055714f9a993"
                   },
                   {
                       "path":  "README.md",
-                      "sha256":  "14737339068ca8a76b70a26da47b8d5818827fa2d02b85ab9ee4c2c1773ab032"
+                      "sha256":  "0c3840b3f7d3510b0058eff5cd61ebe77c0db01ed7263b9114b1173a5ad20aa5"
                   },
                   {
                       "path":  "session_handoff.md",
-                      "sha256":  "f45effe0e118deb2ac0c80f549c80d2b2ef3129cf5f5cfe9d0703801f495c720"
+                      "sha256":  "93cb03b2b8bab72d6bf13016cb6ce26abed48f662a7218cf23596737046916be"
                   },
                   {
-                      "path":  "审计报告_v0.8.md",
-                      "sha256":  "e2b72852341fff91f37a62fff6fd5026b20b82c60cd87e537abeaa7b9a542e30"
+                      "path":  "审计报告_v0.9.md",
+                      "sha256":  "6aec83fa6278df4805d368702eacbe30c8b1f55d072f374e057db10c936161b6"
                   },
                   {
                       "path":  "验证记录.md",
-                      "sha256":  "5bb60fe6ea427fdf52fc74aad6bfce7037534803b416935abbb5c978158c368a"
+                      "sha256":  "6a407caa54d0440b4a444afcf12a2a5f98a58cdcb26114dbeab8c4fdd51697db"
                   }
               ],
-    "packaging_note":  "交付整理前核对全部文件摘要一致；历史压缩包与旧审计报告已移入顶层 历史归档_勿喂给AI/ 目录避免污染 AI 上下文。"
+    "packaging_note":  "交付清单与ZIP包均已排除.git目录；历史归档隔离于 历史归档_勿喂给AI/。"
 }

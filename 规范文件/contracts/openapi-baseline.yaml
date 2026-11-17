@@ -1,0 +1,139 @@
+openapi: 3.1.0
+info:
+  title: Fullstack Product Delivery Workflow — OpenAPI Baseline
+  version: 0.9.0
+  description: |
+    通用契约包 OpenAPI 3.1.0 基线（STD-API-07 / STD-API-08）。
+    供 React Web 前端、Node.js 服务端、以及既有/新建移动 App 统一继承公共响应信封、错误码、分页、乐观锁与幂等指纹规范。
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 服务端可信身份认证凭据；禁止把密钥或令牌放在 URL 查询参数中。
+
+  parameters:
+    IdempotencyKeyHeader:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: 写入类接口幂等操作唯一 UUID（或放在请求体 requestId 字段），需配合服务端 payloadFingerprint 校验（STD-API-08）。
+      schema:
+        type: string
+        format: uuid
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PageSizeParam:
+      name: pageSize
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+  schemas:
+    ErrorCode:
+      type: string
+      enum:
+        - VALIDATION_FAILED
+        - UNAUTHENTICATED
+        - FORBIDDEN
+        - NOT_FOUND
+        - CONFLICT_VERSION
+        - IDEMPOTENCY_FINGERPRINT_MISMATCH
+        - CONFLICT_DUPLICATE
+        - RATE_LIMITED
+        - SERVICE_UNAVAILABLE
+        - INTERNAL_ERROR
+
+    ApiErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+        - requestTraceId
+        - timestamp
+        - status
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+          description: 面向前端或用户展示的安全错误说明，不得泄露堆栈或敏感字段。
+        requestTraceId:
+          type: string
+          description: 服务端日志与排障关联 ID（与客户端幂等 requestId 区分）。
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+          minimum: 400
+          maximum: 599
+        details:
+          type: array
+          items:
+            type: object
+            required: [field, reason]
+            properties:
+              field:
+                type: string
+              reason:
+                type: string
+
+    PaginationMeta:
+      type: object
+      required: [total, page, pageSize, totalPages]
+      properties:
+        total:
+          type: integer
+          minimum: 0
+        page:
+          type: integer
+          minimum: 1
+        pageSize:
+          type: integer
+          minimum: 1
+        totalPages:
+          type: integer
+          minimum: 0
+
+  responses:
+    UnauthorizedError:
+      description: 401 未登录或凭据失效
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+    ForbiddenError:
+      description: 403 无动作权限
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+    NotFoundError:
+      description: 404 资源不存在或跨用户不可见
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+    ConflictError:
+      description: 409 乐观锁版本冲突、状态禁止转换或幂等载荷指纹不一致
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+    ValidationError:
+      description: 422 输入参数或业务规则校验失败
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'

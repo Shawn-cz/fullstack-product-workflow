@@ -1,0 +1,90 @@
+# 软件产品设计与全栈交付工作流 v0.9.0 — GitHub Actions CI 四道硬门禁流水线模板
+# 启用方法：复制到业务项目的 .github/workflows/ci.yml，并根据实际 package.json 脚本微调命令。
+# 对应规则：STD-QA-13（四道硬门禁）、STD-AUD-07（三重指纹）、STD-ARC-09（PostgreSQL 同构）
+
+name: Fullstack Quality & Traceability Gates
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  quality-gates:
+    name: Gates 1-4 (Traceability / Static / PostgreSQL Test / Fingerprint)
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: app_user
+          POSTGRES_PASSWORD: app_password_ci
+          POSTGRES_DB: app_test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://app_user:app_password_ci@localhost:5432/app_test_db?schema=public
+      NODE_ENV: test
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (LTS)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies cleanly
+        run: npm ci
+
+      # ============================================================
+      # Gate 1: 需求 ↔ 验收 ↔ 测试 ↔ 契约 闭环与追溯门禁
+      # ============================================================
+      - name: "Gate 1: Verify REQ-AC-TEST traceability & contract baseline"
+        run: node scripts/verify-gates.mjs --gate=1
+
+      # ============================================================
+      # Gate 2: 静态质量、React/Node 类型检查与防作弊扫描
+      # ============================================================
+      - name: "Gate 2a: Anti-cheat scan (.skip/.only/empty catch/secrets)"
+        run: node scripts/verify-gates.mjs --gate=2
+
+      - name: "Gate 2b: Prisma Schema & TypeScript & ESLint checks"
+        run: |
+          npx prisma validate
+          npx prisma generate
+          npm run check
+
+      # ============================================================
+      # Gate 3: PostgreSQL 真实容器迁移与单元/集成/端到端测试
+      # ============================================================
+      - name: "Gate 3a: Deploy migrations to PostgreSQL 16 container"
+        run: npx prisma migrate deploy
+
+      - name: "Gate 3b: Run Vitest unit & integration tests against PostgreSQL"
+        run: npm test
+
+      - name: "Gate 3c: Build React + Preline frontend & check bundle"
+        run: npm run build
+
+      # 若项目已配置 Playwright 端到端与真实渲染对照测试，取消下方注释：
+      # - name: "Gate 3d: Install Playwright & run E2E + visual render checks"
+      #   run: |
+      #     npx playwright install --with-deps chromium
+      #     npm run test:e2e
+
+      # ============================================================
+      # Gate 4: 三重指纹一致性校验（Commit / Schema / 契约 / 证据）
+      # ============================================================
+      - name: "Gate 4: Verify SHA-256 contract, schema & evidence fingerprints"
+        run: node scripts/verify-gates.mjs --gate=4

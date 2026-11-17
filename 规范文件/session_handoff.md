@@ -1,27 +1,30 @@
 # Session Handoff
 
-日期：2026-11-16（Asia/Shanghai）｜工作流版本：0.8.0
+日期：2026-11-17（Asia/Shanghai）｜工作流版本：0.9.0
 
 ## 用户目标与已明确方向
 
-用户带领一支**完全没有开发工作经验**的团队开展产品设计与全栈开发工作。此前已完成 v0.7.0 标准流程设计，经本次全面审计后，用户确认执行三项核心升级计划：
-1. **升级规范文档至 v0.8.0**：补齐“零代码经验成员黑盒可观察验真法”、“指令型需求 S1 外部访谈豁免”、“工单案例 Prisma/Zod 契约与 T07/T12 证据表填写范本”、“本地环境与 Git 快照救生规范”，并清理双层目录与历史归档冗余。
-2. **固化“团队默认黄金技术栈（Golden Path）”**：采用 **Vue 3 + TypeScript 全栈体系**（Web 前端 Vue 3 + Vite + Tailwind CSS + Element Plus/Naive UI + Pinia；后端 Node.js + Hono/Fastify + TypeScript + Zod + Prisma + SQLite/PostgreSQL；移动端 uni-app Vue 3 或 Capacitor）。
-3. **封装为标准交付包（含 `.agents/skills/` 结构）**：在 `软件产品全栈交付工作流_v0.8.0` 交付包内提供 `.agents/skills/fullstack-product-delivery/SKILL.md`、根目录 `AGENTS.md` 以及 `规范文件/templates/T01~T13` 独立按需加载模板，不写入本机全局配置。
+针对 `v0.8.0` 工作流，用户提出了 8 项明确技术与工程化升级要求，并在确认方案后补充强调**移动端保留从 0 新建 App 条件调用能力**（同时禁止 uni-app/Capacitor）：
+1. Web 前端从 Vue 3 切换为 **React**；UI 组件从 Element Plus/Naive UI 切换为 **Preline UI（或 Meta 开源生态）**。
+2. 补齐代码级**通用契约包/基线**（`规范文件/contracts/`）。
+3. 补齐**自动化门禁与 CI 流水线配置**（`规范文件/ci/`）。
+4. 形成**需求（REQ）↔ 验收（AC）↔ 测试（TEST）↔ 编码（TASK）闭环**。
+5. 增加**指纹规则**（接口幂等载荷 SHA-256 指纹 + 契约/Schema/证据防篡改防过期指纹锁）。
+6. 彻底**禁用 SQLite**，统一采用 **PostgreSQL 16 + Prisma ORM**（本地 Docker 同构）。
+7. 移动端不再使用 uni-app 和 Capacitor，常规任务聚焦**既有 App 修改优化与契约对接（模式 A）**，同时保留**从 0 新建 App 条件调用分支（模式 B：优先 React Native + TS 或原生）**。
 
 ## 当前成果
 
-- **目录与打包结构优化**：消除原 v0.7.0 的双层同名目录嵌套；将历史基线压缩包（v0.5/v0.6/v0.7）与历史审计报告物理隔离至 `历史归档_勿喂给AI/` 目录。
-- **规范主体升级（v0.8.0）**：包含 10 阶段、112 条唯一规则（新增 `STD-ARC-09`、`STD-CODE-11`、`STD-QA-12`，修订 `STD-REQ-01`、`STD-VUE-01`、`STD-MOB-01`）、13 份模板（提供汇总版 `02_模板包.md` 与 `templates/T01~T13` 单文件版）、46 组外部参考源（新增 Prisma 与 uni-app/Capacitor 官方来源）。
-- **原生 Skill 与规则入口**：内置 `.agents/skills/fullstack-product-delivery/SKILL.md`、`references/stage-routing.md` 和根目录 `AGENTS.md`。
-- **审计与核验闭环**：形成 `审计报告_v0.8.md`、`验证记录.md`、`文档检查结果.json` 及顶层 `交付文件清单.json`（全量 SHA-256 校验 0 误差）。
+- **工程资产包落地**：创建了可直接复制进业务项目的 `规范文件/contracts/`（`base-contract.schema.ts`、`openapi-baseline.yaml`）和 `规范文件/ci/`（`github-actions-ci.yml`、`docker-compose.postgres.yml`、`verify-gates.mjs`）。
+- **规则与流程升级**：`01_规则库.md` 更新为 116 条有效规则（弃用 `STD-VUE-01~04`，新增 `STD-REACT-01~04`、`STD-API-07`、`STD-API-08`、`STD-QA-13`、`STD-AUD-07`，更新 `STD-ARC-09`、`STD-GOV-03`、`STD-QA-01`、`STD-MOB-01`）；`05_来源与更新机制.md` 扩充至 50 组来源。
+- **模板与案例同步**：重构 `02_模板包.md` 并重新生成 `templates/T01~T13.md`；更新 `03_贯穿案例_工单.md` 示范 React + Preline + PostgreSQL + `@req/@ac` 先行测试 + 三重指纹锁；重构 `08_移动App专项.md` 为双模式路由。
+- **Skill 与入口同步**：同步更新 `.agents/skills/fullstack-product-delivery/`、`AGENTS.md`、`开始使用.md`（及同步根目录 `README.md`），归档 `v0.8.0-baseline.zip` 至 `历史归档_勿喂给AI/`，形成 `审计报告_v0.9.md` 与校验报告，并推送至 GitHub 仓库 `Shawn-cz/fullstack-product-workflow`。
 
 ## 未完成与局限
 
-- 尚未由真实团队在首个试点业务项目上跑完完整周期；当前已具备试点落地条件。
-- 交付包内的 `.agents/skills/` 按用户指令仅保存在 `软件产品全栈交付工作流_v0.8.0` 标准交付包中，未写入本机 `~/.gemini/config/` 全局目录。
+- 尚待在实际 React + PostgreSQL 业务试点项目中运行完整 CI 流水线并记录真实运行产物。
 
 ## 下一步建议
 
-1. 将 `软件产品全栈交付工作流_v0.8.0` 分发给团队成员；
-2. 选取首个小范围内部业务需求（指令型需求），让成员将 `.agents/`、`AGENTS.md` 与 `规范文件/` 放入新项目目录，直接通过对话启动 S0–S7 试点。
+1. 团队成员使用 GitHub 一键启动口令拉取最新 `v0.9.0` 仓库至首个试点空项目；
+2. 按照 `00_主流程.md` 与 `规范文件/ci/` 拉起 PostgreSQL 容器，跑通首条“需求 → AC → 先行测试(RED) → React/后端编码(GREEN) → 门禁与黑盒验真 → 指纹锁定”闭环。
