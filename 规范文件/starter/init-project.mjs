@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 软件产品设计与全栈交付工作流 v1.1.0 — 黄金技术栈全生命周期一键初始化脚手架脚本
+ * 软件产品设计与全栈交付工作流 v1.2.0 — 黄金技术栈全生命周期一键初始化脚手架脚本
  * 对应规则：STD-ARC-09、STD-GOV-05、STD-FE-07、STD-CODE-12、STD-SEC-05、STD-QA-13/14、STD-OPS-07/08
  *
  * 用法：
@@ -24,7 +24,10 @@ const FILE_MAPPINGS = [
   { src: path.join(scriptDir, 'templates', 'eslint.config.mjs.tpl'), dest: 'eslint.config.mjs' },
   { src: path.join(scriptDir, 'templates', '.env.example.tpl'), dest: '.env.example' },
   { src: path.join(scriptDir, 'templates', 'schema.prisma.tpl'), dest: 'prisma/schema.prisma' },
+  { src: path.join(scriptDir, 'templates', 'test-accounts.ts.tpl'), dest: 'prisma/test-accounts.ts' },
   { src: path.join(scriptDir, 'templates', 'seed.ts.tpl'), dest: 'prisma/seed.ts' },
+  { src: path.join(scriptDir, 'templates', 'playwright.config.ts.tpl'), dest: 'playwright.config.ts' },
+  { src: path.join(scriptDir, 'templates', 'auth-contexts.ts.tpl'), dest: 'tests/e2e/fixtures/auth-contexts.ts' },
   { src: path.join(scriptDir, 'templates', 'theme.css.tpl'), dest: 'src/styles/theme.css' },
   { src: path.join(scriptDir, 'templates', 'usePrelineInit.ts.tpl'), dest: 'src/hooks/usePrelineInit.ts' },
   { src: path.join(scriptDir, 'templates', 'auth-rbac.ts.tpl'), dest: 'server/middleware/auth-rbac.ts' },
@@ -50,6 +53,10 @@ const FILE_MAPPINGS = [
 
 function runSelfCheck() {
   const missing = FILE_MAPPINGS.filter((m) => !fs.existsSync(m.src)).map((m) => m.src)
+  const examplePath = path.join(scriptDir, 'examples', 'rbac-isolation.spec.ts.example')
+  if (!fs.existsSync(examplePath)) {
+    missing.push(examplePath)
+  }
   if (missing.length > 0) {
     console.error('❌ init-project.mjs self-check failed, missing templates:')
     missing.forEach((p) => console.error('   - ' + p))
@@ -60,7 +67,7 @@ function runSelfCheck() {
     console.error('❌ base-contract.schema.ts 禁止导入 node:crypto（须隔离至 fingerprint.server.ts）！')
     process.exit(1)
   }
-  console.log(`✅ init-project.mjs self-check passed (${FILE_MAPPINGS.length} full-lifecycle starter assets verified, isomorphic contract clean).`)
+  console.log(`✅ init-project.mjs self-check passed (${FILE_MAPPINGS.length} full-lifecycle starter assets + S6 RBAC E2E example verified, isomorphic contract clean).`)
 }
 
 function runInit(targetDir, force) {
@@ -93,13 +100,13 @@ function runInit(targetDir, force) {
   if (!fs.existsSync(gitignorePath) || force) {
     fs.writeFileSync(
       gitignorePath,
-      ['node_modules/', 'dist/', 'backups/', '.env', '.env.local', '.env.production', 'coverage/', '.DS_Store', 'Thumbs.db', ''].join('\n'),
+      ['node_modules/', 'dist/', 'backups/', 'playwright-report/', 'docs/evidence/playwright-report/', 'test-results/', '.env', '.env.local', '.env.production', 'coverage/', '.DS_Store', 'Thumbs.db', ''].join('\n'),
       'utf8'
     )
     created++
   }
 
-  for (const dir of ['docs/evidence', 'src/pages', 'src/components', 'tests']) {
+  for (const dir of ['docs/evidence', 'src/pages', 'src/components', 'tests', 'tests/e2e/fixtures']) {
     fs.mkdirSync(path.join(absTarget, dir), { recursive: true })
   }
 
@@ -107,7 +114,7 @@ function runInit(targetDir, force) {
   console.log('下一步：')
   console.log('  1. 复制 .env.example 为 .env')
   console.log('  2. npm run db:up && npm install && npm run hooks:install && npm run db:migrate && npm run db:seed')
-  console.log('  3. npm run index:build && npm run gates')
+  console.log('  3. npm run index:build && npm run gates（S6 补入 tests/e2e/*.spec.ts 后可运行 npm run test:e2e:fresh）')
 }
 
 if (args.includes('--self-check')) {

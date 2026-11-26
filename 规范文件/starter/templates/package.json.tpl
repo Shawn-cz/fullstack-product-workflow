@@ -5,11 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:server": "tsx server/index.ts",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "check": "tsc --noEmit && eslint . && npx prisma validate",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:fresh": "npm run db:reset && npx playwright test",
+    "test:e2e:report": "npx playwright show-report docs/evidence/playwright-report",
     "db:up": "docker compose -f docker-compose.postgres.yml up -d",
     "db:down": "docker compose -f docker-compose.postgres.yml down",
     "db:migrate": "npx prisma migrate dev",
@@ -35,6 +39,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
+    "@playwright/test": "^1.50.0",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

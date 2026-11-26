@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 软件产品设计与全栈交付工作流 v1.1.0 — CI 四道硬门禁、双向闭环与指纹校验脚本
+ * 软件产品设计与全栈交付工作流 v1.2.0 — CI 四道硬门禁、双向闭环与指纹校验脚本
  * 对应规则：STD-GOV-03（闭环）、STD-GOV-05（索引树）、STD-SEC-05（安全红线）、STD-QA-13（四道硬门禁）、STD-AUD-07（三重指纹）
  *
  * 用法：
@@ -33,7 +33,15 @@ const BANNED_PACKAGES = [
 function walkFiles(dir, exts = null, results = []) {
   if (!fs.existsSync(dir)) return results
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === 'dist') continue
+    if (
+      entry.name === 'node_modules' ||
+      entry.name === '.git' ||
+      entry.name === 'dist' ||
+      entry.name === 'playwright-report' ||
+      entry.name === 'test-results'
+    ) {
+      continue
+    }
     const fullPath = path.join(dir, entry.name)
     if (entry.isDirectory()) {
       walkFiles(fullPath, exts, results)
@@ -71,7 +79,7 @@ function collectMatches(text, regex) {
 }
 
 function runSelfCheck() {
-  const testDigest = createHash('sha256').update('v1.1.0-gate-check').digest('hex')
+  const testDigest = createHash('sha256').update('v1.2.0-gate-check').digest('hex')
   if (testDigest.length !== 64) {
     console.error('❌ SHA-256 digest self-check failed.')
     process.exit(1)
@@ -91,7 +99,7 @@ function runSelfCheck() {
     const res = spawnSync(process.execPath, [backupScript, '--self-check'], { stdio: 'inherit' })
     if (res.status !== 0) process.exit(res.status || 1)
   }
-  console.log('✅ verify-gates.mjs self-check passed (Node ' + process.version + ', bidirectional Gate 1 + security Gate 2 + backup & SHA-256 ready).')
+  console.log('✅ verify-gates.mjs v1.2.0 self-check passed (Node ' + process.version + ', bidirectional Gate 1 + security Gate 2 + backup & SHA-256 ready).')
 }
 
 function runGate1() {

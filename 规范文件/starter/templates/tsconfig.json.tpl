@@ -18,5 +18,13 @@
       "@contracts/*": ["shared/contracts/*"]
     }
   },
-  "include": ["src", "server", "shared", "tests", "prisma/seed.ts"]
+  "include": [
+    "src",
+    "server",
+    "shared",
+    "tests",
+    "prisma/seed.ts",
+    "prisma/test-accounts.ts",
+    "playwright.config.ts"
+  ]
 }

@@ -1,4 +1,4 @@
-<!-- 软件产品设计与全栈交付工作流 v1.1.0 — 多人协作 PR 审核模板 (STD-CODE-12 / STD-QA-12~13 / STD-AUD-07) -->
+<!-- 软件产品设计与全栈交付工作流 v1.2.0 — 多人协作 PR 审核模板 (STD-CODE-12 / STD-QA-12~13 / STD-AUD-07) -->
 
 ## 1. 变更目标与闭环关联
 - **任务路径**：[ ] 完整路径  [ ] 功能路径  [ ] 小变更路径
@@ -18,11 +18,11 @@
 
 ---
 
-## 3. 零经验成员黑盒可观察验真证据（`STD-QA-12` / `STD-QA-14`）
-- [ ] 已使用 `npm run db:reset` 种子账号在真实浏览器核对界面渲染与 Preline 交互（无样式漂移/溢出）
-- [ ] 已用双无痕窗口（`member_a` / `member_b`）核验跨用户/跨角色越权拦截（Network 返回 `403`/`404` 而非前端隐藏）
+## 3. 自动化越权闭环与零经验成员黑盒验真证据（`STD-QA-12` / `STD-QA-14`）
+- [ ] Gate 3d Playwright 双隔离上下文自动越权测试（`member_a`/`member_b`/`HttpOnly` Cookie/会话吊销）全部通过，并已附 `playwright-rbac-report` 截图报告（尚未到 S6 时写明原因并附手工双无痕窗口核验）
+- [ ] 已在真实浏览器或 E2E 报告中核对核心业务界面、文案与 Preline 交互体验（无样式漂移/溢出）
 - [ ] 已通过 `npm run db:studio` 核对 PostgreSQL 真实落库字段与 `payloadFingerprint`
-- **证据截图/录屏路径**（位于 `docs/evidence/` 或直接粘贴下方）：
+- **证据截图/Playwright 报告路径**（位于 `docs/evidence/` 或 CI Artifact 链接）：
 
 ---
 

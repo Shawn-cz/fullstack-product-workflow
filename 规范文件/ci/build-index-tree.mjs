@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 软件产品设计与全栈交付工作流 v1.1.0 — 项目资产索引树自动生成与新鲜度校验脚本
+ * 软件产品设计与全栈交付工作流 v1.2.0 — 项目资产索引树自动生成与新鲜度校验脚本
  * 对应规则：STD-GOV-05（项目资产索引树自动生成与首读纪律）、STD-CODE-01（复用优先）、STD-QA-13（CI Gate 1）
  *
  * 头部元信息标注约定（AI 创建源码/契约/测试文件时写入前 12 行内）：
@@ -27,6 +27,8 @@ const IGNORE_DIRS = new Set([
   '.next',
   '.vite',
   '.turbo',
+  'playwright-report',
+  'test-results',
   '历史归档_勿喂给AI'
 ])
 

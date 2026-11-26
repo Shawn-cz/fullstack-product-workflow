@@ -32,9 +32,11 @@
    - 列表查询必须在 PostgreSQL `where` 条件直接限制数据范围（如 `MEMBER` 强制 `where: { creatorId: actor.id }`）；
    - 详情/修改/删除查询先核对对象归属，跨用户越权按业务安全策略返回 **`404 NOT_FOUND`**（防止探测他人资源 ID 是否存在）或 `403 FORBIDDEN`。
 
-## 4. 配套黑盒与自动化越权负向测试样板（必做）
+## 4. 配套 Playwright 自动化双上下文与越权负向测试样板（必做）
 
-每新增一个受保护资源接口，必须在 `tests/` 中包含至少 3 条带 `@req/@ac` 标签的负向用例，并配合 `prisma/seed.ts` 的 `member_a@example.test` / `member_b@example.test` 做双无痕窗口黑盒验真：
-- **未登录访问**：无 Cookie 请求 → 断言 `401 UNAUTHENTICATED`；
-- **角色越权访问**：`MEMBER` 调用仅限 `HANDLER`/`ADMIN` 的动作 → 断言 `403 FORBIDDEN` 且数据库记录与审计表均无变化；
-- **水平越权访问**：`member_B` 请求 `member_A` 创建的资源详情与列表 → 断言详情返回 `404 NOT_FOUND`、列表结果集完全不含 `member_A` 数据。
+每新增一个受保护资源接口，必须在 `tests/` 中包含至少 3 条带 `@req/@ac` 标签的负向用例，并在 S6 基于脚手架预置的 `tests/e2e/fixtures/auth-contexts.ts` 与 [starter/examples/rbac-isolation.spec.ts.example](../starter/examples/rbac-isolation.spec.ts.example) 实例化 `tests/e2e/rbac-isolation.spec.ts`（运行 `npm run test:e2e:fresh` 或 CI `Gate 3d` 自动用程序化双隔离浏览器上下文替代手工开双无痕窗口与 F12 检查）：
+- **HttpOnly 会话红线**：校验登录 Cookie 的 `httpOnly === true`，且 `localStorage` 与 `document.cookie` 无凭据泄露；
+- **未登录访问**：`anonContext` 无 Cookie 请求 → 断言 `401 UNAUTHENTICATED`；
+- **角色越权访问**：`memberA` 调用仅限 `HANDLER`/`ADMIN` 的动作 → 断言 `403 FORBIDDEN` 且数据库记录与审计表均无变化；
+- **水平越权访问（IDOR）**：`memberB` 请求 `memberA` 创建的资源详情与列表 → 断言详情返回 `404 NOT_FOUND`、列表结果集完全不含 `memberA` 数据，浏览器直访详情页不泄露内容并留存截图至 Playwright HTML 报告；
+- **会话吊销**：`memberA` 退出登录后立即重放请求 → 断言返回 `401 UNAUTHENTICATED`。

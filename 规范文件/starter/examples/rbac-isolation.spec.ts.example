@@ -1,0 +1,65 @@
+// @desc S6 自动化多角色越权（401/403/404）与 HttpOnly 会话安全验收参考样板 | @req REQ-001 | @ac AC-001
+/**
+ * 使用说明（S6 测试先行阶段）：
+ * 1. 将本文件复制为业务项目的 `tests/e2e/rbac-isolation.spec.ts`；
+ * 2. 将顶部 @req / @ac 替换为 docs/ 中真实的 REQ-xxx / AC-xxx（Gate 1 会做双向核对）；
+ * 3. 将示例路由 `/api/items`、`/api/admin/action`、`/items/` 替换为实际业务资源路由；
+ * 4. 运行 `npm run test:e2e:fresh` 自动执行双账号越权验证并生成可视化 HTML 报告与截图。
+ */
+import { test, expect, assertHttpOnlySessionAndCleanStorage } from './fixtures/auth-contexts'
+
+test.describe('三层 RBAC 隔离与会话安全自动化验收 (STD-SEC-05 / STD-QA-12)', () => {
+  test('会话 Cookie 必须 HttpOnly 且严禁写入 localStorage', async ({ memberA }) => {
+    await assertHttpOnlySessionAndCleanStorage(memberA, '/')
+  })
+
+  test('401 未登录拦截与 403 角色越权拦截', async ({ anonContext, memberA }) => {
+    const unauthRes = await anonContext.request.get('/api/items')
+    expect(unauthRes.status()).toBe(401)
+
+    const forbiddenRes = await memberA.context.request.post('/api/admin/action', {
+      data: {}
+    })
+    expect(forbiddenRes.status()).toBe(403)
+  })
+
+  test('双账号水平越权（IDOR）：member_b 看不到且改不动 member_a 的数据', async ({
+    memberA,
+    memberB
+  }, testInfo) => {
+    // 1. member_a 创建私有业务记录
+    const createRes = await memberA.context.request.post('/api/items', {
+      data: { title: 'MemberA 私有越权验收记录' }
+    })
+    expect(createRes.status()).toBe(201)
+    const created = (await createRes.json()) as { data?: { id?: string } }
+    const itemId = created.data?.id
+    expect(itemId, '创建接口未返回 data.id').toBeTruthy()
+
+    // 2. member_b 列表接口：禁止返回 member_a 的数据
+    const listRes = await memberB.context.request.get('/api/items')
+    expect(listRes.status()).toBe(200)
+    const listBody = await listRes.json()
+    expect(JSON.stringify(listBody)).not.toContain(String(itemId))
+
+    // 3. member_b 详情接口：必须返回 404（防资源存在性探测）
+    const detailRes = await memberB.context.request.get(`/api/items/${itemId}`)
+    expect(detailRes.status()).toBe(404)
+
+    // 4. member_b 浏览器直接访问详情路由并留存截图证据进 HTML 报告
+    await memberB.page.goto(`/items/${itemId}`)
+    await expect(memberB.page.getByText('MemberA 私有越权验收记录')).toHaveCount(0)
+    await testInfo.attach('member-b-idor-blocked', {
+      body: await memberB.page.screenshot({ fullPage: true }),
+      contentType: 'image/png'
+    })
+  })
+
+  test('退出登录后 PostgreSQL 会话立即吊销，旧 Cookie 失效', async ({ memberA }) => {
+    const logoutRes = await memberA.context.request.post('/api/auth/logout')
+    expect(logoutRes.ok()).toBeTruthy()
+
+    const afterLogout = await memberA.context.request.get('/api/items')
+    expect(afterLogout.status()).toBe(401)
+  })
+})

@@ -1,8 +1,8 @@
 # 开始使用：软件产品设计与全栈交付工作流
 
-交付版本：1.1.0（全生命周期完整版）｜整理日期：2026-11-26｜形式：内置 Antigravity Skill（`.agents/skills/` + `AGENTS.md`）、S0–S8 全生命周期一键脚手架（`starter/`）、双索引树（`INDEX_TREE.md` + `build-index-tree.mjs`）、前后端同构契约/RBAC/存储与异步任务基线（`contracts/`）、本地 Pre-commit 与双向闭环 CI 四道硬门禁（`ci/`）、S8 生产容器/HTTPS/备份包（`deploy/`）及可跨工具使用的 Markdown 规范包。
+交付版本：1.2.0（全生命周期与自动化越权闭环版）｜整理日期：2026-11-26｜形式：内置 Antigravity Skill（`.agents/skills/` + `AGENTS.md`）、S0–S8 全生命周期一键脚手架（`starter/`）、双索引树（`INDEX_TREE.md` + `build-index-tree.mjs`）、前后端同构契约/RBAC/存储与异步任务基线（`contracts/`）、本地 Pre-commit 与双向闭环 CI 四道硬门禁（`ci/`，含 Gate 3d Playwright 自动越权）、S8 生产容器/HTTPS/备份包（`deploy/`）及可跨工具使用的 Markdown 规范包。
 
-专为**零开发工作经验的全栈产品设计团队**打造，覆盖 Web、后端接口、移动 App（既有 App 修改对接 / 条件从 0 新建 App）及生产容器运维上线。当前含 **10 阶段、124 条有效规则、13 份独立模板、一键全生命周期脚手架（25 项映射生成 26 文件，含品牌主题、RBAC、4 角色测试种子、Pino 脱敏日志、Pre-commit/PR 模板与 S8 生产部署包）、50 组官方来源**及工单设计案例。
+专为**零开发工作经验的全栈产品设计团队**打造，覆盖 Web、后端接口、移动 App（既有 App 修改对接 / 条件从 0 新建 App）及生产容器运维上线。当前含 **10 阶段、124 条有效规则、13 份独立模板、一键全生命周期脚手架（28 项映射生成 29 文件，含品牌主题、RBAC、4 角色测试种子与 Playwright 双隔离上下文越权底座、Pino 脱敏日志、Pre-commit/PR 模板与 S8 生产部署包）、50 组官方来源**及工单设计案例。
 
 ## 1. 拿到文件后如何开始
 
@@ -23,7 +23,7 @@
 |---|---|---|
 | **Web 前端与品牌主题** | **React 19 + TypeScript (`strict`) + Vite + Tailwind CSS + Preline UI**（`usePrelineInit` + `src/styles/theme.css` 品牌 Token `STD-FE-07`；或按需 Meta StyleX/Lexical）+ Zustand / TanStack Query | 浏览器实际渲染对照、`tsc --noEmit`；前端只导入同构 `base-contract.schema.ts`；拒绝散落写死色值 |
 | **后端、契约、RBAC 与日志** | **Node.js (LTS) + Hono / Fastify + TypeScript + Zod + Pino**（同构契约与 `fingerprint.server.ts` 物理分离）+ **PostgreSQL 可吊销 `Session` + `HttpOnly` Cookie + 三层 RBAC** + `logger-trace.ts` | 严禁 `localStorage` 存令牌（Gate 2 自动拦截）；F12 Network 核对 `401/403/404/409`；日志自动脱敏并带 `requestId` 与 `errorFingerprint` |
-| **数据库、种子与存储/任务** | **PostgreSQL 16 + Prisma ORM**（`npm run db:up` 同构容器；**禁用 SQLite**）+ `prisma/seed.ts`（预置 `ADMIN`/`HANDLER`/`MEMBER_A`/`MEMBER_B` 合成账号，含生产熔断）+ 对象存储与异步任务基线 | `npm run db:reset` 30 秒还原测试账号供双无痕窗口越权验证；`npm run db:studio` 可视化查库；大文件走 S3/OSS 预签名直传，`jobKey` 防重入 |
+| **数据库、种子与自动化越权** | **PostgreSQL 16 + Prisma ORM**（`npm run db:up` 同构容器；**禁用 SQLite**）+ `prisma/test-accounts.ts` & `seed.ts`（预置 `ADMIN`/`HANDLER`/`MEMBER_A`/`MEMBER_B` 合成账号，含生产熔断）+ Playwright 多角色隔离上下文 Fixture + 对象存储与异步任务基线 | `npm run test:e2e:fresh` 自动清库灌种子并替代人工开双无痕窗口跑完 `401/403/404` 越权、`HttpOnly` Cookie 与会话吊销（输出 HTML 报告）；`npm run db:studio` 可视化查库；大文件走 S3/OSS 预签名直传，`jobKey` 防重入 |
 | **移动 App（双模式）** | **模式 A（常规）**：既有 App 修改优化并对接 `contracts/openapi-baseline.yaml`<br>**模式 B（条件：明确从 0 新建）**：优先 **React Native + TS** 或原生 | 模式 A 严格继承原工程风格；模式 B 才调用新建与提审分支 |
 | **索引树、协作门禁与指纹** | **自动语义索引树**（`npm run index:build`）+ **本地 `.githooks/pre-commit` & PR 审查模板**（`npm run hooks:install`）+ **双向闭环四道门禁**（`npm run gates`）+ **三重 SHA-256 指纹锁** | 提交前本地自动拦违规；漏测 `AC`、未刷索引树、误用禁用栈或契约变动均自动阻断 |
 | **S8 生产部署与备份恢复** | **`deploy/` 生产基线**：非 root 多阶段 `Dockerfile` + 内网隔离 `docker-compose.prod.yml` + `Caddyfile` 自动 HTTPS + `/healthz`/`/readyz` 探针 + `backup-postgres.mjs` | 变更前运行 `npm run db:backup` 自动生成 `.sql` + `.sha256`；恢复强制双确认与摘要核验 |
@@ -47,7 +47,7 @@
 
 ## 4. 网页端/跨工具备用启动说明
 
-> 请使用《软件产品设计与全栈交付工作流 v1.1.0》协助我推进实际项目。
+> 请使用《软件产品设计与全栈交付工作流 v1.2.0》协助我推进实际项目。
 >
 > 本次任务：[填写要解决的问题或要开发/修改的功能]。
 > 需求性质：[团队负责人明确指令（直接登记 DEC 进 S2，免外部访谈） / 探索型需求]。
@@ -56,7 +56,7 @@
 >
 > 先读取 `规范文件/INDEX_TREE.md`、`规范文件/00_主流程.md` 与 `规范文件/04_AI项目执行说明.md`（已有项目首读 `PROJECT_INDEX_TREE.md`），按阶段只读取 `规范文件/templates/` 对应单文件模板。新建项目优先运行 `node 规范文件/starter/init-project.mjs --target .` 并执行 `npm run hooks:install`，铺齐 **React 19 + TS + Preline UI（`theme.css`）+ Node.js + Pino 脱敏日志 + Prisma + PostgreSQL 16 + RBAC + 种子账号 + 双向 CI/Pre-commit + S8 Docker/Caddy/备份** 底座（严禁 SQLite/Vue/uni-app/Capacitor，严禁前端导入 `node:crypto` 或用 `localStorage` 存令牌）。
 >
-> 执行强制 **“需求 `REQ` → 结构化 `AC` → 全覆盖 `@req/@ac` 先行测试（RED）→ 编码实现（GREEN）→ 刷新索引树 + `npm run gates` + SHA-256 指纹锁”** 闭环；由你代管分支与 Git 快照；每次实现后结合 `prisma/seed.ts` 测试账号输出 3–5 步零经验成员可操作的黑盒验真步骤。触及 D0/D1 权限资金、数据迁移或 S8 生产发布时，提醒我执行备份 `.sha256` 并发起独立审计会话或团队负责人复核。
+> 执行强制 **“需求 `REQ` → 结构化 `AC` → 全覆盖 `@req/@ac` 先行测试（RED）→ 编码实现（GREEN）→ 刷新索引树 + `npm run gates` + Playwright 自动越权（Gate 3d）+ SHA-256 指纹锁”** 闭环；由你代管分支与 Git 快照；每次实现后结合 `npm run test:e2e:fresh` 自动越权截图报告与 `prisma/seed.ts` 输出 1–2 分钟零经验成员可操作的业务黑盒验真步骤。触及 D0/D1 权限资金、数据迁移或 S8 生产发布时，提醒我执行备份 `.sha256` 并发起独立审计会话或团队负责人复核。
 
 ## 5. 验证与历史归档材料
 
