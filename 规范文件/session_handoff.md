@@ -1,6 +1,11 @@
 # Session Handoff
 
-日期：2026-11-17（Asia/Shanghai）｜工作流版本：0.9.0
+日期：2026-11-26（Asia/Shanghai）｜工作流版本：0.9.1
+
+## 本轮新增（0.9.0 → 0.9.1）
+
+- 响应用户确认，集成**双索引树机制**：新增 `STD-GOV-05`（有效规则增至 117 条）、零依赖脚本 `规范文件/ci/build-index-tree.mjs`（自动生成 `PROJECT_INDEX_TREE.md` 与 `docs/index-tree.json` 并接入 Gate 1 新鲜度校验）、工作流自身行号导航树 `规范文件/INDEX_TREE.md`，同时补齐 Gate 2 对禁用旧栈依赖与 `.vue` 文件的真实扫描，并已推送至 GitHub 仓库 `Shawn-cz/fullstack-product-workflow`（标签 `v0.9.1`）。
+- 同步完成对当前工作流的全面缺口审计，待用户拍板是否进入 `v1.0.0` 下一批增强项。
 
 ## 用户目标与已明确方向
 

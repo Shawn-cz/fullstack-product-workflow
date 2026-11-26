@@ -1,22 +1,34 @@
 #!/usr/bin/env node
 /**
- * 软件产品设计与全栈交付工作流 v0.9.0 — CI 四道硬门禁 & 指纹校验脚本
- * 对应规则：STD-QA-13（四道硬门禁）、STD-AUD-07（三重指纹）、STD-GOV-03（闭环追溯）
+ * 软件产品设计与全栈交付工作流 v0.9.1 — CI 四道硬门禁 & 指纹校验脚本
+ * 对应规则：STD-GOV-05（索引树）、STD-QA-13（四道硬门禁）、STD-AUD-07（三重指纹）、STD-GOV-03（闭环追溯）
  *
  * 用法：
  *   node verify-gates.mjs --self-check   # 校验工作流内脚本自检
- *   node verify-gates.mjs --gate=1       # 门禁 1：REQ↔AC↔TEST 闭环追溯检查
- *   node verify-gates.mjs --gate=2       # 门禁 2：防测试作弊与代码坏味道扫描
+ *   node verify-gates.mjs --gate=1       # 门禁 1：REQ↔AC↔TEST 闭环追溯 + 禁用 SQLite + 索引树新鲜度检查
+ *   node verify-gates.mjs --gate=2       # 门禁 2：防测试作弊 + 空 catch + 禁用旧技术栈混入 + .env 检查
  *   node verify-gates.mjs --gate=4       # 门禁 4：计算并核对契约/Schema/锁文件 SHA-256 指纹
  *   node verify-gates.mjs --all          # 本地一键执行 Gate 1 + 2 + 4
  */
 import { createHash } from 'node:crypto'
-import { execSync } from 'node:child_process'
+import { execSync, spawnSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 const args = process.argv.slice(2)
 const cwd = process.cwd()
+const scriptDir = path.dirname(fileURLToPath(import.meta.url))
+
+const BANNED_PACKAGES = [
+  'vue',
+  'element-plus',
+  'naive-ui',
+  'better-sqlite3',
+  'sqlite3',
+  '@capacitor/core',
+  '@dcloudio/uni-app'
+]
 
 function walkFiles(dir, exts = null, results = []) {
   if (!fs.existsSync(dir)) return results
@@ -50,16 +62,21 @@ function sha256Directory(dirPath) {
 }
 
 function runSelfCheck() {
-  const testDigest = createHash('sha256').update('v0.9.0-gate-check').digest('hex')
+  const testDigest = createHash('sha256').update('v0.9.1-gate-check').digest('hex')
   if (testDigest.length !== 64) {
     console.error('❌ SHA-256 digest self-check failed.')
     process.exit(1)
   }
-  console.log('✅ verify-gates.mjs self-check passed (Node ' + process.version + ', SHA-256 ready).')
+  const indexScript = path.join(scriptDir, 'build-index-tree.mjs')
+  if (fs.existsSync(indexScript)) {
+    const res = spawnSync(process.execPath, [indexScript, '--self-check'], { stdio: 'inherit' })
+    if (res.status !== 0) process.exit(res.status || 1)
+  }
+  console.log('✅ verify-gates.mjs self-check passed (Node ' + process.version + ', SHA-256 & index-tree check ready).')
 }
 
 function runGate1() {
-  console.log('🔍 [Gate 1] 检查需求-验收-测试闭环标记 (@req / @ac) 与 SQLite 禁用项...')
+  console.log('🔍 [Gate 1] 检查需求-验收-测试闭环标记 (@req / @ac)、禁用 SQLite 与索引树新鲜度...')
   const testDirs = ['tests', 'test', 'src'].map((d) => path.join(cwd, d))
   const testFiles = testDirs.flatMap((d) =>
     walkFiles(d, ['.test.ts', '.test.tsx', '.spec.ts', '.spec.tsx'])
@@ -96,11 +113,23 @@ function runGate1() {
     }
   }
 
-  console.log(`✅ [Gate 1] 通过：共核验 ${testFiles.length} 个测试文件均绑定 @req 与 @ac 标签。`)
+  // 检查项目资产索引树是否已生成且保持新鲜 (STD-GOV-05)
+  const projectIndexScript = fs.existsSync(path.join(cwd, 'scripts', 'build-index-tree.mjs'))
+    ? path.join(cwd, 'scripts', 'build-index-tree.mjs')
+    : path.join(scriptDir, 'build-index-tree.mjs')
+
+  if (fs.existsSync(projectIndexScript)) {
+    const res = spawnSync(process.execPath, [projectIndexScript, '--check'], { cwd, stdio: 'inherit' })
+    if (res.status !== 0) {
+      process.exit(res.status || 1)
+    }
+  }
+
+  console.log(`✅ [Gate 1] 通过：共核验 ${testFiles.length} 个测试文件均绑定 @req 与 @ac 标签，且索引树与数据库配置合规。`)
 }
 
 function runGate2() {
-  console.log('🔍 [Gate 2] 扫描防作弊规则 (.skip / .only / 空 catch / Vue 禁用混入)...')
+  console.log('🔍 [Gate 2] 扫描防作弊规则 (.skip / .only / 空 catch / 禁用旧栈混入 / .env)...')
   const scanFiles = walkFiles(path.join(cwd, 'src'), ['.ts', '.tsx', '.js', '.jsx']).concat(
     walkFiles(path.join(cwd, 'tests'), ['.ts', '.tsx', '.js', '.jsx'])
   )
@@ -117,6 +146,22 @@ function runGate2() {
     }
   }
 
+  // 扫描 .vue 文件与被禁用的技术栈依赖（除存在已获批偏离说明）
+  const vueFiles = walkFiles(path.join(cwd, 'src'), ['.vue'])
+  for (const vf of vueFiles) {
+    violations.push(`${path.relative(cwd, vf)}: 检测到 .vue 文件，违反 React 黄金栈标准 (STD-ARC-09 / STD-REACT-01)`)
+  }
+  const pkgPath = path.join(cwd, 'package.json')
+  if (fs.existsSync(pkgPath)) {
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'))
+    const allDeps = { ...(pkg.dependencies || {}), ...(pkg.devDependencies || {}) }
+    for (const banned of BANNED_PACKAGES) {
+      if (Object.prototype.hasOwnProperty.call(allDeps, banned)) {
+        violations.push(`package.json 包含被禁用的旧技术栈依赖 "${banned}" (违反 STD-ARC-09)`)
+      }
+    }
+  }
+
   // 禁止 .env 被 Git 跟踪
   try {
     const trackedEnv = execSync('git ls-files .env .env.local .env.production', { encoding: 'utf8' }).trim()
@@ -128,12 +173,12 @@ function runGate2() {
   }
 
   if (violations.length > 0) {
-    console.error('❌ [Gate 2] 发现静态防作弊违规项：')
+    console.error('❌ [Gate 2] 发现静态防作弊或技术栈违规项：')
     violations.forEach((v) => console.error('   - ' + v))
     process.exit(1)
   }
 
-  console.log(`✅ [Gate 2] 通过：扫描 ${scanFiles.length} 个源码与测试文件，未发现跳过测试或吞异常行为。`)
+  console.log(`✅ [Gate 2] 通过：扫描 ${scanFiles.length} 个源码与测试文件，未发现跳过测试、吞异常或禁用技术栈混入。`)
 }
 
 function runGate4() {

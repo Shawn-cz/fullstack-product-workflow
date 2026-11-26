@@ -1,10 +1,10 @@
 # 软件产品设计与全栈交付工作流
 
-版本：0.9.0｜日期：2026-11-17｜状态：已完成 React/Preline/PostgreSQL 黄金栈切换、通用契约包、四道 CI 硬门禁、ATDD 闭环、三重指纹规则与移动端双模式改造。
+版本：0.9.1｜日期：2026-11-26｜状态：在 0.9.0 基础上新增双索引树机制（`INDEX_TREE.md` + `build-index-tree.mjs` + `STD-GOV-05`），并完善 Gate 2 禁用旧技术栈扫描。
 
-面向**完全没有开发工作经验**、希望每位成员成长为全栈产品设计师并借助 AI 完成软件需求、设计、实现验证与持续改进的团队。通过**团队默认黄金技术栈（STD-ARC-09）**统一为 React + Tailwind + Preline UI（或 Meta 生态）+ Node.js + Prisma + PostgreSQL 16；通过**通用契约包（`contracts/`）**与**四道 CI 硬门禁（`ci/`）**消除前后端及移动端对接分歧；通过**ATDD 四步闭环 + 三重 SHA-256 指纹**防止野生代码与过期验收；通过**Git 快照救生与黑盒验真法（STD-CODE-11 / STD-QA-12）**护航零经验成员安全交付。
+面向**完全没有开发工作经验**、希望每位成员成长为全栈产品设计师并借助 AI 完成软件需求、设计、实现验证与持续改进的团队。通过**团队默认黄金技术栈（STD-ARC-09）**统一为 React + Tailwind + Preline UI（或 Meta 生态）+ Node.js + Prisma + PostgreSQL 16；通过**自动项目语义索引树（`STD-GOV-05`）**防止 AI 跨会话失忆与重复造轮子；通过**通用契约包（`contracts/`）**与**四道 CI 硬门禁（`ci/`）**消除前后端及移动端对接分歧；通过**ATDD 四步闭环 + 三重 SHA-256 指纹**防止野生代码与过期验收；通过**Git 快照救生与黑盒验真法（STD-CODE-11 / STD-QA-12）**护航零经验成员安全交付。
 
-当前内容：10 个阶段、116 条有效规则、13 份模板（含 `templates/` 独立单文件拆分）、通用契约包（`contracts/`）、CI 门禁脚本（`ci/`）、贯穿案例（含 PostgreSQL/React/Preline/@req/@ac/指纹示范）、Antigravity 原生 Skill（`.agents/skills/fullstack-product-delivery/`），以及 50 组来源登记。
+当前内容：10 个阶段、117 条有效规则、13 份模板（含 `templates/` 独立单文件拆分）、工作流自身索引树（`INDEX_TREE.md`）、通用契约包（`contracts/`）、索引树生成与 CI 门禁脚本（`ci/`）、贯穿案例（含 PostgreSQL/React/Preline/@req/@ac/指纹示范）、Antigravity 原生 Skill（`.agents/skills/fullstack-product-delivery/`），以及 50 组来源登记。
 
 ## 从这里开始
 
@@ -17,12 +17,13 @@
 
 | 文件 / 目录 | 用途 |
 |---|---|
+| [INDEX_TREE.md](INDEX_TREE.md) | 本规范包自身一屏导航树（117 条规则行号区间、模板与症状一跳表） |
 | [00_主流程.md](00_主流程.md) | S0–S9 顺序、ATDD 四步闭环、三级裁剪、指令型需求通道、完成条件 |
-| [01_规则库.md](01_规则库.md) | 116 条有效设计与工程规则（含 React/Preline、PostgreSQL、契约基线、载荷/证据指纹、CI 门禁与移动双模式） |
+| [01_规则库.md](01_规则库.md) | 117 条有效设计与工程规则（含索引树、React/Preline、PostgreSQL、契约基线、指纹、CI 门禁与移动双模式） |
 | [02_模板包.md](02_模板包.md) | T01–T13 完整模板合集（日常优先按需读取 [templates/](templates/T01_项目启动与裁剪卡.md) 单文件） |
 | [templates/](templates/T01_项目启动与裁剪卡.md) | 拆分后的 T01–T13 独立轻量模板（1–9KB/个），节省 AI 上下文 |
 | [contracts/](contracts/README.md) | 通用契约包基线（`base-contract.schema.ts`、`openapi-baseline.yaml` 与 `computePayloadFingerprint`） |
-| [ci/](ci/README.md) | GitHub Actions 四道硬门禁配置、PostgreSQL 16 Docker Compose 与 `verify-gates.mjs` 校验脚本 |
+| [ci/](ci/README.md) | 自动索引树生成脚本（`build-index-tree.mjs`）、四道硬门禁脚本与 PostgreSQL 16 Docker Compose |
 | [03_贯穿案例_工单.md](03_贯穿案例_工单.md) | 工单需求如何贯通 `AC`、PostgreSQL Prisma、React/Preline 组件、`@req/@ac` 先行测试及指纹证据范本 |
 | [04_AI项目执行说明.md](04_AI项目执行说明.md) | AI 读取、代管 Git 快照、执行 ATDD 闭环、跑通门禁与输出黑盒验真步骤的约束 |
 | [05_来源与更新机制.md](05_来源与更新机制.md) | 50 组官方来源、版本状态、更新分级、发布与回退机制 |

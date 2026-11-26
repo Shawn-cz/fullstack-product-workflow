@@ -1,8 +1,8 @@
 # 开始使用：软件产品设计与全栈交付工作流
 
-交付版本：0.9.0｜整理日期：2026-11-17｜形式：内置 Antigravity Skill（`.agents/skills/` + `AGENTS.md`）、通用契约包（`contracts/`）、CI 四道硬门禁模板（`ci/`）及可跨工具使用的 Markdown 规范包。
+交付版本：0.9.1｜整理日期：2026-11-26｜形式：内置 Antigravity Skill（`.agents/skills/` + `AGENTS.md`）、双索引树（`INDEX_TREE.md` + `build-index-tree.mjs`）、通用契约包（`contracts/`）、CI 四道硬门禁模板（`ci/`）及可跨工具使用的 Markdown 规范包。
 
-专为**零开发工作经验的全栈产品设计团队**打造，覆盖 Web、后端接口及移动 App（既有 App 修改对接 / 条件从 0 新建 App）。当前含 10 阶段、116 条有效规则、13 份独立按需加载模板（`规范文件/templates/`）、开箱即用的 Zod/OpenAPI 通用契约包（`规范文件/contracts/`）、PostgreSQL + GitHub Actions 四道门禁脚本（`规范文件/ci/`）、50 组来源及含闭环代码与指纹证据范本的工单设计案例。
+专为**零开发工作经验的全栈产品设计团队**打造，覆盖 Web、后端接口及移动 App（既有 App 修改对接 / 条件从 0 新建 App）。当前含 10 阶段、117 条有效规则、13 份独立按需加载模板（`规范文件/templates/`）、规范与项目双索引树机制、开箱即用的 Zod/OpenAPI 通用契约包（`规范文件/contracts/`）、PostgreSQL + GitHub Actions 四道门禁脚本（`规范文件/ci/`）、50 组来源及含闭环代码与指纹证据范本的工单设计案例。
 
 ## 1. 拿到文件后如何开始
 
@@ -25,17 +25,18 @@
 | **后端与通用契约** | **Node.js (LTS) + Hono / Fastify + TypeScript + Zod**（强制继承 `规范文件/contracts/` 通用契约与 SHA-256 载荷指纹） | 浏览器 F12 → Network 核对标准状态码与 JSON 响应 |
 | **数据库（禁用 SQLite）** | **PostgreSQL 16 + Prisma ORM**（本地使用 `规范文件/ci/docker-compose.postgres.yml` 一键拉起与 CI/生产同构的 PostgreSQL 容器） | 运行 `npx prisma studio`，在网页表格里直接查看 PostgreSQL 真实落库字段 |
 | **移动 App（双模式）** | **模式 A（常规）**：既有 App 修改优化并对接 `contracts/openapi-baseline.yaml`<br>**模式 B（条件：明确从 0 新建）**：优先 **React Native + TS** 或原生 | 模式 A 严格继承原工程风格；模式 B 才调用新建与提审分支 |
-| **闭环、CI 门禁与指纹** | **ATDD 四步闭环**（`REQ → AC → @req/@ac 先行测试(RED) → 编码(GREEN)`）+ **GitHub Actions 四道门禁** + **三重 SHA-256 指纹锁** | 一键运行 `node scripts/verify-gates.mjs --all && npm test`；代码改动后旧证据自动失效防误判 |
+| **闭环、索引树、CI 门禁与指纹** | **项目自动索引树**（`build-index-tree.mjs`）+ **ATDD 四步闭环**（`REQ → AC → @req/@ac 先行测试(RED) → 编码(GREEN)`）+ **GitHub Actions 四道门禁** + **三重 SHA-256 指纹锁** | 新会话先读 `PROJECT_INDEX_TREE.md` 防止重复造轮子；一键运行 `node scripts/verify-gates.mjs --all && npm test` |
 
 ## 3. 日常执行入口与工具包导航
 
 | 需要做的事 | 打开哪个文件 / 目录 |
 |---|---|
 | 一键触发 AI 技能与工作区规则 | [SKILL.md](.agents/skills/fullstack-product-delivery/SKILL.md) / [AGENTS.md](AGENTS.md) |
+| 一屏定位全部规则行号、模板与工具包 | [工作流索引树](规范文件/INDEX_TREE.md) |
 | 通用契约基线（响应信封、错误码、分页、载荷指纹） | [规范文件/contracts/](规范文件/contracts/README.md) |
-| 本地 PostgreSQL 容器与四道 CI 硬门禁脚本 | [规范文件/ci/](规范文件/ci/README.md) |
+| 自动生成项目索引树、PostgreSQL 容器与四道 CI 门禁 | [规范文件/ci/](规范文件/ci/README.md) |
 | 判断阶段、ATDD 闭环与三级裁剪 | [00 主流程](规范文件/00_主流程.md) |
-| 查具体设计与工程规则（116 条） | [01 规则库](规范文件/01_规则库.md) |
+| 查具体设计与工程规则（117 条） | [01 规则库](规范文件/01_规则库.md) |
 | 按阶段取用轻量单文件模板（`T01`–`T13`） | [规范文件/templates/](规范文件/templates/T01_项目启动与裁剪卡.md)（全集见 [02 模板包](规范文件/02_模板包.md)） |
 | 看闭环 `AC`、PostgreSQL Schema、Preline 组件与指纹样本 | [03 工单案例](规范文件/03_贯穿案例_工单.md) |
 | Git 救生、黑盒验真法、CI 门禁与指纹防伪详解 | [06 质量基线](规范文件/06_工程质量与审计验收基线.md) |
@@ -43,7 +44,7 @@
 
 ## 4. 网页端/跨工具备用启动说明
 
-> 请使用《软件产品设计与全栈交付工作流 v0.9.0》协助我推进实际项目。
+> 请使用《软件产品设计与全栈交付工作流 v0.9.1》协助我推进实际项目。
 >
 > 本次任务：[填写要解决的问题或要开发/修改的功能]。
 > 需求性质：[团队负责人明确指令（直接登记 DEC 进 S2，免外部访谈） / 探索型需求]。
@@ -59,4 +60,4 @@
 - [0.9 升级审计报告](规范文件/审计报告_v0.9.md)：8 项工程级改造及移动端双模式设计记录。
 - [当前验证记录](规范文件/验证记录.md) 与 [文档检查结果](规范文件/文档检查结果.json)。
 - [版本变更](规范文件/CHANGELOG.md)、[体系结构](规范文件/ARCHITECTURE.md)、[项目交接](规范文件/session_handoff.md)、[交付文件清单](交付文件清单.json)。
-- 历史版本基线包（0.5/0.6/0.7/0.8）与旧审计报告已隔离至 [历史归档_勿喂给AI/](历史归档_勿喂给AI/README_归档说明.md)。
+- 历史版本基线包（0.5/0.6/0.7/0.8/0.9.0）与旧审计报告已隔离至 [历史归档_勿喂给AI/](历史归档_勿喂给AI/README_归档说明.md)。

@@ -1,18 +1,18 @@
 {
-    "date":  "2026-11-17",
-    "workflow_version":  "0.9.0",
-    "scope":  "React+Preline/Meta+PostgreSQL 黄金栈、通用契约包、CI四道硬门禁、ATDD闭环、三重SHA-256指纹与移动端双模式改造核验",
+    "date":  "2026-11-26",
+    "workflow_version":  "0.9.1",
+    "scope":  "双索引树机制（INDEX_TREE.md + build-index-tree.mjs + STD-GOV-05）与 Gate 1/2 增强验证",
     "status":  "passed",
     "counts":  {
-                   "markdown_files":  15,
+                   "markdown_files":  16,
                    "standalone_template_files":  13,
                    "contract_files":  3,
-                   "ci_files":  4,
+                   "ci_files":  5,
                    "skill_and_agent_files":  3,
                    "stages":  10,
                    "stage_task_objectives":  10,
-                   "rules":  116,
-                   "unique_rule_ids":  116,
+                   "rules":  117,
+                   "unique_rule_ids":  117,
                    "templates":  13,
                    "sources":  50,
                    "quality_gates":  4,
@@ -25,19 +25,19 @@
                                  "../历史归档_勿喂给AI/审计报告_v0.6.md",
                                  "../历史归档_勿喂给AI/审计报告_v0.8.md"
                              ],
-    "baseline_manifest":  "../历史归档_勿喂给AI/2026-11-14_至_2026-11-16/v0.8.0-manifest.json",
+    "baseline_manifest":  "../历史归档_勿喂给AI/2026-11-14_至_2026-11-26/v0.9.0-manifest.json",
     "files":  [
                   {
                       "path":  "00_主流程.md",
-                      "sha256":  "108cbc9958be71783dbb1dcbd15eac234fcdc2e7fcdeca9db6ca3be85a24f007"
+                      "sha256":  "2ab60ffed41b32ed2bd11a278143a797e27193f7d13a14a67cef96fce3dc11a8"
                   },
                   {
                       "path":  "01_规则库.md",
-                      "sha256":  "f57f5b0ba62812965e9389c4db00c5cd9f2fc68420366bb0fc0453d3d8e05748"
+                      "sha256":  "873ab4f8a3b34e1dd37f96a3ad6a61867cb171e84413ec92593ad5a3e4dfa10c"
                   },
                   {
                       "path":  "02_模板包.md",
-                      "sha256":  "c964eac55f4817a3f3186daac5da78334de4b4db1c32d15151b4ad3d60f803d7"
+                      "sha256":  "5d1abcdfd0f381112f3f232dbc23805cdbc7446dc95954bac61ba01ccc86ecc4"
                   },
                   {
                       "path":  "03_贯穿案例_工单.md",
@@ -45,7 +45,7 @@
                   },
                   {
                       "path":  "04_AI项目执行说明.md",
-                      "sha256":  "efd60d6cbf029a65174d61186971d1dc4fd4a0c8f8dbbd553e162a483c3fd2b1"
+                      "sha256":  "7ca6a9f24c2d2000f10a948a620598d026e12116265437795dad3773f7ade734"
                   },
                   {
                       "path":  "05_来源与更新机制.md",
@@ -53,7 +53,7 @@
                   },
                   {
                       "path":  "06_工程质量与审计验收基线.md",
-                      "sha256":  "5f7003a25fce38cf89f4b4716b9405b7a2b427633b6851729b401b8d30e76043"
+                      "sha256":  "2a797eae1627829cb57531553c4c4e337d92760013b4d8f6fc22d5a0eafbfe80"
                   },
                   {
                       "path":  "07_项目推进与多agent执行.md",
@@ -65,19 +65,23 @@
                   },
                   {
                       "path":  "ARCHITECTURE.md",
-                      "sha256":  "d8ff113e4d4fe7ee4e651a94f63658fc4caf4b779c16ba631ced2e3b8183f025"
+                      "sha256":  "4c5dfb7acb0a1c7bd43e522fb5d7cb50e6c101c0af4737c46f20bddae0a1e47b"
                   },
                   {
                       "path":  "CHANGELOG.md",
-                      "sha256":  "080678bb45cfde526d3cc13cae4308fb6fd17aa7d17e20733b3d055714f9a993"
+                      "sha256":  "bf4eca84d8191e66dfd7846234af61465a6b34d4282c57c7e366261110d8fadd"
+                  },
+                  {
+                      "path":  "INDEX_TREE.md",
+                      "sha256":  "b4c7323bf524ef152cac8afc757fa98bc06faa3070b95148254eac06e9b2db68"
                   },
                   {
                       "path":  "README.md",
-                      "sha256":  "0c3840b3f7d3510b0058eff5cd61ebe77c0db01ed7263b9114b1173a5ad20aa5"
+                      "sha256":  "68cfdd2098550ad162c1d9db4c279275b18ae5902cbbbe541b4642cb393850a2"
                   },
                   {
                       "path":  "session_handoff.md",
-                      "sha256":  "93cb03b2b8bab72d6bf13016cb6ce26abed48f662a7218cf23596737046916be"
+                      "sha256":  "60b4d2f81c94751a27f8267b79531025d5d09f75c30819ad7fe05b4e416e4759"
                   },
                   {
                       "path":  "审计报告_v0.9.md",
@@ -85,7 +89,7 @@
                   },
                   {
                       "path":  "验证记录.md",
-                      "sha256":  "6a407caa54d0440b4a444afcf12a2a5f98a58cdcb26114dbeab8c4fdd51697db"
+                      "sha256":  "5267f2fc7ffb0940f7d613561986fcd1ac44917110f1622c7c5cb0df082d3670"
                   }
               ],
     "packaging_note":  "交付清单与ZIP包均已排除.git目录；历史归档隔离于 历史归档_勿喂给AI/。"

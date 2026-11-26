@@ -1,10 +1,10 @@
-# 团队全栈产品设计与交付工作区规则 (v0.9.0)
+# 团队全栈产品设计与交付工作区规则 (v0.9.1)
 
-本工作区启用《软件产品设计与全栈交付工作流 v0.9.0》（面向零开发经验全栈团队）。当处理任何产品需求、界面设计、代码开发、移动对接、缺陷修复或项目审计任务时，请激活并遵循 `.agents/skills/fullstack-product-delivery/SKILL.md` 技能，并遵守以下核心纪律：
+本工作区启用《软件产品设计与全栈交付工作流 v0.9.1》（面向零开发经验全栈团队）。当处理任何产品需求、界面设计、代码开发、移动对接、缺陷修复或项目审计任务时，请激活并遵循 `.agents/skills/fullstack-product-delivery/SKILL.md` 技能，并遵守以下核心纪律：
 
-1. **按需渐进加载，严禁读取历史归档包**：
-   - 主入口见 `开始使用.md`（及 `README.md`）与 `规范文件/00_主流程.md`。
-   - 按阶段按需读取 `规范文件/templates/T01~T13` 单文件模板，不要一次性读取或要求用户填完所有模板。
+1. **双索引树首读、按需渐进加载，严禁读取历史归档包（`STD-GOV-05`）**：
+   - 已有业务项目**新开会话先读 `PROJECT_INDEX_TREE.md`**（禁止盲目全仓翻找或重复造轮子）；改完代码立即运行 `node scripts/build-index-tree.mjs --write` 刷新索引树（严禁手工编辑），新建业务文件前 12 行写 `// @desc 中文职责 | @req/@ac/@api/@comp`。
+   - 查阅工作流规范先看 `规范文件/INDEX_TREE.md` 按行段切片读取；按阶段仅读取 `规范文件/templates/T01~T13` 单文件模板。
    - **严禁将 `历史归档_勿喂给AI/` 目录下的历史基线压缩包、diff 或旧报告加载到日常开发上下文中。**
 2. **团队默认黄金技术栈（`STD-ARC-09`）**：
    - **Web 前端**：`React 18/19 + TypeScript (strict) + Vite + Tailwind CSS + Preline UI`（或按需 Meta StyleX/Lexical 生态）`+ Zustand / TanStack Query`。

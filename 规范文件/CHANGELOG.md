@@ -1,5 +1,14 @@
 # 变更日志
 
+## 0.9.1 — 2026-11-26
+
+- **新增“双索引树”自动生成与门禁联动机制（有效规则增至 117 条）**：
+  - 新增规则 `STD-GOV-05`（项目资产语义索引树自动生成与首读纪律）：要求 AI 创建源码/契约/测试文件时在前 12 行写 `// @desc 一句话中文职责 | @req/@ac/@api/@comp`，每次新开会话先读 `PROJECT_INDEX_TREE.md` 防止跨会话失忆与重复造轮子，提交前自动刷新索引树。
+  - 新增零依赖可执行脚本 `规范文件/ci/build-index-tree.mjs`：自动扫描项目目录、提取 `@desc/@req/@ac/@api/@comp` 标签、导出符号与 Prisma Model，生成 `PROJECT_INDEX_TREE.md` 与 `docs/index-tree.json`，并支持 `--check` 新鲜度校验。
+  - 增强 `规范文件/ci/verify-gates.mjs`：Gate 1 自动执行索引树新鲜度校验；Gate 2 补齐对 `.vue` 文件及 `package.json` 禁用旧技术栈依赖（`vue`/`element-plus`/`naive-ui`/`sqlite`/`uni-app`/`capacitor`）的真实拦截扫描。
+  - 新增工作流自身一屏跳转树 `规范文件/INDEX_TREE.md`：标注 `01_规则库.md` 20 个分节精确行号与常见场景一跳表，大幅降低 AI 读规上下文开销。
+  - 同步更新 `00_主流程.md`、`02_模板包.md`（及 `templates/` 13 份独立模板）、`04_AI项目执行说明.md`、`06_工程质量与审计验收基线.md`、`SKILL.md`、`stage-routing.md`、`AGENTS.md` 与 `开始使用.md`，并归档 `v0.9.0-baseline.zip`。
+
 ## 0.9.0 — 2026-11-17
 
 - **全面技术栈与工程闭环升级（落实 8 项改造方案 + 移动端双模式）**：完成对 0.8.0 的全面工程化升级，使零开发经验团队从“有规范”迈向“可强制自动校验的工程闭环”（详见 `审计报告_v0.9.md`）。

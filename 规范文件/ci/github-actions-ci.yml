@@ -1,6 +1,6 @@
-# 软件产品设计与全栈交付工作流 v0.9.0 — GitHub Actions CI 四道硬门禁流水线模板
+# 软件产品设计与全栈交付工作流 v0.9.1 — GitHub Actions CI 四道硬门禁流水线模板
 # 启用方法：复制到业务项目的 .github/workflows/ci.yml，并根据实际 package.json 脚本微调命令。
-# 对应规则：STD-QA-13（四道硬门禁）、STD-AUD-07（三重指纹）、STD-ARC-09（PostgreSQL 同构）
+# 对应规则：STD-GOV-05（索引树）、STD-QA-13（四道硬门禁）、STD-AUD-07（三重指纹）、STD-ARC-09（PostgreSQL 同构）
 
 name: Fullstack Quality & Traceability Gates
 
@@ -48,9 +48,9 @@ jobs:
         run: npm ci
 
       # ============================================================
-      # Gate 1: 需求 ↔ 验收 ↔ 测试 ↔ 契约 闭环与追溯门禁
+      # Gate 1: 需求 ↔ 验收 ↔ 测试 ↔ 契约 闭环与项目资产索引树新鲜度门禁
       # ============================================================
-      - name: "Gate 1: Verify REQ-AC-TEST traceability & contract baseline"
+      - name: "Gate 1: Verify REQ-AC-TEST traceability, PostgreSQL & index-tree freshness"
         run: node scripts/verify-gates.mjs --gate=1
 
       # ============================================================
