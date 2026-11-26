@@ -1,5 +1,19 @@
 # 变更日志
 
+## 1.0.0 — 2026-11-26（正式试点版：补齐 P0+P1 全部 5 项工程化底座）
+
+- **G-01（P0 技术隐患修复）：前后端同构契约与服务端指纹物理分离**：
+  - 移除 `规范文件/contracts/base-contract.schema.ts` 中的 `node:crypto` 导入，确保 React + Vite 前端零构建报错；新增 `规范文件/contracts/fingerprint.server.ts` 承载 Node.js 同步 `computePayloadFingerprint`，并在 Gate 2 中加入静态扫描防止浏览器源码误引。
+- **G-02（P1）：新增黄金技术栈一键初始化脚手架（`规范文件/starter/`）**：
+  - 新增 `init-project.mjs` 与 9 份标准模板（`package.json`、`tsconfig.json`、`vite.config.ts`、`eslint.config.mjs`、`.env.example`、`schema.prisma`、`seed.ts`、`usePrelineInit.ts`、`auth-rbac.ts`），1 条命令生成 React 19 + Preline UI（含 SPA 路由初始化 Hook）+ Hono + PostgreSQL 16 + 索引树 + 四道门禁的完整底座。
+- **G-03（P1）：升级 CI Gate 1 实现 `docs/` ↔ `tests/` 双向 `REQ/AC` 覆盖核对**：
+  - 升级 `规范文件/ci/verify-gates.mjs`，自动扫描 `docs/` 中声明的全部 `REQ-xxx` 与 `AC-xxx` 并与 `tests/` 的 `@req/@ac` 标签做差集比对，漏测任何一个 `AC` 或引用幽灵编号即刻阻断合并。
+- **G-04（P1）：新增认证、可吊销会话与三层 RBAC 权限底座（新增规则 `STD-SEC-05`）**：
+  - 新增 `contracts/auth-rbac-baseline.md` 与 `starter/templates/auth-rbac.ts.tpl`（`scrypt` 强哈希、PostgreSQL 可吊销 `Session` 表、`HttpOnly; SameSite=Lax` Cookie、三层 RBAC 拦截）；Gate 2 自动拦截前端 `localStorage` 存储敏感令牌。
+- **G-05（P1）：新增合成测试种子账号工厂与一键重置（新增规则 `STD-QA-14`）**：
+  - 新增 `starter/templates/seed.ts.tpl`（预置 `ADMIN`/`HANDLER`/`MEMBER_A`/`MEMBER_B` 合成测试账号 + `NODE_ENV=production` 安全熔断）与 `npm run db:reset` 命令，支撑零经验成员 30 秒开启双无痕窗口黑盒越权验真。
+- **同步规则、模板、索引树与 Skill（有效规则总计 119 条）**：更新 `00`–`08`、`INDEX_TREE.md`、`templates/T01~T13`、`SKILL.md`、`AGENTS.md` 与 `开始使用.md`，归档 `v0.9.1-baseline.zip` 与 `审计报告_v0.9.md`，形成 `审计报告_v1.0.md`。
+
 ## 0.9.1 — 2026-11-26
 
 - **新增“双索引树”自动生成与门禁联动机制（有效规则增至 117 条）**：

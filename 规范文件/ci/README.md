@@ -1,8 +1,8 @@
 # CI 流水线、项目索引树生成器与四道自动化硬门禁 (`ci/`)
 
-版本：0.9.1｜对应规则：`STD-GOV-05`、`STD-QA-13`、`STD-AUD-07`、`STD-ARC-09`
+版本：1.0.0｜对应规则：`STD-GOV-05`、`STD-SEC-05`、`STD-QA-13`、`STD-AUD-07`、`STD-ARC-09`
 
-本目录提供可直接在业务项目复用的本地 PostgreSQL 同构容器、**项目资产索引树自动生成脚本**与 GitHub Actions 四道门禁配置，避免出现“AI 跨会话失忆重复造轮子、代码写完但无法通过构建、用 `.skip` 假装测试全绿、拿旧版本报告冒充新版验收”等情况。
+本目录提供可由 [starter/init-project.mjs](../starter/README.md) 一键铺入业务项目的本地 PostgreSQL 同构容器、**项目资产索引树自动生成脚本**与 GitHub Actions 四道硬门禁配置（Gate 1 现已支持 `docs/` ↔ `tests/` 双向 `REQ/AC` 覆盖核对，Gate 2 现已支持前端禁 `node:crypto` 与禁 `localStorage` 存令牌红线扫描）。
 
 ## 包含文件与启用步骤
 

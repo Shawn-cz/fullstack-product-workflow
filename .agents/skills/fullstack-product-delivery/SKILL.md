@@ -3,72 +3,70 @@ name: fullstack-product-delivery
 description: Use when starting, designing, implementing, modifying, verifying, or auditing any Web or mobile App feature, UI change, or bugfix under the team's full-stack product delivery workflow
 ---
 
-# 软件产品设计与全栈交付工作流 (v0.9.1)
+# 软件产品设计与全栈交付工作流 (v1.0.0 正式试点版)
 
 ## Overview
 
 面向**零开发工作经验团队**的单人全栈产品设计与开发执行规范（S0–S9）。
-**核心原则：** 成员负责业务决策与黑盒可观察验收；AI 负责**项目索引树首读与刷新**、契约落地、测试先行（ATDD 闭环）、代码实现、Git 快照救生与 CI 四道硬门禁校验。**违反规则字面要求即违反规则精神。**
+**核心原则：** 成员负责业务决策与黑盒可观察验收；AI 负责**一键脚手架铺底、项目索引树首读与刷新、同构契约与 RBAC 鉴权落地、测试先行（双向闭环）、代码实现、Git 快照救生与 CI 四道硬门禁校验**。**违反规则字面要求即违反规则精神。**
 
 ## When to Use
 
 - 启动新产品、新功能迭代、已有界面修改优化、既有移动 App 接口对接/从 0 新建 App，或缺陷修复
-- 将模糊业务想法转化为需求与结构化验收条件（T03 `REQ/AC`）、业务状态与权限（T04）、通用契约与架构（T05/`contracts/`）、React/Preline 界面（T06）、先行测试与指纹验收（T07/T12/`ci/`）
+- 将模糊业务想法转化为需求与结构化验收条件（T03 `REQ/AC`）、业务状态与权限（T04）、同构契约与 RBAC 架构（T05/`contracts/`）、React/Preline 界面（T06）、先行测试与指纹验收（T07/T12/`ci/`）
 
-## 团队默认黄金技术栈（STD-ARC-09）
+## 团队默认黄金技术栈与一键脚手架（STD-ARC-09 / STD-SEC-05 / STD-QA-14）
 
-新建项目无既有仓库强约束时，**必须默认采用以下黄金技术栈**（严禁擅自选用 Vue、SQLite、Element Plus、Naive UI、uni-app 或 Capacitor）：
+新建项目无既有仓库强约束时，**优先运行 `node 规范文件/starter/init-project.mjs --target .` 一键初始化底座**（严禁擅自选用 Vue、SQLite、Element Plus、Naive UI、uni-app 或 Capacitor）：
 
 | 层级 | 默认黄金技术栈 | 零经验成员配套与防呆 |
 |---|---|---|
-| **Web 前端** | **React 18/19 + TypeScript (`strict`) + Vite + Tailwind CSS + Preline UI**（或按需采用 Meta StyleX/Lexical 生态）+ Zustand / TanStack Query | 浏览器实际渲染对照、`tsc --noEmit`、路由切换按需调用 `HSStaticMethods.autoInit()` |
-| **后端与契约** | **Node.js (LTS) + Hono / Fastify + TypeScript + Zod**（强制继承 [contracts/](../../../规范文件/contracts/README.md) 通用响应信封、错误码、分页与 `computePayloadFingerprint` 幂等载荷指纹） | F12 Network 状态码与标准 `ApiErrorResponse` 核对 |
-| **数据库与 ORM** | **PostgreSQL 16 + Prisma ORM**（本地用 [docker-compose.postgres.yml](../../../规范文件/ci/docker-compose.postgres.yml) 同构容器；**严禁 SQLite**） | 运行 `npx prisma studio` 在浏览器可视化核对 PostgreSQL 真实落库数据 |
-| **移动 App** | **模式 A（默认常规）**：既有 App 修改优化并对接 `contracts/openapi-baseline.yaml`<br>**模式 B（条件调用：明确从 0 新建）**：优先评估 **React Native + TS** 或 iOS/Android 原生 | 模式 A 严格继承原工程风格与架构；模式 B 才走完整新建与首次上架流程 |
-| **索引树、CI 与指纹门禁** | [build-index-tree.mjs](../../../规范文件/ci/build-index-tree.mjs) + [github-actions-ci.yml](../../../规范文件/ci/github-actions-ci.yml) + [verify-gates.mjs](../../../规范文件/ci/verify-gates.mjs) + ESLint + Prettier + Vitest + Playwright | 自动生成语义索引树 + 四道自动化硬门禁全绿 + 三重 SHA-256 指纹一致性校验 |
+| **一键初始化脚手架** | [starter/init-project.mjs](../../../规范文件/starter/init-project.mjs) | 1 条命令铺齐 `package.json`、`tsconfig`、`vite`、`eslint`、`schema.prisma`、`seed.ts`、`usePrelineInit`、`auth-rbac` 与 CI |
+| **Web 前端** | **React 19 + TypeScript (`strict`) + Vite + Tailwind CSS + Preline UI**（内置 `usePrelineInit` Hook，或按需 Meta StyleX/Lexical 生态）+ Zustand / TanStack Query | 浏览器实际渲染对照、`tsc --noEmit`；前端只导入同构 `base-contract.schema.ts` |
+| **后端、契约与 RBAC** | **Node.js (LTS) + Hono / Fastify + TypeScript + Zod**（同构契约与 `fingerprint.server.ts` 物理分离）+ **PostgreSQL 可吊销 `Session` + `HttpOnly` Cookie + 三层 RBAC** | 严禁 `localStorage` 存令牌；Network 核对 `401/403/404/409` 标准响应 |
+| **数据库与测试种子** | **PostgreSQL 16 + Prisma ORM**（`npm run db:up` 同构容器；**严禁 SQLite**）+ `prisma/seed.ts`（预置 4 角色合成账号，含生产熔断） | `npm run db:reset` 一键还原双无痕窗口测试账号；`npm run db:studio` 可视化查库 |
+| **移动 App** | **模式 A（默认常规）**：既有 App 修改优化并对接 `contracts/openapi-baseline.yaml`<br>**模式 B（条件调用：明确从 0 新建）**：优先评估 **React Native + TS** 或原生 | 模式 A 严格继承原工程风格与架构；模式 B 才走完整新建与首次上架流程 |
+| **索引树、CI 与指纹** | [build-index-tree.mjs](../../../规范文件/ci/build-index-tree.mjs) + [verify-gates.mjs](../../../规范文件/ci/verify-gates.mjs) + [github-actions-ci.yml](../../../规范文件/ci/github-actions-ci.yml) | 自动语义索引树 + **`docs/`↔`tests/` 双向 `REQ/AC` 覆盖核对** + 三重 SHA-256 指纹锁 |
 
 ## 执行步骤与按需加载（Progressive Disclosure）
 
 **禁止一次性加载全部模板或历史归档文件（`历史归档_勿喂给AI/`）。** 按当前阶段仅加载所需文件：
 
 1. **先读两棵索引树，再判路径与模式（STD-GOV-05）**：
-   - 已有业务项目**第一步必须先读 `PROJECT_INDEX_TREE.md`**（若不存在则运行 `node scripts/build-index-tree.mjs --write` 生成），查清已有模块/组件/接口/数据表，严禁盲搜或重复造轮子；
+   - 已有业务项目**第一步必须先读 `PROJECT_INDEX_TREE.md`**（若不存在运行 `npm run index:build` 生成），查清已有模块/组件/接口/数据表，严禁盲搜或重复造轮子；
    - 查阅工作流规则优先用 [INDEX_TREE.md](../../../规范文件/INDEX_TREE.md) 按行段切片读取，并结合 [stage-routing.md](./references/stage-routing.md) 判断裁剪路径、需求性质（探索型 vs 指令契约型 `STD-REQ-01`）与移动模式（模式 A 既有对接 vs 模式 B 从 0 新建）。
-2. **按阶段只读单文件模板**：从 [规范文件/templates/](../../../规范文件/templates/) 读取当前阶段对应的 `T01`–`T13` 独立模板（1–9 KB），不要全量复制无关模板。
-3. **查强制规则与通用基线**：按 [INDEX_TREE.md](../../../规范文件/INDEX_TREE.md) 切片查阅 [01_规则库.md](../../../规范文件/01_规则库.md)；S4 直接复制继承 [contracts/](../../../规范文件/contracts/README.md)；S6 复制配置 [ci/](../../../规范文件/ci/README.md)；代码与验收必读 [06_工程质量与审计验收基线.md](../../../规范文件/06_工程质量与审计验收基线.md)；移动端读 [08_移动App专项.md](../../../规范文件/08_移动App专项.md)。
-4. **严格执行“需求 → 验收 → 测试 → 编码”四步闭环（STD-GOV-03 / STD-QA-01）**：
-   - 先在 T03 写出需求 `REQ-xxx` 及结构化 `AC-xxx`（Given/When/Then）；
-   - 再在 S6 写出绑定 `// @req REQ-xxx @ac AC-xxx` 注释标签的测试骨架并运行确认因缺实现而失败（`RED`）；
-   - 最后才编写业务代码使测试转绿（`GREEN`）；新建业务/契约/测试文件前 12 行写 `// @desc 一句话中文职责 | @req/@ac/@api/@comp`。**禁止先写代码后补测试，禁止写无 REQ 来源的野生代码。**
-5. **改码前先做 Git 保存点，闭环后刷新索引树（STD-CODE-11 / STD-GOV-05）**：在 S6–S7 动手改代码前，先运行 `git status` 建保存点；每跑通一个最小闭环立即运行 `node scripts/build-index-tree.mjs --write` 刷新索引树并保存 Git 快照。若连续两次修复同一报错失败，立即协助成员回退至上一正常快照。
-6. **运行四道硬门禁、三重指纹与黑盒验真（STD-QA-12 / STD-QA-13 / STD-AUD-07）**：
-   - 跑通 `node scripts/verify-gates.mjs --all` 与 PostgreSQL 容器测试（禁止 `.skip`/`.only`/空 `catch`）；
-   - 输出 3–5 步零经验成员可亲自操作的黑盒验真清单（浏览器渲染、双无痕窗口越权、F12 Network 状态码、`npx prisma studio` 查库与载荷指纹）；
-   - 用 `--gate=4` 锁定当前 Commit、契约目录与 `schema.prisma` 的 SHA-256 指纹。
-7. **高风险独立复核门禁（STD-QA-12）**：触及 **D0/D1 权限与资金逻辑、破坏性数据迁移（STD-DAT-04）或 S8 生产发布** 时，必须发起**独立上下文交叉审计会话**或交由团队负责人签字确认。
+2. **新项目先用脚手架铺底，按阶段只读单文件模板**：从 [规范文件/templates/](../../../规范文件/templates/) 读取当前阶段对应的 `T01`–`T13` 独立模板；新建项目直接调用 [starter/init-project.mjs](../../../规范文件/starter/init-project.mjs) 铺设黄金栈底座，避免手工配环境踩坑。
+3. **严格执行“需求 → 验收 → 测试 → 编码”双向闭环（STD-GOV-03 / STD-QA-01 / STD-QA-13）**：
+   - 先在 `docs/`（T03）写出需求 `REQ-xxx` 及结构化 `AC-xxx`（Given/When/Then）；
+   - 再在 S6 写出绑定 `// @req REQ-xxx @ac AC-xxx` 标签的测试骨架（须覆盖 `docs/` 中每一个 `REQ`/`AC`，Gate 1 自动做差集核对）并先运行确认 `RED`；
+   - 最后编写业务代码转 `GREEN`；新建文件前 12 行写 `// @desc 中文职责 | @req/@ac/@api/@comp`。
+4. **改码前建 Git 保存点，闭环后刷新索引树（STD-CODE-11 / STD-GOV-05）**：改码前运行 `git status` 建保存点；每跑通一个小闭环立即运行 `npm run index:build` 刷新索引树并存 Git 快照；连续两次修不好立即回退快照。
+5. **运行四道硬门禁、三重指纹与黑盒验真（STD-QA-12~14 / STD-AUD-07）**：
+   - 跑通 `npm run gates && npm run check && npm test`（Gate 1 双向覆盖+索引树+禁 SQLite；Gate 2 防作弊+前端禁 `node:crypto` 与 `localStorage` 存令牌+禁旧栈；Gate 3 PostgreSQL 测试；Gate 4 三重指纹）；
+   - 结合 `prisma/seed.ts` 预置的 `member_a@example.test` / `member_b@example.test` 输出 3–5 步零经验成员可亲自操作的黑盒验真清单；
+   - 触及 **D0/D1 权限资金、数据迁移（STD-DAT-04）或 S8 发布** 时，强制走**独立上下文交叉审计会话**或**团队负责人签字确认**。
 
 ## Rationalization Table（常见违规借口与反制）
 
 | 常见借口 (Excuse) | 事实与强制处理 (Reality) |
 |---|---|
-| “先用 SQLite 跑通本地测试，上线再换 PostgreSQL” | 违反 `STD-ARC-09`。本地必须使用 `docker-compose.postgres.yml` 同构 PostgreSQL 16，严禁 SQLite 掩盖并发锁与数据类型差异。 |
-| “先用 Vue / Element Plus / Naive UI / uni-app 顺手写完” | 违反 `STD-ARC-09` / `STD-REACT-01` / `STD-MOB-01`。黄金技术栈已统一为 React + Preline UI（或 Meta 生态），且禁用 uni-app / Capacitor。 |
-| “先写完功能代码，测试最后再统一补上” | 违反 `STD-QA-01` 与 ATDD 闭环。必须先拆 `AC-xxx`，再写带 `@req/@ac` 标签的测试并运行见红（RED），再编码实现。 |
-| “上次测试已经通过了，我只改了一个字段就不重跑了” | 违反 `STD-AUD-07` 指纹规则。契约、Schema 或源码变化哪怕 1 字节，旧验收即刻失效为 `Stale`，Gate 4 将阻断放行。 |
-| “用户要改一下现有 App 的页面，我直接帮他新建一个 App 工程” | 违反 `STD-MOB-01`。移动端默认走模式 A（既有 App 修改与通用契约对接），仅明确立项新建 App 时才调用模式 B。 |
-| “这是内部指令需求，但 S1 要求用户访谈，先停下来等访谈” | 违反 `STD-REQ-01`。负责人明确下达的指令型需求直接登记 `DEC` 进入 S2，不卡外部访谈。 |
+| “把 `computePayloadFingerprint` 直接放进 `base-contract.schema.ts` 省事” | 违反 `STD-API-07`。React + Vite 前端一旦导入就会因 `node:crypto` 打包崩溃，必须物理隔离在 `fingerprint.server.ts`。 |
+| “登录 Token 放 `localStorage` 前端好读取” | 违反 `STD-SEC-05`。易遭 XSS 窃取，Gate 2 直接拦截；必须用 PostgreSQL 可吊销 `Session` + `HttpOnly` Cookie。 |
+| “`docs/` 写了 6 个 AC，我先测 1 个主流程就行” | 违反 `STD-QA-13`。Gate 1 自动解析 `docs/` 与 `tests/` 取差集，漏测任何一个 `AC` 都会阻断合并。 |
+| “先用 SQLite / Vue / Element Plus / uni-app 写完再说” | 违反 `STD-ARC-09`。Gate 1/Gate 2 直接报错拦截，严禁混入禁用旧技术栈。 |
+| “不写 `seed.ts` 了，验收时让成员自己注册两个账号测越权” | 违反 `STD-QA-14`。必须提供 `prisma/seed.ts`（含生产熔断）与 `npm run db:reset`，让零经验成员 30 秒开双无痕窗口验真。 |
 
 ## Red Flags - STOP and Check
 
-- 准备在项目中使用 SQLite、Vue 3、Element Plus、Naive UI、uni-app 或 Capacitor
-- 准备在没有 `REQ`/`AC` 和先行 `@req/@ac` 测试（RED）的情况下直接写业务实现代码
-- 测试文件里出现 `.skip`、`.only` 或空 `catch {}` 伪造通过
-- 在没有任何 Git 快照点、四道门禁执行记录或 SHA-256 指纹锁的情况下宣布验收通过
+- 准备在浏览器前端 `src/` 导入 `node:crypto` 或 `fingerprint.server`，或用 `localStorage` 存令牌
+- 准备手写一堆零散配置文件而不使用 `starter/init-project.mjs` 黄金栈脚手架
+- 存在 `docs/` 声明了 `AC-xxx` 但测试文件里未覆盖，或修改源码后未运行 `npm run index:build`
+- 发现 D0/D1 权限资金或 S8 发布未经过独立审计会话或负责人复核就要标“已验收”
 
 ## 每轮结束标准汇报格式
 
 > **当前阶段**：[S…｜路径：完整/功能/小变更｜移动模式（如适用）：A对接 / B新建]
-> **本轮成果与 Git 快照**：[修改的文件路径｜当前快照 commit 哈希]
-> **四道门禁与指纹状态**：[Gate 1–4 结果｜契约与 Schema SHA-256 指纹摘要]
-> **请您执行的黑盒验真步骤（3 分钟）**：[1. 浏览器访问… 2. 双窗口越权检查… 3. `npx prisma studio` 核对…]
+> **本轮成果与 Git 快照**：[修改的文件路径｜当前快照 commit 哈希｜索引树已刷新]
+> **四道门禁与指纹状态**：[Gate 1–4 双向闭环与安全扫描结果｜契约与 Schema SHA-256 指纹摘要]
+> **请您执行的黑盒验真步骤（3 分钟）**：[1. 如需重置测试账号跑 `npm run db:reset` 2. 双无痕窗口用 `member_a` / `member_b` 验证越权 3. `npm run db:studio` 核对 PostgreSQL 表]
 > **待决定/下一步**：[仅列影响业务结果或权限的必要问题，或下一具体动作]

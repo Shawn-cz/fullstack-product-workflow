@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
- * 软件产品设计与全栈交付工作流 v0.9.1 — CI 四道硬门禁 & 指纹校验脚本
- * 对应规则：STD-GOV-05（索引树）、STD-QA-13（四道硬门禁）、STD-AUD-07（三重指纹）、STD-GOV-03（闭环追溯）
+ * 软件产品设计与全栈交付工作流 v1.0.0 — CI 四道硬门禁、双向闭环与指纹校验脚本
+ * 对应规则：STD-GOV-03（闭环）、STD-GOV-05（索引树）、STD-SEC-05（安全红线）、STD-QA-13（四道硬门禁）、STD-AUD-07（三重指纹）
  *
  * 用法：
  *   node verify-gates.mjs --self-check   # 校验工作流内脚本自检
- *   node verify-gates.mjs --gate=1       # 门禁 1：REQ↔AC↔TEST 闭环追溯 + 禁用 SQLite + 索引树新鲜度检查
- *   node verify-gates.mjs --gate=2       # 门禁 2：防测试作弊 + 空 catch + 禁用旧技术栈混入 + .env 检查
+ *   node verify-gates.mjs --gate=1       # 门禁 1：docs/ ↔ tests/ 双向 REQ/AC 覆盖核对 + 禁用 SQLite + 索引树新鲜度
+ *   node verify-gates.mjs --gate=2       # 门禁 2：防测试作弊 + 空 catch + 禁前端 node:crypto/localStorage 存令牌 + 禁旧栈
  *   node verify-gates.mjs --gate=4       # 门禁 4：计算并核对契约/Schema/锁文件 SHA-256 指纹
  *   node verify-gates.mjs --all          # 本地一键执行 Gate 1 + 2 + 4
  */
@@ -61,8 +61,17 @@ function sha256Directory(dirPath) {
   return hash.digest('hex')
 }
 
+function collectMatches(text, regex) {
+  const set = new Set()
+  let m
+  while ((m = regex.exec(text)) !== null) {
+    set.add(m[1].toUpperCase())
+  }
+  return set
+}
+
 function runSelfCheck() {
-  const testDigest = createHash('sha256').update('v0.9.1-gate-check').digest('hex')
+  const testDigest = createHash('sha256').update('v1.0.0-gate-check').digest('hex')
   if (testDigest.length !== 64) {
     console.error('❌ SHA-256 digest self-check failed.')
     process.exit(1)
@@ -72,11 +81,16 @@ function runSelfCheck() {
     const res = spawnSync(process.execPath, [indexScript, '--self-check'], { stdio: 'inherit' })
     if (res.status !== 0) process.exit(res.status || 1)
   }
-  console.log('✅ verify-gates.mjs self-check passed (Node ' + process.version + ', SHA-256 & index-tree check ready).')
+  const starterScript = path.resolve(scriptDir, '..', 'starter', 'init-project.mjs')
+  if (fs.existsSync(starterScript)) {
+    const res = spawnSync(process.execPath, [starterScript, '--self-check'], { stdio: 'inherit' })
+    if (res.status !== 0) process.exit(res.status || 1)
+  }
+  console.log('✅ verify-gates.mjs self-check passed (Node ' + process.version + ', bidirectional Gate 1 + security Gate 2 + SHA-256 ready).')
 }
 
 function runGate1() {
-  console.log('🔍 [Gate 1] 检查需求-验收-测试闭环标记 (@req / @ac)、禁用 SQLite 与索引树新鲜度...')
+  console.log('🔍 [Gate 1] 检查双向 REQ/AC 闭环覆盖、禁用 SQLite 与索引树新鲜度...')
   const testDirs = ['tests', 'test', 'src'].map((d) => path.join(cwd, d))
   const testFiles = testDirs.flatMap((d) =>
     walkFiles(d, ['.test.ts', '.test.tsx', '.spec.ts', '.spec.tsx'])
@@ -88,19 +102,61 @@ function runGate1() {
   }
 
   const missingTags = []
+  const coveredReqs = new Set()
+  const coveredAcs = new Set()
+
   for (const file of testFiles) {
     const content = fs.readFileSync(file, 'utf8')
-    const hasReq = /@req\s+REQ-\d+/i.test(content)
-    const hasAc = /@ac\s+AC-\d+/i.test(content)
-    if (!hasReq || !hasAc) {
+    const fileReqs = collectMatches(content, /@req\s+(REQ-\d+)/gi)
+    const fileAcs = collectMatches(content, /@ac\s+(AC-\d+)/gi)
+    if (fileReqs.size === 0 || fileAcs.size === 0) {
       missingTags.push(path.relative(cwd, file))
     }
+    fileReqs.forEach((id) => coveredReqs.add(id))
+    fileAcs.forEach((id) => coveredAcs.add(id))
   }
 
   if (missingTags.length > 0) {
     console.error('❌ [Gate 1] 以下测试文件缺少 // @req REQ-xxx @ac AC-xxx 闭环追溯标签：')
     missingTags.forEach((f) => console.error('   - ' + f))
     process.exit(1)
+  }
+
+  // 双向闭环核对：解析 docs/ 下需求文档中声明的所有 REQ-xxx 与 AC-xxx，与 tests/ 覆盖集做差集比对
+  const docsDir = path.join(cwd, 'docs')
+  if (fs.existsSync(docsDir)) {
+    const docMdFiles = walkFiles(docsDir, ['.md']).filter((f) => {
+      const rel = path.relative(docsDir, f).replace(/\\/g, '/')
+      return !rel.startsWith('evidence/') && !rel.startsWith('archive/')
+    })
+    const docReqs = new Set()
+    const docAcs = new Set()
+    for (const df of docMdFiles) {
+      const text = fs.readFileSync(df, 'utf8')
+      collectMatches(text, /\b(REQ-\d+)\b/g).forEach((id) => docReqs.add(id))
+      collectMatches(text, /\b(AC-\d+)\b/g).forEach((id) => docAcs.add(id))
+    }
+
+    const uncoveredReqs = [...docReqs].filter((id) => !coveredReqs.has(id)).sort()
+    const uncoveredAcs = [...docAcs].filter((id) => !coveredAcs.has(id)).sort()
+    const ghostReqs = docReqs.size > 0 ? [...coveredReqs].filter((id) => !docReqs.has(id)).sort() : []
+    const ghostAcs = docAcs.size > 0 ? [...coveredAcs].filter((id) => !docAcs.has(id)).sort() : []
+
+    if (uncoveredReqs.length > 0 || uncoveredAcs.length > 0) {
+      console.error('❌ [Gate 1] 需求文档 (docs/) 与测试代码 (tests/) 未形成闭环，以下条目缺少测试覆盖：')
+      if (uncoveredReqs.length > 0) console.error('   - 漏测 REQ: ' + uncoveredReqs.join(', '))
+      if (uncoveredAcs.length > 0) console.error('   - 漏测 AC : ' + uncoveredAcs.join(', '))
+      process.exit(1)
+    }
+    if (ghostReqs.length > 0 || ghostAcs.length > 0) {
+      console.error('❌ [Gate 1] 测试引用了 docs/ 需求文档中未定义的幽灵编号，请同步需求规格：')
+      if (ghostReqs.length > 0) console.error('   - 未定义 REQ: ' + ghostReqs.join(', '))
+      if (ghostAcs.length > 0) console.error('   - 未定义 AC : ' + ghostAcs.join(', '))
+      process.exit(1)
+    }
+    if (docReqs.size > 0 || docAcs.size > 0) {
+      console.log(`✅ [Gate 1] 双向闭环核对通过：docs/ 全部 ${docReqs.size} 个 REQ 与 ${docAcs.size} 个 AC 均被测试覆盖。`)
+    }
   }
 
   // 检查 Prisma 是否误用了被禁用的 sqlite
@@ -125,18 +181,19 @@ function runGate1() {
     }
   }
 
-  console.log(`✅ [Gate 1] 通过：共核验 ${testFiles.length} 个测试文件均绑定 @req 与 @ac 标签，且索引树与数据库配置合规。`)
+  console.log(`✅ [Gate 1] 通过：共核验 ${testFiles.length} 个测试文件，闭环覆盖、PostgreSQL 与索引树均合规。`)
 }
 
 function runGate2() {
-  console.log('🔍 [Gate 2] 扫描防作弊规则 (.skip / .only / 空 catch / 禁用旧栈混入 / .env)...')
-  const scanFiles = walkFiles(path.join(cwd, 'src'), ['.ts', '.tsx', '.js', '.jsx']).concat(
-    walkFiles(path.join(cwd, 'tests'), ['.ts', '.tsx', '.js', '.jsx'])
-  )
+  console.log('🔍 [Gate 2] 扫描防作弊规则 (.skip / .only / 空 catch / 前端禁 node:crypto 与 localStorage 存令牌 / 禁旧栈)...')
+  const srcFiles = walkFiles(path.join(cwd, 'src'), ['.ts', '.tsx', '.js', '.jsx'])
+  const serverFiles = walkFiles(path.join(cwd, 'server'), ['.ts', '.tsx', '.js', '.jsx'])
+  const testFiles = walkFiles(path.join(cwd, 'tests'), ['.ts', '.tsx', '.js', '.jsx'])
+  const scanFiles = [...srcFiles, ...serverFiles, ...testFiles]
 
   const violations = []
   for (const file of scanFiles) {
-    const rel = path.relative(cwd, file)
+    const rel = path.relative(cwd, file).replace(/\\/g, '/')
     const content = fs.readFileSync(file, 'utf8')
     if (/\b(?:it|test|describe)\.(?:skip|only)\s*\(/.test(content) || /\bx(?:it|test|describe)\s*\(/.test(content)) {
       violations.push(`${rel}: 存在 .skip / .only 或 xit 跳过/独占测试`)
@@ -144,9 +201,32 @@ function runGate2() {
     if (/catch\s*(?:\([^)]*\))?\s*\{\s*\}/.test(content)) {
       violations.push(`${rel}: 存在空 catch 块吞掉异常 (违反 STD-CODE-08)`)
     }
+    // 浏览器前端源码安全红线：禁止导入 node:crypto / fingerprint.server，禁止用 localStorage 存登录令牌
+    if (rel.startsWith('src/') && !rel.startsWith('src/server/') && !rel.startsWith('src/api/')) {
+      if (/from\s+['"](?:node:crypto|crypto)['"]|fingerprint\.server/.test(content)) {
+        violations.push(`${rel}: 浏览器前端源码不得导入 node:crypto 或 fingerprint.server（防止 Vite 打包崩溃，见 STD-API-07）`)
+      }
+      if (/localStorage\.setItem\s*\(\s*['"][^'"]*(?:token|jwt|session|auth|secret|password)[^'"]*['"]/i.test(content)) {
+        violations.push(`${rel}: 禁止在 localStorage 中存储登录凭据/Token，须改用 HttpOnly Cookie 会话 (违反 STD-SEC-05)`)
+      }
+    }
   }
 
-  // 扫描 .vue 文件与被禁用的技术栈依赖（除存在已获批偏离说明）
+  // 检查同构契约文件自身不误引 node:crypto
+  const isoContractCandidates = [
+    path.join(cwd, 'shared', 'contracts', 'base-contract.schema.ts'),
+    path.join(cwd, 'contracts', 'base-contract.schema.ts')
+  ]
+  for (const cp of isoContractCandidates) {
+    if (fs.existsSync(cp)) {
+      const cText = fs.readFileSync(cp, 'utf8')
+      if (/from\s+['"](?:node:crypto|crypto)['"]/.test(cText)) {
+        violations.push(`${path.relative(cwd, cp)}: 同构契约文件包含 node:crypto，必须拆至 fingerprint.server.ts`)
+      }
+    }
+  }
+
+  // 扫描 .vue 文件与被禁用的技术栈依赖
   const vueFiles = walkFiles(path.join(cwd, 'src'), ['.vue'])
   for (const vf of vueFiles) {
     violations.push(`${path.relative(cwd, vf)}: 检测到 .vue 文件，违反 React 黄金栈标准 (STD-ARC-09 / STD-REACT-01)`)
@@ -164,7 +244,10 @@ function runGate2() {
 
   // 禁止 .env 被 Git 跟踪
   try {
-    const trackedEnv = execSync('git ls-files .env .env.local .env.production', { encoding: 'utf8' }).trim()
+    const trackedEnv = execSync('git ls-files .env .env.local .env.production', {
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'ignore']
+    }).trim()
     if (trackedEnv) {
       violations.push(`Git 中已跟踪敏感环境文件: ${trackedEnv} (违反 STD-SEC-03 / STD-CODE-11)`)
     }
@@ -173,12 +256,12 @@ function runGate2() {
   }
 
   if (violations.length > 0) {
-    console.error('❌ [Gate 2] 发现静态防作弊或技术栈违规项：')
+    console.error('❌ [Gate 2] 发现静态防作弊、安全红线或技术栈违规项：')
     violations.forEach((v) => console.error('   - ' + v))
     process.exit(1)
   }
 
-  console.log(`✅ [Gate 2] 通过：扫描 ${scanFiles.length} 个源码与测试文件，未发现跳过测试、吞异常或禁用技术栈混入。`)
+  console.log(`✅ [Gate 2] 通过：扫描 ${scanFiles.length} 个源码与测试文件，静态质量与安全红线全部合规。`)
 }
 
 function runGate4() {
@@ -200,7 +283,10 @@ function runGate4() {
 
   let gitCommit = 'UNCOMMITTED'
   try {
-    gitCommit = execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim()
+    gitCommit = execSync('git rev-parse --short HEAD', {
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'ignore']
+    }).trim()
   } catch {
     // ignore if not a git repo
   }

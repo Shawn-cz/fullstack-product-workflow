@@ -1,10 +1,10 @@
+// @desc 前后端同构通用契约基线（纯 Zod，无 Node 内置依赖，React/Vite/Node/RN 均可安全导入） | @api API-000
 /**
- * 软件产品设计与全栈交付工作流 v0.9.0 — 通用契约包基线 (STD-API-07 / STD-API-08)
+ * 软件产品设计与全栈交付工作流 v1.0.0 — 同构通用契约包基线 (STD-API-07 / STD-API-08)
  *
- * 适用范围：React + TypeScript 前端、Node.js (Hono/Fastify) 服务端、PostgreSQL + Prisma 持久化层，
- * 以及既有/新建移动 App 对接。所有业务接口契约必须继承或组合本基线。
+ * 注意：本文件严禁导入 node:crypto 等 Node 专属内置模块，以确保 React + Vite 浏览器构建 100% 安全。
+ * 服务端同步 SHA-256 载荷指纹计算请从同目录 `./fingerprint.server` 导入 `computePayloadFingerprint`。
  */
-import { createHash } from 'node:crypto'
 import { z } from 'zod'
 
 /**
@@ -92,7 +92,23 @@ export const IdempotencyKeySchema = z.object({
 })
 
 /**
+ * 统一认证主体与角色契约 (STD-SEC-05)
+ */
+export const ActorRoleEnum = z.enum(['ADMIN', 'HANDLER', 'MEMBER'])
+export type ActorRole = z.infer<typeof ActorRoleEnum>
+
+export const AuthenticatedActorSchema = z.object({
+  id: z.string().min(1),
+  email: z.string().email(),
+  role: ActorRoleEnum,
+  sessionId: z.string().min(1)
+})
+
+export type AuthenticatedActor = z.infer<typeof AuthenticatedActorSchema>
+
+/**
  * 递归规范化 JSON 值（按键名字典序排序，消除对象属性顺序差异对指纹的影响）
+ * 纯 JavaScript 实现，浏览器、React Native 与 Node.js 100% 同构。
  */
 export function canonicalizeJsonValue(value: unknown): unknown {
   if (value === null || typeof value !== 'object') {
@@ -112,14 +128,13 @@ export function canonicalizeJsonValue(value: unknown): unknown {
 }
 
 /**
- * 计算请求载荷的确定性 SHA-256 指纹 (STD-API-08)
- *
- * 规则：
- * 1. 先经 Zod parse 去除未知字段并完成 trim 等规范化；
- * 2. 排除 requestId 本身（若存在于 body）后对规范化 JSON 排序序列化；
- * 3. 返回 64 位小写十六进制 SHA-256 摘要，与 requestId 共同决定重放或 409 冲突。
+ * 跨运行时异步 SHA-256 指纹计算器（基于标准 Web Crypto API，浏览器与 Node 20+ 均可用）
  */
-export function computePayloadFingerprint(normalizedPayload: unknown): string {
+export async function computePayloadFingerprintAsync(normalizedPayload: unknown): Promise<string> {
   const canonical = JSON.stringify(canonicalizeJsonValue(normalizedPayload))
-  return createHash('sha256').update(canonical, 'utf8').digest('hex')
+  const encoded = new TextEncoder().encode(canonical)
+  const digest = await globalThis.crypto.subtle.digest('SHA-256', encoded)
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
 }

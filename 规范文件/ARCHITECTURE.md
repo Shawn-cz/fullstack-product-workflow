@@ -1,16 +1,16 @@
 # 工作流体系结构
 
-版本：0.9.1。本项目包含可跨平台使用的 Markdown 规范包、双索引树（`INDEX_TREE.md` + `build-index-tree.mjs`）、开箱即用的代码级通用契约包（`contracts/`）与 CI 四道硬门禁（`ci/`），以及面向 Antigravity 等 AI IDE 的原生 `.agents/skills/fullstack-product-delivery/` 技能与根目录 `AGENTS.md` 规则入口。
+版本：1.0.0（正式试点版）。本项目包含可跨平台使用的 Markdown 规范包、黄金栈一键脚手架（`starter/`）、双索引树（`INDEX_TREE.md` + `build-index-tree.mjs`）、前后端同构契约与 RBAC 权限底座（`contracts/`）、双向闭环 CI 四道硬门禁（`ci/`），以及面向 Antigravity 等 AI IDE 的原生 `.agents/skills/fullstack-product-delivery/` 技能与根目录 `AGENTS.md` 规则入口。
 
 ## 信息分层
 
 | 层 | 文件 / 目录 | 权威职责 |
 |---|---|---|
-| 自动触发入口 | `AGENTS.md`、`.agents/skills/fullstack-product-delivery/` | 在 AI IDE 中自动识别工作流纪律、双索引树首读、黄金栈、ATDD 闭环与阶段路由 |
-| 导航与索引 | `开始使用.md`、`README.md`、`规范文件/README.md`、`规范文件/INDEX_TREE.md` | 团队启动入口、规则行号切片导航树与 GitHub 一键口令 |
+| 自动触发入口 | `AGENTS.md`、`.agents/skills/fullstack-product-delivery/` | 在 AI IDE 中自动识别工作流纪律、双索引树首读、一键脚手架、安全红线与阶段路由 |
+| 导航与索引 | `开始使用.md`、`README.md`、`规范文件/README.md`、`规范文件/INDEX_TREE.md` | 团队启动入口、119 条规则行号切片导航树与 GitHub 一键口令 |
 | 流程 | `规范文件/00_主流程.md` | 全栈执行顺序、ATDD 四步闭环、三级裁剪、指令型需求豁免、完成条件 |
-| 规则 | `规范文件/01_规则库.md` | 117 条有效唯一规则 ID（`STD-*`）、触发条件、强制动作与验证要求 |
-| 工程资产基线 | `规范文件/contracts/`、`规范文件/ci/` | Zod/OpenAPI 通用契约基线、自动项目索引树生成器、PostgreSQL 16 同构 Docker 与四道门禁 |
+| 规则 | `规范文件/01_规则库.md` | 119 条有效唯一规则 ID（`STD-*`）、触发条件、强制动作与验证要求 |
+| 工程资产基线 | `规范文件/starter/`、`规范文件/contracts/`、`规范文件/ci/` | 一键脚手架与种子工厂、同构契约与 RBAC 权限基线、自动索引树与双向闭环 CI 门禁 |
 | 产物结构 | `规范文件/02_模板包.md` 及 `规范文件/templates/T01~T13` | 按阶段记录实际项目成果的轻量单文件结构 |
 | 案例参考 | `规范文件/03_贯穿案例_工单.md` | 展示需求 `AC`、PostgreSQL Prisma、React/Preline 组件、`@req/@ac` 测试与指纹证据格式 |
 | AI 执行 | `规范文件/04_AI项目执行说明.md` | AI 执行闭环、Git 快照救生、CI 门禁与黑盒验真步骤的方式 |

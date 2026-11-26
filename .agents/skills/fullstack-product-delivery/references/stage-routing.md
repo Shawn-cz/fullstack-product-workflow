@@ -1,6 +1,6 @@
-# 阶段路由、裁剪与闭环速查表 (v0.9.1)
+# 阶段路由、裁剪与闭环速查表 (v1.0.0)
 
-> 查阅 117 条规则行号与一跳定位表，请直达 [规范文件/INDEX_TREE.md](../../../../规范文件/INDEX_TREE.md)。
+> 查阅 119 条规则行号与一跳定位表，请直达 [规范文件/INDEX_TREE.md](../../../../规范文件/INDEX_TREE.md)；新项目一键铺底直达 [规范文件/starter/](../../../../规范文件/starter/README.md)。
 
 ## 1. 任务路径三级裁剪与移动端双模式
 
@@ -18,10 +18,10 @@
 | **S1 问题与价值** | 探索型做用户访谈；**指令型凭负责人 DEC 直通 S2** | [T02_问题与证据卡.md](../../../../规范文件/templates/T02_问题与证据卡.md)（指令型可省） | `STD-REQ-01~02`, `STD-AI-01` |
 | **S2 范围与需求** | 划定系统边界、拆解结构化 **`AC-xxx`（Given/When/Then）** 验收条件 | [T03_蓝图与需求规格.md](../../../../规范文件/templates/T03_蓝图与需求规格.md) | `STD-REQ-01~04`, `STD-QA-01`, `STD-FLOW-01` |
 | **S3 业务与状态** | 定义对象、角色×动作×数据范围权限矩阵、状态机与幂等预期 | [T04_业务对象权限状态与行为.md](../../../../规范文件/templates/T04_业务对象权限状态与行为.md) | `STD-BIZ-01~04`, `STD-DAT-01`, `STD-SEC-01` |
-| **S4 架构与契约** | 采用 React+PostgreSQL 黄金栈、继承通用契约包与载荷指纹基线 | [T05](../../../../规范文件/templates/T05_技术决策数据接口与复用.md) + [contracts/](../../../../规范文件/contracts/README.md) | `STD-ARC-01~09`, `STD-DAT-01~04`, `STD-API-01~08` |
+| **S4 架构与契约** | 用 [starter/](../../../../规范文件/starter/README.md) 铺底、继承同构契约包与 RBAC 底座 | [T05](../../../../规范文件/templates/T05_技术决策数据接口与复用.md) + [contracts/](../../../../规范文件/contracts/README.md) | `STD-ARC-01~09`, `STD-API-01~08`, `STD-SEC-01~05` |
 | **S5 交互与组件** | 继承既有风格或执行授权改版、设计 React + Preline/Meta 组件与 7 态 | [T06_交互与组件规格.md](../../../../规范文件/templates/T06_交互与组件规格.md) | `STD-UX-01~04`, `STD-FE-01~06`, `STD-REACT-01~04` |
-| **S6 准备与测试先行** | 配置 PostgreSQL Docker + 四道 CI 门禁，写出 `@req/@ac` 先行测试（RED） | [T07](../../../../规范文件/templates/T07_测试与验收规格.md), [T08](../../../../规范文件/templates/T08_实施任务与追溯.md), [T12](../../../../规范文件/templates/T12_审计与验收包.md), [ci/](../../../../规范文件/ci/README.md) | `STD-CODE-01~11`, `STD-QA-01~13`, `STD-AUD-07` |
-| **S7 实现与指纹闭环** | Git 快照保护、写 `@desc` 并刷新索引树、转绿、跑四道门禁、黑盒验真并锁指纹 | 更新 `T07`, `T08`, `T12` + `build-index-tree.mjs --write` + `verify-gates.mjs --all` | `STD-GOV-05`, `STD-CODE-01~11`, `STD-QA-01~13`, `STD-AUD-01~07` |
+| **S6 准备与测试先行** | 配置 PostgreSQL Docker + 种子账号 + 双向门禁，写出全覆盖 `@req/@ac` 先行测试（RED） | [T07](../../../../规范文件/templates/T07_测试与验收规格.md), [T08](../../../../规范文件/templates/T08_实施任务与追溯.md), [T12](../../../../规范文件/templates/T12_审计与验收包.md), [ci/](../../../../规范文件/ci/README.md) | `STD-CODE-01~11`, `STD-QA-01~14`, `STD-AUD-07` |
+| **S7 实现与指纹闭环** | Git 快照保护、写 `@desc` 刷新索引树、转绿、双向门禁与黑盒验真并锁指纹 | 更新 `T07`, `T08`, `T12` + `npm run index:build` + `npm run gates` | `STD-GOV-05`, `STD-SEC-05`, `STD-QA-01~14`, `STD-AUD-01~07` |
 | **S8 发布与运行** | 独立复核/负责人授权、PostgreSQL 迁移备份、线上观察 (`QG-04`) | [T09_发布与运行卡.md](../../../../规范文件/templates/T09_发布与运行卡.md) | `STD-OPS-01~06`, `STD-DAT-04`, `STD-QA-12~13` |
 | **S9 复盘与交接** | 核对目标差异、处理变更、保存可恢复交接记录 | [T10_复盘变更与交接.md](../../../../规范文件/templates/T10_复盘变更与交接.md) | `STD-REQ-04`, `STD-OPS-04`, `STD-GOV-03~04` |
 
