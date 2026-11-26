@@ -1,19 +1,20 @@
 {
     "date":  "2026-11-26",
-    "workflow_version":  "1.0.0",
-    "scope":  "正式试点版（P0+P1 五项工程底座 G-01~G-05 全量落地与端到端正负向实测）",
+    "workflow_version":  "1.1.0",
+    "scope":  "全生命周期完整版（P2+P3 四项生产与协作底座 G-06~G-09 全量落地与端到端正负向实测）",
     "status":  "passed",
     "counts":  {
                    "markdown_files":  16,
-                   "starter_files":  11,
+                   "starter_files":  13,
                    "standalone_template_files":  13,
-                   "contract_files":  5,
-                   "ci_files":  5,
+                   "contract_files":  6,
+                   "ci_files":  7,
+                   "deploy_files":  6,
                    "skill_and_agent_files":  3,
                    "stages":  10,
                    "stage_task_objectives":  10,
-                   "rules":  119,
-                   "unique_rule_ids":  119,
+                   "rules":  124,
+                   "unique_rule_ids":  124,
                    "templates":  13,
                    "sources":  50,
                    "quality_gates":  4,
@@ -25,73 +26,74 @@
     "historical_documents":  [
                                  "../历史归档_勿喂给AI/审计报告_v0.6.md",
                                  "../历史归档_勿喂给AI/审计报告_v0.8.md",
-                                 "../历史归档_勿喂给AI/审计报告_v0.9.md"
+                                 "../历史归档_勿喂给AI/审计报告_v0.9.md",
+                                 "../历史归档_勿喂给AI/审计报告_v1.0.md"
                              ],
-    "baseline_manifest":  "../历史归档_勿喂给AI/2026-11-14_至_2026-11-26/v0.9.1-manifest.json",
+    "baseline_manifest":  "../历史归档_勿喂给AI/2026-11-14_至_2026-11-26/v1.0.0-manifest.json",
     "files":  [
                   {
                       "path":  "00_主流程.md",
-                      "sha256":  "97bfc86f37096f72d552fae0a2eb7506a72d17f9779fac3bd7f0bec9aa6e093c"
+                      "sha256":  "d6e6411d8b50e062e84bbb441bea7956f7e20c3fe66d13b221972cd0babbc535"
                   },
                   {
                       "path":  "01_规则库.md",
-                      "sha256":  "90fd2ebc747ccfc33e69c0b6f1dc8dc5b21570c5aae45e6cdec5f7f4c1124acc"
+                      "sha256":  "967b33d158db0d9d4deb304b6e69522a8f4d78074832974c9acd5372775d1d6a"
                   },
                   {
                       "path":  "02_模板包.md",
-                      "sha256":  "7b0136b3b91430116a2f46e087ced9921cb1ccd80c16d48c5778c6b617c201f9"
+                      "sha256":  "8377f1cb68d2cbf7915c5c9fb84a23e068e95c93175239a7c239b3ecfd92f267"
                   },
                   {
                       "path":  "03_贯穿案例_工单.md",
-                      "sha256":  "fdde5cb9594cc37039649620ae29c120c8f9161efb97be57a09dae13b8694f50"
+                      "sha256":  "472bd67c64b6c99dacf28e523b104a0c958e58ffaf0db28d2a5cb251c0bc8af1"
                   },
                   {
                       "path":  "04_AI项目执行说明.md",
-                      "sha256":  "e7c41a736cd41f940169140d639ced06fa5babc22925d1712d74738c8287b8e4"
+                      "sha256":  "f2b2b4ad9d19040b7df69a99b5b5b2955f8f14a16dcbbaf711756522e2477ff7"
                   },
                   {
                       "path":  "05_来源与更新机制.md",
-                      "sha256":  "66975dd3699beeeefebfb8db3ff611f445f859b0167206bfdbd93c0b32c5ba81"
+                      "sha256":  "7e4002e72b5a60782b55751019a2c164f5b6518532191bd9b55721f29893b11b"
                   },
                   {
                       "path":  "06_工程质量与审计验收基线.md",
-                      "sha256":  "24004724053df139638115b64941ec644cd28b5713a8b8dc7f32d8fcce356420"
+                      "sha256":  "ba8b0d18de6c56d00501dda0bba0983a94b99edb37b7c97e16694e1beee19b84"
                   },
                   {
                       "path":  "07_项目推进与多agent执行.md",
-                      "sha256":  "5fe32e3fcb0421439add53c609bc394450878327abeca797116c405a2577c4c2"
+                      "sha256":  "336a5e57731860341efefebe781c65f406c7db51256cc0d69fa2821811b08aca"
                   },
                   {
                       "path":  "08_移动App专项.md",
-                      "sha256":  "807b7d098fb340e0103994a429d882c0af736c7ec6f49564c4fa4e39ae641119"
+                      "sha256":  "9c95c3be3d7ce15533f5fd518908c827b35230cd603d4d286e08d3133039d4d4"
                   },
                   {
                       "path":  "ARCHITECTURE.md",
-                      "sha256":  "c70c6b841b5c531e5e0cd35f2b000f25da11576210f0b84a1e97a84868358fd8"
+                      "sha256":  "5726f46566ef5ba821a4dd0719623f7d507ded35d5caff7f0bbd69dc6c2f9b8d"
                   },
                   {
                       "path":  "CHANGELOG.md",
-                      "sha256":  "dd6331f9bba56b8344784f8af23bf0d8b1150fddf9b1e8b506b276131b39010b"
+                      "sha256":  "8fae15bf4c23d0e574ca40017a9ac6049442e4da097961840d548a6707e7ae06"
                   },
                   {
                       "path":  "INDEX_TREE.md",
-                      "sha256":  "e20467e7fed4985e9b0da0caac404b7b471f208b96793605f1cc9de2c44e403a"
+                      "sha256":  "e5baa37c408e95cf00370a939263b3fb177f6278ba86729044c2133c8750ee46"
                   },
                   {
                       "path":  "README.md",
-                      "sha256":  "048a17456eb0e191803b4b62edadcebdb3cd925dd871585729f41d339a829835"
+                      "sha256":  "4943150888e8eef2b61e12f8586207d505260a3b06e8aa4750db37e18f76c8f7"
                   },
                   {
                       "path":  "session_handoff.md",
-                      "sha256":  "5d37b52f4a6830486305f95f53af08c9e398e7c2c3ae5c04b0dcaeffa4451c0a"
+                      "sha256":  "5dedebc6bd1e79c36db5ac40c6b2fcddc1bd4d9c539477a16e5e0b1ac5081c5e"
                   },
                   {
-                      "path":  "审计报告_v1.0.md",
-                      "sha256":  "840f8d8c219e545cc43e8542182da22232a48c00d78a0128a67401d43da9f33c"
+                      "path":  "审计报告_v1.1.md",
+                      "sha256":  "dd61d2e7f819e1dfe97ab96ad02259e2376595f51f080cda6a432d1e7502f699"
                   },
                   {
                       "path":  "验证记录.md",
-                      "sha256":  "938e944b24a56f9311a326342661f9c320ed48eec71334007ebe5d67a7ad36e7"
+                      "sha256":  "4807dc99ff09fe8ecc9bd08602e0c965fafe36e7f1e70cd9b5ed1b0f85b7c0d5"
                   }
               ],
     "packaging_note":  "交付清单与ZIP包均已排除.git目录；历史归档隔离于 历史归档_勿喂给AI/。"

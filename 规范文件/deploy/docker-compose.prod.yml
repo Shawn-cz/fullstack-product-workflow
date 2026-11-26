@@ -1,0 +1,75 @@
+# 软件产品设计与全栈交付工作流 v1.1.0 — 生产编排模板 (STD-OPS-01 / STD-OPS-07)
+# 架构：Caddy（自动 HTTPS）→ App（React 静态 + Node API）→ PostgreSQL 16（仅内网访问，禁止暴露公网 5432 端口）
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: prod_caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:?请在生产 .env 配置域名，如 app.example.com}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      app:
+        condition: service_healthy
+    networks:
+      - public_net
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: prod_app
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+      PORT: "3001"
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3001/readyz || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks:
+      - public_net
+      - internal_db_net
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: prod_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?必填 POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?必填强随机 POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:?必填 POSTGRES_DB}
+    # 严禁在生产环境对外映射 ports: 5432:5432，数据库仅允许 internal_db_net 内网访问
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - internal_db_net
+
+networks:
+  public_net:
+  internal_db_net:
+    internal: true
+
+volumes:
+  postgres_prod_data:
+  caddy_data:
+  caddy_config:

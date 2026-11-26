@@ -1,5 +1,18 @@
 # 变更日志
 
+## 1.1.0 — 2026-11-26（全生命周期完整版：补齐 P2+P3 全部 4 项生产部署、协作、可观测性与业务底座）
+
+- **G-06（P2）：新增 S8 生产容器化部署、自动 HTTPS、健康探针与备份恢复包（`规范文件/deploy/`，新增规则 `STD-OPS-07`）**：
+  - 新增多阶段非 root `Dockerfile`（`USER node` + 内置 `/healthz` HEALTHCHECK）、内网隔离 PostgreSQL 16 的 `docker-compose.prod.yml`（严禁暴露 5432 公网端口）、自动签发 HTTPS 证书与安全头的 `Caddyfile`、`/healthz`（存活）+ `/readyz`（PostgreSQL `SELECT 1` 就绪）的 `health-probes.ts.tpl`，以及跨平台 `backup-postgres.mjs`（`--backup` 生成 `.sql` + `.sha256`、`--restore <file> --confirm-restore` 强制摘要核验与双确认熔断，含 `--self-check`）。
+- **G-07（P2）：新增多人协作本地 Pre-commit 钩子与 PR 审查清单（新增规则 `STD-CODE-12`）**：
+  - 新增 `规范文件/ci/pre-commit.hook`（提交前自动刷新 `PROJECT_INDEX_TREE.md` 并执行 Gate 2/1 本地快检）与 `规范文件/ci/pull_request_template.md`（覆盖 `REQ/AC`、CI Gate 1–4 + SHA-256 指纹、黑盒验真截图与 Prisma Studio、Prisma 迁移先 rebase 主干规范、D0/D1 高风险独立审计签字）；`package.json.tpl` 新增 `hooks:install` 与 `prepare` 一键启用。
+- **G-08（P2）：新增 Pino 结构化脱敏日志、`x-request-id` 追踪与异常指纹中间件（新增规则 `STD-OPS-08`）**：
+  - 新增 `规范文件/starter/templates/logger-trace.ts.tpl`（基于 Pino，强制将 `password/token/authorization/cookie/secret` 等敏感字段脱敏为 `[REDACTED]`，自动透传/生成 `x-request-id`，并提供 16 位十六进制 `computeErrorFingerprint` 与 `logUnhandledError` 异常聚类）。
+- **G-09（P3）：新增团队统一品牌 Design Token 与对象存储/异步任务基线（新增规则 `STD-FE-07`、`STD-DAT-05`）**：
+  - 新增 `规范文件/starter/templates/theme.css.tpl`（Tailwind CSS v4 `@theme` + Preline 品牌色、WCAG AA 语义状态色、圆角、`:focus-visible` 与 `prefers-reduced-motion`），彻底杜绝 AI 生成默认模板风。
+  - 新增 `规范文件/contracts/storage-jobs-baseline.md`（S3/OSS 预签名直传 + MIME/魔数校验 + 私有桶 RBAC 下载；异步/定时任务 `jobKey` 唯一幂等键 + `lockedUntil` 租约锁 + 指数退避与死信状态）。
+- **脚手架升级与全套同步（有效规则总计 124 条）**：`starter/init-project.mjs` 升级至 25 项映射（一键生成 26 个文件含 `.gitignore` 并自动赋予 `.githooks/pre-commit` 可执行权限）；`verify-gates.mjs --self-check` 级联校验 `backup-postgres.mjs`；同步更新 `00`–`08`、`INDEX_TREE.md`、`templates/T01~T13`、`SKILL.md`、`AGENTS.md`、`开始使用.md`，归档 `v1.0.0-baseline.zip` 与 `审计报告_v1.0.md`，形成 `审计报告_v1.1.md`。
+
 ## 1.0.0 — 2026-11-26（正式试点版：补齐 P0+P1 全部 5 项工程化底座）
 
 - **G-01（P0 技术隐患修复）：前后端同构契约与服务端指纹物理分离**：

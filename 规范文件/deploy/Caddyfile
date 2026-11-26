@@ -1,0 +1,26 @@
+# 软件产品设计与全栈交付工作流 v1.1.0 — Caddy 自动 HTTPS 与安全响应头配置 (STD-OPS-07)
+{$APP_DOMAIN:localhost} {
+    encode zstd gzip
+
+    # 基础安全响应头
+    header {
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        -Server
+    }
+
+    # 后端 API 与健康检查探针转发至 Node 容器
+    @backend {
+        path /api/* /healthz /readyz
+    }
+    handle @backend {
+        reverse_proxy app:3001
+    }
+
+    # React SPA 前端路由与静态资源
+    handle {
+        reverse_proxy app:3001
+    }
+}

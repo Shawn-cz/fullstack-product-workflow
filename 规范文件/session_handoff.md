@@ -1,20 +1,19 @@
 # Session Handoff
 
-日期：2026-11-26（Asia/Shanghai）｜工作流版本：1.0.0（正式试点版）
+日期：2026-11-26（Asia/Shanghai）｜工作流版本：1.1.0（全生命周期完整版）
 
-## 本轮里程碑（0.9.1 → 1.0.0）
+## 本轮里程碑（1.0.0 → 1.1.0）
 
-经用户拍板批准 **P0 + P1 全部 5 项缺口补强（G-01 至 G-05）**，本轮已完成从 0.x 到 **`v1.0.0` 正式试点版**的完整闭环落地，并同步推送至 GitHub 仓库 `Shawn-cz/fullstack-product-workflow`（标签 `v1.0.0`）：
-1. **G-01（P0 修复）**：拆分纯同构 `contracts/base-contract.schema.ts`（零 Node 依赖）与 `contracts/fingerprint.server.ts`，并在 Gate 2 自动拦截浏览器端误引 `node:crypto`。
-2. **G-02（一键脚手架）**：新增 `规范文件/starter/init-project.mjs` 与 9 份黄金栈模板（含 `usePrelineInit.ts` 路由 Hook 与 PostgreSQL 四张通用底座表），1 条命令完成新项目初始化。
-3. **G-03（真双向闭环）**：升级 `verify-gates.mjs` Gate 1，自动解析 `docs/` 需求文档中的全部 `REQ`/`AC` 并与 `tests/` 的 `@req/@ac` 做差集校验，0 漏测放行。
-4. **G-04（认证与三层 RBAC）**：新增规则 `STD-SEC-05`、`contracts/auth-rbac-baseline.md` 与 `starter/templates/auth-rbac.ts.tpl`，Gate 2 自动拦截前端 `localStorage` 存令牌。
-5. **G-05（测试种子工厂）**：新增规则 `STD-QA-14` 与 `starter/templates/seed.ts.tpl`（预置 4 角色测试账号 + 生产熔断 + `npm run db:reset`）。
+经用户拍板批准 **P2 + P3 全部 4 项缺口补强（G-06 至 G-09）**，本轮已完成对全面审计 9 项缺口（G-01 至 G-09）的 **100% 闭环落地**，升级为 **`v1.1.0` 全生命周期完整版**并同步推送至 GitHub 仓库 `Shawn-cz/fullstack-product-workflow`（标签 `v1.1.0`）：
+1. **G-06（S8 生产部署与灾备）**：新增 `规范文件/deploy/`（非 root `Dockerfile`、内网隔离 `docker-compose.prod.yml`、自动 HTTPS `Caddyfile`、`/healthz`+`/readyz` 探针、`backup-postgres.mjs` `.sql`+`.sha256` 备份与双确认恢复）及规则 `STD-OPS-07`。
+2. **G-07（多人协作与本地防呆）**：新增 `ci/pre-commit.hook`、`ci/pull_request_template.md`、`npm run hooks:install` 及规则 `STD-CODE-12`。
+3. **G-08（结构化脱敏日志与错误指纹）**：新增 `starter/templates/logger-trace.ts.tpl`（Pino 敏感字段脱敏 + `x-request-id` + 16 位 `errorFingerprint`）及规则 `STD-OPS-08`。
+4. **G-09（品牌主题 Token + 存储与异步任务）**：新增 `starter/templates/theme.css.tpl`（`STD-FE-07`）与 `contracts/storage-jobs-baseline.md`（`STD-DAT-05`）。
+5. **脚手架一体化**：`starter/init-project.mjs` 升级为 25 项映射（一键生成 26 个文件，覆盖 S0 开发到 S8 生产部署全链路）。
 
 ## 当前体系规模
-- 10 阶段（S0–S9）｜**119 条**唯一有效规则｜13 份独立单文件模板｜50 组第一方来源
-- 4 个工程工具目录：`starter/`（11 文件）、`contracts/`（5 文件）、`ci/`（5 文件）、`.agents/skills/`（2 文件）
+- 10 阶段（S0–S9）｜**124 条**唯一有效规则（含 16 条移动专项）｜13 份独立单文件模板｜50 组第一方来源
+- 5 个工程与技能目录：`starter/`（13 文件）、`contracts/`（6 文件）、`ci/`（7 文件）、`deploy/`（6 文件）、`.agents/skills/`（2 文件）
 
-## 后续可选演进（已审计暂存 P2/P3，待首轮试点后按需启用）
-- **P2（进入多人协作与正式上线阶段启用）**：G-06（S8 生产 `Dockerfile` / Caddy HTTPS / PostgreSQL 自动备份脚本）、G-07（本地 `.githooks/pre-commit` 与 PR 模板）、G-08（`pino` 结构化脱敏日志与异常指纹中间件）。
-- **P3（按业务形态按需选配）**：G-09（团队统一品牌 `theme.css` Design Token 预设、对象存储上传安全规范与定时任务幂等规范）。
+## 后续演进建议
+- 当前所有已识别的结构性工程缺口（G-01 至 G-09）均已闭环；建议团队直接以 `v1.1.0` 开展真实业务项目端到端试点，将实际使用中遇到的阻塞点记录至各项目的 `T10 工作流反馈`，作为 `v1.2.0` 实战精修依据。

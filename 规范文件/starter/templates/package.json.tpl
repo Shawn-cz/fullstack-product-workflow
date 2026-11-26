@@ -16,12 +16,16 @@
     "db:seed": "npx tsx prisma/seed.ts",
     "db:reset": "npx prisma migrate reset --force && npm run db:seed",
     "db:studio": "npx prisma studio",
+    "db:backup": "node scripts/backup-postgres.mjs --backup",
     "index:build": "node scripts/build-index-tree.mjs --write",
-    "gates": "node scripts/verify-gates.mjs --all"
+    "gates": "node scripts/verify-gates.mjs --all",
+    "hooks:install": "git config core.hooksPath .githooks",
+    "prepare": "git config core.hooksPath .githooks || true"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.60.0",
     "hono": "^4.6.0",
+    "pino": "^9.5.0",
     "preline": "^3.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
