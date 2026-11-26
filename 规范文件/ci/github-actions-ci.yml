@@ -1,4 +1,4 @@
-# 软件产品设计与全栈交付工作流 v1.1.0 — GitHub Actions CI 四道硬门禁流水线模板
+# 软件产品设计与全栈交付工作流 v1.2.0 — GitHub Actions CI 四道硬门禁流水线模板
 # 启用方法：通过 starter/init-project.mjs 自动生成，或手动复制到业务项目的 .github/workflows/ci.yml。
 # 对应规则：STD-GOV-05（索引树）、STD-SEC-05（安全红线）、STD-QA-13（双向闭环四道硬门禁）、STD-AUD-07（三重指纹）、STD-ARC-09（PostgreSQL 同构）
 
@@ -71,17 +71,43 @@ jobs:
       - name: "Gate 3a: Deploy migrations to PostgreSQL 16 container"
         run: npx prisma migrate deploy
 
+      - name: "Gate 3a-2: Seed 4 synthetic RBAC test accounts"
+        run: npm run db:seed
+
       - name: "Gate 3b: Run Vitest unit & integration tests against PostgreSQL"
         run: npm test
 
       - name: "Gate 3c: Build React + Preline frontend & check bundle"
         run: npm run build
 
-      # 若项目已配置 Playwright 端到端与真实渲染对照测试，取消下方注释：
-      # - name: "Gate 3d: Install Playwright & run E2E + visual render checks"
-      #   run: |
-      #     npx playwright install --with-deps chromium
-      #     npm run test:e2e
+      - name: "Gate 3d-1: Detect Playwright E2E / RBAC specs"
+        id: detect_e2e
+        shell: bash
+        run: |
+          if [ -d "tests/e2e" ] && find tests/e2e -type f \( -name '*.spec.ts' -o -name '*.spec.tsx' \) | grep -q .; then
+            echo "has_e2e=true" >> "$GITHUB_OUTPUT"
+            echo "✅ 检测到 tests/e2e/*.spec.ts，将自动执行 Playwright 双账号越权与端到端验收。"
+          else
+            echo "has_e2e=false" >> "$GITHUB_OUTPUT"
+            echo "ℹ️ 当前尚未进入 S6 E2E 用例编写阶段（tests/e2e/ 无 .spec.ts），跳过 Gate 3d。"
+          fi
+
+      - name: "Gate 3d-2: Install Playwright Chromium & run automated RBAC/IDOR E2E"
+        if: steps.detect_e2e.outputs.has_e2e == 'true'
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:e2e
+
+      - name: "Gate 3d-3: Upload Playwright visual HTML report & screenshots"
+        if: always() && steps.detect_e2e.outputs.has_e2e == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-rbac-report
+          path: |
+            docs/evidence/playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 14
 
       # ============================================================
       # Gate 4: 三重指纹一致性校验（Commit / Schema / 契约 / 证据）

@@ -1,6 +1,6 @@
 # 工作流规范自身索引树 (`INDEX_TREE.md`)
 
-版本：1.1.0｜用途：供 AI 与团队成员一屏精准定位本工作流包中的规则行段、全生命周期一键脚手架、独立模板、同构契约与存储/任务基线、RBAC 权限底座、双向闭环 CI/Pre-commit 门禁与 S8 生产部署包，避免每次整份读取 [01_规则库.md](01_规则库.md)。
+版本：1.2.0｜用途：供 AI 与团队成员一屏精准定位本工作流包中的规则行段、全生命周期一键脚手架、独立模板、同构契约与存储/任务基线、RBAC 权限底座、双向闭环 CI/Pre-commit 门禁、Playwright 自动越权底座与 S8 生产部署包，避免每次整份读取 [01_规则库.md](01_规则库.md)。
 
 > **区分概念：** 本文件是**工作流规范包自身**的导航树；实际业务项目根目录由脚本 `scripts/build-index-tree.mjs` 自动生成的是**《项目资产语义索引树》(`PROJECT_INDEX_TREE.md`)**（见 `STD-GOV-05`）。
 
@@ -9,7 +9,7 @@
 ## 1. 工作流目录树（日常运行层）
 
 ```text
-软件产品全栈交付工作流_v1.1.0/
+软件产品全栈交付工作流_v1.2.0/
 ├── AGENTS.md                                      # 工作区常驻规则入口（AI IDE 自动加载）
 ├── 开始使用.md / README.md                        # 团队上手指南、一键脚手架与 GitHub 启动口令
 ├── .agents/skills/fullstack-product-delivery/
@@ -26,7 +26,7 @@
     ├── 06_工程质量与审计验收基线.md               # Git 救生(4.3)、同构与RBAC(5.4)、部署/日志/主题/存储(5.5)、黑盒(6.1)、CI(6.2)、防伪(7.3)
     ├── 07_项目推进与多agent执行.md                # 里程碑、依赖、并行集成与独立交叉审计子 agent
     ├── 08_移动App专项.md                          # 模式 A（既有 App 修改对接）vs 模式 B（条件从 0 新建）
-    ├── starter/                                   # 【一键脚手架】init-project.mjs（25 项映射）+ 11 份黄金栈/RBAC/种子/主题/Pino 模板
+    ├── starter/                                   # 【一键脚手架】init-project.mjs（28 项映射）+ 14 份模板 + S6 越权 E2E 样板
     ├── templates/                                 # 13 份独立按需加载模板（T01–T13，1–9KB/个）
     ├── contracts/                                 # 同构 base-contract.schema.ts + fingerprint.server.ts + OpenAPI + RBAC + 存储与异步任务基线
     ├── ci/                                        # build-index-tree.mjs + 双向闭环 verify-gates.mjs + Pre-commit + PR 模板 + CI + Postgres Compose
@@ -69,7 +69,7 @@
 | 写新接口/认证登录，怕前端打包报 `node:crypto` 或写错鉴权 | 读 [contracts/](contracts/README.md) 与 [auth-rbac-baseline.md](contracts/auth-rbac-baseline.md) |
 | 要做文件上传下载、导出或定时/异步后台任务 | 读 [storage-jobs-baseline.md](contracts/storage-jobs-baseline.md)（`STD-DAT-05`） |
 | 想统一全站品牌色、语义状态色与 Preline 圆角，拒绝默认模板风 | 编辑 `src/styles/theme.css`（源自 [theme.css.tpl](starter/templates/theme.css.tpl)，`STD-FE-07`） |
-| 零经验成员要做双无痕窗口越权黑盒验真，不想手工注册账号 | 运行 `npm run db:seed` / `npm run db:reset`（见 [seed.ts.tpl](starter/templates/seed.ts.tpl)） |
+| 想要全自动跑通双账号越权/401/403/404 与 `HttpOnly` Cookie 验真（免开双无痕窗口） | 运行 `npm run test:e2e:fresh` / `npm run test:e2e:report`（见 [test-accounts.ts.tpl](starter/templates/test-accounts.ts.tpl) 与 [rbac-isolation.spec.ts.example](starter/examples/rbac-isolation.spec.ts.example)） |
 | 线上排障需要 `x-request-id` 全链路日志与敏感字段脱敏 | 接入 `server/middleware/logger-trace.ts`（源自 [logger-trace.ts.tpl](starter/templates/logger-trace.ts.tpl)，`STD-OPS-08`） |
 | 准备 S8 生产发布（Docker、自动 HTTPS、探针、数据库备份恢复） | 读 [deploy/](deploy/README.md) 并运行 `npm run db:backup`（`STD-OPS-07`） |
 | 要改既有 App 还是从 0 新建 App | 看 [08_移动App专项.md](08_移动App专项.md#L1-L35) 与 [T13](templates/T13_移动App项目补充卡.md) 模式 A/B 判定 |

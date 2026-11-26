@@ -1,4 +1,4 @@
-# 阶段路由、裁剪与闭环速查表 (v1.1.0)
+# 阶段路由、裁剪与闭环速查表 (v1.2.0)
 
 > 查阅 124 条规则行号与一跳定位表，请直达 [规范文件/INDEX_TREE.md](../../../../规范文件/INDEX_TREE.md)；新项目一键铺底直达 [规范文件/starter/](../../../../规范文件/starter/README.md)；S8 生产部署包直达 [规范文件/deploy/](../../../../规范文件/deploy/README.md)。
 
@@ -20,8 +20,8 @@
 | **S3 业务与状态** | 定义对象、角色×动作×数据范围权限矩阵、状态机与幂等预期 | [T04_业务对象权限状态与行为.md](../../../../规范文件/templates/T04_业务对象权限状态与行为.md) | `STD-BIZ-01~04`, `STD-DAT-01`, `STD-SEC-01` |
 | **S4 架构与契约** | 用 [starter/](../../../../规范文件/starter/README.md) 铺底、继承同构契约、RBAC 与对象存储/异步任务基线 | [T05](../../../../规范文件/templates/T05_技术决策数据接口与复用.md) + [contracts/](../../../../规范文件/contracts/README.md) | `STD-ARC-01~09`, `STD-DAT-01~05`, `STD-API-01~08`, `STD-SEC-01~05` |
 | **S5 交互与组件** | 继承既有风格或执行授权改版、收口 `src/styles/theme.css` 品牌 Token、设计 React + Preline 组件与 7 态 | [T06_交互与组件规格.md](../../../../规范文件/templates/T06_交互与组件规格.md) + [theme.css.tpl](../../../../规范文件/starter/templates/theme.css.tpl) | `STD-UX-01~04`, `STD-FE-01~07`, `STD-REACT-01~04` |
-| **S6 准备与测试先行** | 配置 PostgreSQL Docker + 种子账号 + `npm run hooks:install` + 双向门禁，写出全覆盖 `@req/@ac` 先行测试（RED） | [T07](../../../../规范文件/templates/T07_测试与验收规格.md), [T08](../../../../规范文件/templates/T08_实施任务与追溯.md), [T12](../../../../规范文件/templates/T12_审计与验收包.md), [ci/](../../../../规范文件/ci/README.md) | `STD-CODE-01~12`, `STD-QA-01~14`, `STD-AUD-07` |
-| **S7 实现与指纹闭环** | 特性分支与 Git 快照、写 `@desc` 刷新索引树、接 `logger-trace.ts`、转绿、Pre-commit/CI 门禁、PR 清单与黑盒验真并锁指纹 | 更新 `T07`, `T08`, `T12` + `npm run index:build` + `npm run gates` | `STD-GOV-05`, `STD-CODE-11~12`, `STD-SEC-05`, `STD-QA-01~14`, `STD-OPS-08`, `STD-AUD-01~07` |
+| **S6 准备与测试先行** | 配置 PostgreSQL Docker + 种子账号 + Playwright 多角色越权 Fixture + `npm run hooks:install` + 双向门禁，写出全覆盖 `@req/@ac` 先行测试（RED） | [T07](../../../../规范文件/templates/T07_测试与验收规格.md), [T08](../../../../规范文件/templates/T08_实施任务与追溯.md), [T12](../../../../规范文件/templates/T12_审计与验收包.md), [ci/](../../../../规范文件/ci/README.md), [rbac-isolation.spec.ts.example](../../../../规范文件/starter/examples/rbac-isolation.spec.ts.example) | `STD-CODE-01~12`, `STD-QA-01~14`, `STD-AUD-07` |
+| **S7 实现与指纹闭环** | 特性分支与 Git 快照、写 `@desc` 刷新索引树、接 `logger-trace.ts`、转绿、Pre-commit/CI 门禁（含 `Gate 3d` Playwright 自动越权）、PR 清单与业务验真并锁指纹 | 更新 `T07`, `T08`, `T12` + `npm run index:build` + `npm run gates` + `npm run test:e2e:fresh` | `STD-GOV-05`, `STD-CODE-11~12`, `STD-SEC-05`, `STD-QA-01~14`, `STD-OPS-08`, `STD-AUD-01~07` |
 | **S8 发布与运行** | 独立复核/负责人授权、Docker/Caddy HTTPS/双探针部署、变更前 `npm run db:backup` 生成 `.sha256`、Pino 脱敏日志告警 (`QG-04`) | [T09_发布与运行卡.md](../../../../规范文件/templates/T09_发布与运行卡.md) + [deploy/](../../../../规范文件/deploy/README.md) | `STD-OPS-01~08`, `STD-DAT-04`, `STD-QA-12~13` |
 | **S9 复盘与交接** | 核对目标差异、处理变更、保存可恢复交接记录 | [T10_复盘变更与交接.md](../../../../规范文件/templates/T10_复盘变更与交接.md) | `STD-REQ-04`, `STD-OPS-04`, `STD-GOV-03~04` |
 

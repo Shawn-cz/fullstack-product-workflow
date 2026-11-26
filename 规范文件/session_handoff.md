@@ -1,19 +1,19 @@
 # Session Handoff
 
-日期：2026-11-26（Asia/Shanghai）｜工作流版本：1.1.0（全生命周期完整版）
+日期：2026-11-26（Asia/Shanghai）｜工作流版本：1.2.0（全生命周期与自动化越权闭环版）
 
-## 本轮里程碑（1.0.0 → 1.1.0）
+## 本轮里程碑（1.1.0 → 1.2.0）
 
-经用户拍板批准 **P2 + P3 全部 4 项缺口补强（G-06 至 G-09）**，本轮已完成对全面审计 9 项缺口（G-01 至 G-09）的 **100% 闭环落地**，升级为 **`v1.1.0` 全生命周期完整版**并同步推送至 GitHub 仓库 `Shawn-cz/fullstack-product-workflow`（标签 `v1.1.0`）：
-1. **G-06（S8 生产部署与灾备）**：新增 `规范文件/deploy/`（非 root `Dockerfile`、内网隔离 `docker-compose.prod.yml`、自动 HTTPS `Caddyfile`、`/healthz`+`/readyz` 探针、`backup-postgres.mjs` `.sql`+`.sha256` 备份与双确认恢复）及规则 `STD-OPS-07`。
-2. **G-07（多人协作与本地防呆）**：新增 `ci/pre-commit.hook`、`ci/pull_request_template.md`、`npm run hooks:install` 及规则 `STD-CODE-12`。
-3. **G-08（结构化脱敏日志与错误指纹）**：新增 `starter/templates/logger-trace.ts.tpl`（Pino 敏感字段脱敏 + `x-request-id` + 16 位 `errorFingerprint`）及规则 `STD-OPS-08`。
-4. **G-09（品牌主题 Token + 存储与异步任务）**：新增 `starter/templates/theme.css.tpl`（`STD-FE-07`）与 `contracts/storage-jobs-baseline.md`（`STD-DAT-05`）。
-5. **脚手架一体化**：`starter/init-project.mjs` 升级为 25 项映射（一键生成 26 个文件，覆盖 S0 开发到 S8 生产部署全链路）。
+针对零开发经验团队在真实项目试点中的反馈（人工开双无痕窗口验越权繁琐），本轮完成 **`v1.2.0` Playwright 双隔离上下文自动化越权底座** 落地：
+1. **纯数据账号源 + 无副作用 Seed**：新增 `starter/templates/test-accounts.ts.tpl`（`prisma/test-accounts.ts`），重构 `seed.ts.tpl` 为主模块入口执行且保留 `NODE_ENV=production` 熔断保护。
+2. **Playwright 双无痕窗口 Fixture 与 S6 样板**：新增 `playwright.config.ts.tpl`、`auth-contexts.ts.tpl`（`anonContext`/`memberA`/`memberB`/`handler`/`admin` + `assertHttpOnlySessionAndCleanStorage`）与 `starter/examples/rbac-isolation.spec.ts.example`；`vite.config.ts.tpl` 排除 `tests/e2e/**`，`package.json.tpl` 新增 `dev:server`、`test:e2e`、`test:e2e:fresh`、`test:e2e:report`。
+3. **CI `Gate 3d` 与门禁兼容**：`init-project.mjs` 升级至 28 项映射生成 29 文件（不提前落入假编号 `.spec.ts` 避免触发 Gate 1 幽灵编号报错）；`build-index-tree.mjs` 与 `verify-gates.mjs` 排除 `playwright-report` / `test-results`；`github-actions-ci.yml` 自动灌种子、检测 `tests/e2e/*.spec.ts` 并上传 `playwright-rbac-report` 视觉报告 Artifact。
+4. **规则与技能同步**：同步更新 `STD-QA-12~14`、`contracts/auth-rbac-baseline.md`、`pull_request_template.md`、`T07`、`SKILL.md`、`AGENTS.md`、`INDEX_TREE.md`、`00`/`02`/`04`/`06`、`README.md` 与 `开始使用.md`。
 
 ## 当前体系规模
 - 10 阶段（S0–S9）｜**124 条**唯一有效规则（含 16 条移动专项）｜13 份独立单文件模板｜50 组第一方来源
-- 5 个工程与技能目录：`starter/`（13 文件）、`contracts/`（6 文件）、`ci/`（7 文件）、`deploy/`（6 文件）、`.agents/skills/`（2 文件）
+- 5 个工程与技能目录：`starter/`（17 文件：含 `init-project.mjs`、`README.md`、14 份模板与 1 份 S6 E2E 样板）、`contracts/`（6 文件）、`ci/`（7 文件）、`deploy/`（6 文件）、`.agents/skills/`（2 文件）
 
 ## 后续演进建议
-- 当前所有已识别的结构性工程缺口（G-01 至 G-09）均已闭环；建议团队直接以 `v1.1.0` 开展真实业务项目端到端试点，将实际使用中遇到的阻塞点记录至各项目的 `T10 工作流反馈`，作为 `v1.2.0` 实战精修依据。
+- 在真实业务项目进入 S6/S7 时实跑 `npm run test:e2e:fresh`，根据实际后端启动脚本或 Cookie 命名微调经验回补模板仓。
+- 面向“团队没人使用 IDE”的长期痛点，下一步可在不重写编码引擎的前提下，外挂“网页/工单入口 + 云端沙箱 + 在线预览链接”的去 IDE 异步交付层。

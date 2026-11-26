@@ -1,5 +1,15 @@
 # 变更日志
 
+## 1.2.0 — 2026-11-26（全生命周期与自动化越权闭环版：接入 Playwright Gate 3d 双账号隔离自动验收）
+
+- **Playwright 双隔离上下文自动化越权底座（替代人工双无痕窗口与 F12 核验）**：
+  - 将 `starter/templates/seed.ts.tpl` 中的合成账号拆出纯数据模块 `starter/templates/test-accounts.ts.tpl`（`prisma/test-accounts.ts` 单一真相源，无导入副作用），`seed.ts` 保留 `NODE_ENV=production` 熔断保护并支持主模块入口判断。
+  - 新增 `starter/templates/playwright.config.ts.tpl`（自动拉起后端 `/readyz` 与前端 Vite 并输出 `docs/evidence/playwright-report` HTML 报告）、`starter/templates/auth-contexts.ts.tpl`（程序化双无痕窗口 `anonContext`/`memberA`/`memberB`/`handler`/`admin` 及 `assertHttpOnlySessionAndCleanStorage` 红线校验）与 S6 实例化样板 `starter/examples/rbac-isolation.spec.ts.example`（覆盖 `401`/`403`/`404`、IDOR 列表/详情隔离截图与退出登录会话吊销）。
+  - **门禁与 Vitest 零冲突隔离**：`vite.config.ts.tpl` 排除 `tests/e2e/**` 避免 Vitest 误扫；`starter/init-project.mjs` 升级至 28 项映射生成 29 文件（不提前生成带占位 `REQ/AC` 的 `.spec.ts`，避免触发 Gate 1 幽灵编号拦截）；`build-index-tree.mjs` 与 `verify-gates.mjs` 忽略 `playwright-report`/`test-results` 目录，防止生成报告后索引树检查变红。
+- **CI `Gate 3d` 全自动运行与报告归档**：
+  - 启用 `规范文件/ci/github-actions-ci.yml` 中的 `Gate 3a-2`（自动灌入 4 角色测试种子）与 `Gate 3d`（检测 `tests/e2e/*.spec.ts` 时自动安装 Chromium 跑 `npm run test:e2e` 并上传 `playwright-rbac-report` 报告与截图 Artifact）。
+  - 同步更新 `STD-QA-12~14`、`contracts/auth-rbac-baseline.md`、`pull_request_template.md`、`T07`、`SKILL.md`、`AGENTS.md`、`INDEX_TREE.md`、`00`/`02`/`04`/`06`、`README.md` 与 `开始使用.md`。
+
 ## 1.1.0 — 2026-11-26（全生命周期完整版：补齐 P2+P3 全部 4 项生产部署、协作、可观测性与业务底座）
 
 - **G-06（P2）：新增 S8 生产容器化部署、自动 HTTPS、健康探针与备份恢复包（`规范文件/deploy/`，新增规则 `STD-OPS-07`）**：
