@@ -1,6 +1,6 @@
 # 工作流规范自身索引树 (`INDEX_TREE.md`)
 
-版本：1.3.0｜用途：供 AI 与团队成员一屏精准定位本工作流包中的规则行段、最小可运行全栈脚手架、独立模板、同构契约与存储/任务基线、RBAC 权限底座、Pre-commit/CI/维护脚本与 S8 生产部署包，避免每次整份读取 [01_规则库.md](01_规则库.md)。
+版本：1.3.1｜用途：供 AI 与团队成员一屏精准定位本工作流包中的规则行段、最小可运行全栈脚手架、独立模板、同构契约与存储/任务基线、RBAC 权限底座、Pre-commit/CI/维护脚本与 S8 生产部署包，避免每次整份读取 [01_规则库.md](01_规则库.md)。
 
 > **区分概念：** 本文件是**工作流规范包自身**的导航树；实际业务项目根目录由脚本 `scripts/build-index-tree.mjs` 自动生成的是**《项目资产语义索引树》(`PROJECT_INDEX_TREE.md`)**（见 `STD-GOV-05`）。
 
@@ -9,8 +9,9 @@
 ## 1. 工作流目录树（日常运行层）
 
 ```text
-软件产品全栈交付工作流_v1.3.0/
+软件产品全栈交付工作流_v1.3.1/
 ├── AGENTS.md                                      # 工作区常驻规则入口（< 5KB，AI IDE 自动加载）
+├── .gitattributes / .gitignore                    # 统一 LF 换行符 + 排除历史归档与发版清单
 ├── 开始使用.md / README.md                        # 前置环境准备、团队上手指南与 GitHub 启动口令
 ├── .agents/skills/fullstack-product-delivery/
 │   ├── SKILL.md                                   # 原生 Skill 精简主指令（< 5KB）
@@ -26,11 +27,11 @@
     ├── 06_工程质量与审计验收基线.md               # Git 救生(4.3)、同构与RBAC(5.4)、部署/日志/主题/存储(5.5)、黑盒(6.1)、CI(6.2)、指纹锁定(7.3)
     ├── 07_项目推进与多agent执行.md                # 里程碑、依赖、并行集成与独立交叉审计子 agent
     ├── 08_移动App专项.md                          # 模式 A（既有 App 修改对接）vs 模式 B（条件从 0 新建）
-    ├── starter/                                   # 【可运行脚手架】init-project.mjs（32 项映射生成 33 文件）+ 18 份模板 + S6 越权 E2E 样板
+    ├── starter/                                   # 【可运行脚手架】init-project.mjs（33 映射+3 配置=36 文件）+ 19 份模板 + S6 越权样板
     ├── templates/                                 # 13 份独立按需加载模板（T01–T13，1–9KB/个）
     ├── contracts/                                 # 同构 base-contract.schema.ts + fingerprint.server.ts + OpenAPI + RBAC + 存储与异步任务基线
-    ├── ci/                                        # build-index-tree.mjs + verify-gates.mjs + maintain-workflow.mjs + Pre-commit + PR 模板 + CI + Postgres Compose
-    └── deploy/                                    # 【S8 生产部署包】预编译 Dockerfile + 单 .env.production Compose + Caddyfile + 健康探针 + 备份恢复脚本
+    ├── ci/                                        # build-index-tree.mjs + verify-gates.mjs + maintain-workflow.mjs + Node Pre-commit + PR + CI + Compose
+    └── deploy/                                    # 【S8 生产部署包】node:22 Dockerfile + 单 .env.production Compose + Caddyfile + 健康探针 + 备份恢复脚本
 ```
 
 ---

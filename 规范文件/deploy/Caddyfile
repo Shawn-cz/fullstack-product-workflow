@@ -1,4 +1,4 @@
-# 软件产品设计与全栈交付工作流 v1.3.0 — Caddy 自动 HTTPS 与安全响应头配置 (STD-OPS-07)
+# 软件产品设计与全栈交付工作流 v1.3.1 — Caddy 自动 HTTPS 与安全响应头配置 (STD-OPS-07)
 {$APP_DOMAIN:localhost} {
     encode zstd gzip
 

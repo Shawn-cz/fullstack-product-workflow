@@ -1,12 +1,11 @@
 #!/usr/bin/env node
 /**
- * 软件产品设计与全栈交付工作流 v1.3.0 — 工作流母版仓库维护、校验与发版清单脚本
- * 对应痛点：将拆分 T01~T13、行号与断链校验、体积上限检查、本地打包清单生成固化在仓库内，避免多机维护漂移。
+ * 软件产品设计与全栈交付工作流 v1.3.1 — 工作流母版仓库维护、校验与发版清单脚本
  *
  * 用法：
  *   node 规范文件/ci/maintain-workflow.mjs --split-templates   # 从 02_模板包.md 重新拆分 T01~T13 单文件模板
- *   node 规范文件/ci/maintain-workflow.mjs --check             # 全量检查脚本语法、自检、行号索引、断链、体积与计数
- *   node 规范文件/ci/maintain-workflow.mjs --pack              # 先执行 --check，再生成本地打包用 文档检查结果.json 与 交付文件清单.json（已加入 .gitignore）
+ *   node 规范文件/ci/maintain-workflow.mjs --check             # 检查脚本语法、CRLF/LF、Git 可见断链、体积上限与计数
+ *   node 规范文件/ci/maintain-workflow.mjs --pack              # 先执行 --check，再生成本地打包用 文档检查结果.json 与 交付文件清单.json
  */
 import { createHash } from 'node:crypto'
 import { spawnSync } from 'node:child_process'
@@ -14,8 +13,8 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const WORKFLOW_VERSION = '1.3.0'
-const BASELINE_MANIFEST = '../历史归档_勿喂给AI/2026-11-14_至_2026-11-26/v1.2.0-manifest.json'
+const WORKFLOW_VERSION = '1.3.1'
+const BASELINE_MANIFEST = '../历史归档_勿喂给AI/2026-11-14_至_2026-11-26/v1.3.0-manifest.json'
 const MAX_ALWAYS_ON_BYTES = 5120 // ARCHITECTURE.md 约定常驻规则 < 5KB
 
 const args = process.argv.slice(2)
@@ -39,6 +38,22 @@ function walkFiles(dir, results = []) {
     }
   }
   return results
+}
+
+function getGitIgnoredSet(absPaths) {
+  if (!fs.existsSync(path.join(repoRoot, '.git')) || absPaths.length === 0) return new Set()
+  const uniqueRels = [...new Set(absPaths.map((p) => path.relative(repoRoot, p).replace(/\\/g, '/')))]
+  const res = spawnSync('git', ['check-ignore', '--stdin'], {
+    cwd: repoRoot,
+    input: uniqueRels.join('\n') + '\n',
+    encoding: 'utf8'
+  })
+  return new Set(
+    (res.stdout || '')
+      .split(/\r?\n/)
+      .map((l) => l.trim().replace(/^"|"$/g, ''))
+      .filter(Boolean)
+  )
 }
 
 function splitTemplates() {
@@ -79,12 +94,22 @@ function splitTemplates() {
 function runCheck() {
   const errors = []
 
-  // 1. Sync & syntax check all .mjs scripts
+  // 1. Syntax check all .mjs scripts + check pre-commit.hook is LF & valid Node script
   const mjsFiles = walkFiles(specDir).filter((f) => f.endsWith('.mjs'))
   for (const mjs of mjsFiles) {
     const res = spawnSync(process.execPath, ['--check', mjs], { stdio: 'pipe', encoding: 'utf8' })
     if (res.status !== 0) {
       errors.push(`语法检查失败: ${path.relative(repoRoot, mjs)} -> ${res.stderr}`)
+    }
+  }
+  const hookPath = path.join(specDir, 'ci', 'pre-commit.hook')
+  if (fs.existsSync(hookPath)) {
+    const hookRaw = fs.readFileSync(hookPath, 'utf8')
+    if (hookRaw.includes('\r\n')) {
+      errors.push('规范文件/ci/pre-commit.hook 包含 CRLF，必须为 LF')
+    }
+    if (!hookRaw.startsWith('#!/usr/bin/env node')) {
+      errors.push('规范文件/ci/pre-commit.hook 必须使用跨平台 #!/usr/bin/env node')
     }
   }
 
@@ -116,13 +141,16 @@ function runCheck() {
     }
   }
 
-  // 4. Verify 0 broken relative Markdown links in active docs
+  // 4. Verify 0 broken relative Markdown links AND prevent tracked .md linking to gitignored targets (single batch git check-ignore)
   const mdFiles = walkFiles(repoRoot).filter((f) => {
     if (!f.endsWith('.md')) return false
     const rel = path.relative(repoRoot, f).replace(/\\/g, '/')
-    return !rel.startsWith('历史归档_勿喂给AI/审计报告_')
+    return !rel.startsWith('历史归档_勿喂给AI/')
   })
+  const linkChecks = []
+  const allPathsToCheckIgnore = [...mdFiles]
   for (const md of mdFiles) {
+    const relMd = path.relative(repoRoot, md).replace(/\\/g, '/')
     const raw = fs.readFileSync(md, 'utf8')
     const stripped = raw.replace(/```[\s\S]*?```/g, '')
     const linkRegex = /\[[^\]]*\]\(([^)]+)\)/g
@@ -134,8 +162,19 @@ function runCheck() {
       if (!targetPart) continue
       const resolved = path.resolve(path.dirname(md), targetPart)
       if (!fs.existsSync(resolved)) {
-        errors.push(`断链: ${path.relative(repoRoot, md).replace(/\\/g, '/')} -> ${href}`)
+        errors.push(`断链: ${relMd} -> ${href}`)
+      } else {
+        linkChecks.push({ md, relMd, href, resolved })
+        allPathsToCheckIgnore.push(resolved)
       }
+    }
+  }
+  const ignoredSet = getGitIgnoredSet(allPathsToCheckIgnore)
+  for (const lc of linkChecks) {
+    const relSrc = path.relative(repoRoot, lc.md).replace(/\\/g, '/')
+    const relDst = path.relative(repoRoot, lc.resolved).replace(/\\/g, '/')
+    if (!ignoredSet.has(relSrc) && ignoredSet.has(relDst)) {
+      errors.push(`跨克隆断链（链接了 .gitignore 忽略目标）: ${lc.relMd} -> ${lc.href}`)
     }
   }
 
@@ -196,7 +235,7 @@ function runCheck() {
   }
 
   console.log(
-    `✅ [maintain-workflow] 全部校验通过：${mjsFiles.length} 个脚本语法 OK，${mdFiles.length} 份 Markdown 0 断链，` +
+    `✅ [maintain-workflow] 全部校验通过：${mjsFiles.length} 个脚本语法 OK，${mdFiles.length} 份 Git 活动 Markdown 0 断链，` +
       `AGENTS.md=${(agentsBytes / 1024).toFixed(1)}KB，SKILL.md=${(skillBytes / 1024).toFixed(1)}KB，` +
       `规则=${counts.unique_rule_ids}（移动=${counts.mobile_rules}），来源=${counts.sources}。`
   )
@@ -212,7 +251,7 @@ function runPack() {
   const docCheck = {
     date: new Date().toISOString().slice(0, 10),
     workflow_version: WORKFLOW_VERSION,
-    scope: '可运行全栈底座、预编译生产镜像、Gate 1/4 升级与内置维护脚本实测版',
+    scope: '跨系统 LF 归一化、.dockerignore、预置 /api/auth/* 路由与新克隆自检闭环版',
     status: 'passed',
     counts,
     errors: [],

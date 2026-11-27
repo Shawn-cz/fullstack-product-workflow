@@ -1,11 +1,11 @@
-# 本地 PostgreSQL 16 同构容器配置 (v0.9.0)
-# 彻底替代 SQLite，确保零经验成员本地开发、黑盒查库与 CI/生产环境 100% 一致。
+# 本地 PostgreSQL 16 同构容器配置 (v1.3.1)
+# 替代 SQLite，使本地开发、黑盒查库与 CI/生产保持同一 PostgreSQL 16 引擎。
+# 不写死 container_name，允许同一台电脑并行开发多个项目（按目录名自动隔离容器与数据卷）。
 # 使用方式：在项目根目录运行 `docker compose -f docker-compose.postgres.yml up -d`
 
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: team_project_postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-app_user}

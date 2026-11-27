@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 软件产品设计与全栈交付工作流 v1.3.0 — CI 四道门禁、双向闭环与四重指纹校验脚本
+ * 软件产品设计与全栈交付工作流 v1.3.1 — CI 四道门禁、双向闭环与四重指纹校验脚本
  * 对应规则：STD-GOV-03（闭环）、STD-GOV-05（索引树）、STD-SEC-05（安全红线）、STD-QA-13（四道门禁）、STD-AUD-07（指纹锁定）
  *
  * 用法：
@@ -54,8 +54,14 @@ function walkFiles(dir, exts = null, results = []) {
   return results
 }
 
+function normalizeBufferForHash(buf) {
+  // 对非二进制文本文件统一将 CRLF 归一化为 LF，确保 Windows 本地与 Linux CI 计算的 SHA-256 完全一致
+  if (buf.includes(0)) return buf
+  return Buffer.from(buf.toString('utf8').replace(/\r\n/g, '\n'), 'utf8')
+}
+
 function sha256File(filePath) {
-  const buf = fs.readFileSync(filePath)
+  const buf = normalizeBufferForHash(fs.readFileSync(filePath))
   return createHash('sha256').update(buf).digest('hex')
 }
 
@@ -65,7 +71,7 @@ function sha256Directory(dirPath) {
   for (const f of files) {
     const rel = path.relative(dirPath, f).replace(/\\/g, '/')
     hash.update(rel + '\n')
-    hash.update(fs.readFileSync(f))
+    hash.update(normalizeBufferForHash(fs.readFileSync(f)))
   }
   return hash.digest('hex')
 }
@@ -79,7 +85,7 @@ function sha256Directories(dirPaths) {
     for (const f of files) {
       const rel = path.relative(cwd, f).replace(/\\/g, '/')
       hash.update(rel + '\n')
-      hash.update(fs.readFileSync(f))
+      hash.update(normalizeBufferForHash(fs.readFileSync(f)))
       totalFiles++
     }
   }
@@ -96,7 +102,7 @@ function collectMatches(text, regex) {
 }
 
 function runSelfCheck() {
-  const testDigest = createHash('sha256').update('v1.3.0-gate-check').digest('hex')
+  const testDigest = createHash('sha256').update('v1.3.1-gate-check').digest('hex')
   if (testDigest.length !== 64) {
     console.error('❌ SHA-256 digest self-check failed.')
     process.exit(1)
@@ -116,7 +122,7 @@ function runSelfCheck() {
     const res = spawnSync(process.execPath, [backupScript, '--self-check'], { stdio: 'inherit' })
     if (res.status !== 0) process.exit(res.status || 1)
   }
-  console.log('✅ verify-gates.mjs v1.3.0 self-check passed (Node ' + process.version + ', Gate 1 S0-aware + Gate 2 baseline + Gate 4 4-way lock ready).')
+  console.log('✅ verify-gates.mjs v1.3.1 self-check passed (Node ' + process.version + ', LF-normalized Gate 1/4 + Gate 2 baseline ready).')
 }
 
 function runGate1() {

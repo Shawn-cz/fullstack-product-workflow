@@ -1,10 +1,10 @@
-# 软件产品设计与全栈交付工作流 v1.3.0 — 生产多阶段 Dockerfile (STD-OPS-05 / STD-OPS-07)
+# 软件产品设计与全栈交付工作流 v1.3.1 — 生产多阶段 Dockerfile (STD-OPS-05 / STD-OPS-07)
 # 特点：干净环境可重建、前后端均在构建阶段预编译、运行时纯 node 启动（无需 tsx）、内置版本锁定 prisma CLI、非 root 运行用户、/healthz 探针
 
 # ============================================================
 # Stage 1: Dependencies & Build (React dist/ + Compiled Node dist-server/ + Prisma)
 # ============================================================
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
@@ -19,7 +19,7 @@ RUN npm run build
 # ============================================================
 # Stage 2: Minimal Production Runtime (Non-root USER node)
 # ============================================================
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

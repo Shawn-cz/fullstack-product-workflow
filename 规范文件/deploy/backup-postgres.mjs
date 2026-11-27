@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 软件产品设计与全栈交付工作流 v1.3.0 — PostgreSQL 16 跨平台一键备份与演练恢复脚本
+ * 软件产品设计与全栈交付工作流 v1.3.1 — PostgreSQL 16 跨平台一键备份与演练恢复脚本
  * 对应规则：STD-DAT-04（迁移前备份与恢复验证）、STD-OPS-03（可回退核对）、STD-OPS-07
  *
  * 用法：
@@ -33,8 +33,21 @@ function runSelfCheck() {
   console.log('✅ backup-postgres.mjs self-check passed (Node ' + process.version + ', restore safety guard enabled).')
 }
 
+function resolveContainerName() {
+  const explicit = getFlag('--container', process.env.PG_CONTAINER || '')
+  if (explicit) return explicit
+  if (fs.existsSync('docker-compose.postgres.yml')) {
+    const q = spawnSync('docker', ['compose', '-f', 'docker-compose.postgres.yml', 'ps', '-q', 'postgres'], {
+      encoding: 'utf8'
+    })
+    const detected = (q.stdout || '').trim().split(/\r?\n/)[0]
+    if (q.status === 0 && detected) return detected
+  }
+  return 'prod_postgres'
+}
+
 function runBackup() {
-  const container = getFlag('--container', process.env.PG_CONTAINER || 'team_project_postgres')
+  const container = resolveContainerName()
   const user = getFlag('--user', process.env.POSTGRES_USER || 'app_user')
   const db = getFlag('--db', process.env.POSTGRES_DB || 'app_dev_db')
   const outDir = path.resolve(getFlag('--out', './backups'))
@@ -85,7 +98,7 @@ function runRestore() {
     console.log('✅ 备份文件 SHA-256 完整性校验通过。')
   }
 
-  const container = getFlag('--container', process.env.PG_CONTAINER || 'team_project_postgres')
+  const container = resolveContainerName()
   const user = getFlag('--user', process.env.POSTGRES_USER || 'app_user')
   const db = getFlag('--db', process.env.POSTGRES_DB || 'app_dev_db')
   const sqlContent = fs.readFileSync(targetFile, 'utf8')

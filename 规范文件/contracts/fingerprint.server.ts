@@ -1,6 +1,6 @@
 // @desc 服务端专用同步 SHA-256 载荷指纹计算模块（仅限 Node.js 服务端与 Vitest 测试导入）
 /**
- * 软件产品设计与全栈交付工作流 v1.3.0 — 服务端载荷指纹计算器 (STD-API-08)
+ * 软件产品设计与全栈交付工作流 v1.3.1 — 服务端载荷指纹计算器 (STD-API-08)
  *
  * 为什么要与 base-contract.schema.ts 拆分？
  * 避免 React + Vite 浏览器打包时因间接引入 `node:crypto` 报错崩溃。

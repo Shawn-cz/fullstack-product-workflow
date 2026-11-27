@@ -1,0 +1,16 @@
+# 跨操作系统统一 LF 换行符，防止 Windows 检出 CRLF 导致 .githooks/pre-commit 报错或 CI Gate 1/4 指纹漂移
+* text=auto eol=lf
+*.sh text eol=lf
+*.hook text eol=lf
+.githooks/* text eol=lf
+*.mjs text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.md text eol=lf
+*.prisma text eol=lf
+*.png binary
+*.jpg binary
+*.zip binary

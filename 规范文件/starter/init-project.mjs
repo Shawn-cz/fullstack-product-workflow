@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 软件产品设计与全栈交付工作流 v1.3.0 — 黄金技术栈全生命周期一键初始化脚手架脚本
+ * 软件产品设计与全栈交付工作流 v1.3.1 — 黄金技术栈全生命周期一键初始化脚手架脚本
  * 对应规则：STD-ARC-09、STD-GOV-05、STD-FE-07、STD-CODE-12、STD-SEC-05、STD-QA-13/14、STD-OPS-07/08
  *
  * 用法：
@@ -27,6 +27,7 @@ const FILE_MAPPINGS = [
   { src: path.join(scriptDir, 'templates', 'main.tsx.tpl'), dest: 'src/main.tsx' },
   { src: path.join(scriptDir, 'templates', 'App.tsx.tpl'), dest: 'src/App.tsx' },
   { src: path.join(scriptDir, 'templates', 'server-index.ts.tpl'), dest: 'server/index.ts' },
+  { src: path.join(scriptDir, 'templates', 'auth-routes.ts.tpl'), dest: 'server/routes/auth.ts' },
   { src: path.join(scriptDir, 'templates', 'schema.prisma.tpl'), dest: 'prisma/schema.prisma' },
   { src: path.join(scriptDir, 'templates', 'test-accounts.ts.tpl'), dest: 'prisma/test-accounts.ts' },
   { src: path.join(scriptDir, 'templates', 'seed.ts.tpl'), dest: 'prisma/seed.ts' },
@@ -55,6 +56,72 @@ const FILE_MAPPINGS = [
   { src: path.join(specDir, 'deploy', 'backup-postgres.mjs'), dest: 'scripts/backup-postgres.mjs' }
 ]
 
+const GENERATED_FILES = [
+  {
+    dest: '.gitignore',
+    content: [
+      'node_modules/',
+      'dist/',
+      'dist-server/',
+      'backups/',
+      'playwright-report/',
+      'docs/evidence/playwright-report/',
+      'test-results/',
+      '.env',
+      '.env.local',
+      '.env.production',
+      'coverage/',
+      '.DS_Store',
+      'Thumbs.db',
+      ''
+    ].join('\n')
+  },
+  {
+    dest: '.dockerignore',
+    content: [
+      '# 防止宿主机 node_modules 覆盖 Alpine 容器依赖，防止 .env 密钥与备份文件进入 Docker 构建层',
+      'node_modules/',
+      'dist/',
+      'dist-server/',
+      '.git/',
+      '.githooks/',
+      '.env',
+      '.env.*',
+      '!.env.example',
+      'backups/',
+      'coverage/',
+      'playwright-report/',
+      'docs/evidence/playwright-report/',
+      'test-results/',
+      '*.log',
+      '.DS_Store',
+      'Thumbs.db',
+      ''
+    ].join('\n')
+  },
+  {
+    dest: '.gitattributes',
+    content: [
+      '# 跨操作系统统一 LF 换行符，防止 Windows CRLF 引起钩子报错或跨端 SHA-256 指纹差异',
+      '* text=auto eol=lf',
+      '.githooks/* text eol=lf',
+      '*.sh text eol=lf',
+      '*.mjs text eol=lf',
+      '*.ts text eol=lf',
+      '*.tsx text eol=lf',
+      '*.json text eol=lf',
+      '*.yml text eol=lf',
+      '*.yaml text eol=lf',
+      '*.md text eol=lf',
+      '*.prisma text eol=lf',
+      '*.png binary',
+      '*.jpg binary',
+      '*.zip binary',
+      ''
+    ].join('\n')
+  }
+]
+
 function runSelfCheck() {
   const missing = FILE_MAPPINGS.filter((m) => !fs.existsSync(m.src)).map((m) => m.src)
   const examplePath = path.join(scriptDir, 'examples', 'rbac-isolation.spec.ts.example')
@@ -71,7 +138,9 @@ function runSelfCheck() {
     console.error('❌ base-contract.schema.ts 禁止导入 node:crypto（须隔离至 fingerprint.server.ts）！')
     process.exit(1)
   }
-  console.log(`✅ init-project.mjs v1.3.0 self-check passed (${FILE_MAPPINGS.length} starter assets + S6 RBAC E2E example verified, isomorphic contract clean).`)
+  console.log(
+    `✅ init-project.mjs v1.3.1 self-check passed (${FILE_MAPPINGS.length} mapped + ${GENERATED_FILES.length} generated assets + S6 RBAC E2E example verified, isomorphic contract clean).`
+  )
 }
 
 function runInit(targetDir, force) {
@@ -89,7 +158,10 @@ function runInit(targetDir, force) {
       continue
     }
     fs.mkdirSync(path.dirname(destPath), { recursive: true })
-    fs.copyFileSync(m.src, destPath)
+    // 对文本模板统一写入 LF，避免 Windows 源目录 CRLF 带入目标项目
+    const raw = fs.readFileSync(m.src)
+    const out = raw.includes(0) ? raw : Buffer.from(raw.toString('utf8').replace(/\r\n/g, '\n'), 'utf8')
+    fs.writeFileSync(destPath, out)
     if (m.dest === '.githooks/pre-commit') {
       try {
         fs.chmodSync(destPath, 0o755)
@@ -100,28 +172,13 @@ function runInit(targetDir, force) {
     created++
   }
 
-  const gitignorePath = path.join(absTarget, '.gitignore')
-  if (!fs.existsSync(gitignorePath) || force) {
-    fs.writeFileSync(
-      gitignorePath,
-      [
-        'node_modules/',
-        'dist/',
-        'dist-server/',
-        'backups/',
-        'playwright-report/',
-        'docs/evidence/playwright-report/',
-        'test-results/',
-        '.env',
-        '.env.local',
-        '.env.production',
-        'coverage/',
-        '.DS_Store',
-        'Thumbs.db',
-        ''
-      ].join('\n'),
-      'utf8'
-    )
+  for (const gen of GENERATED_FILES) {
+    const destPath = path.join(absTarget, gen.dest)
+    if (fs.existsSync(destPath) && !force) {
+      skipped++
+      continue
+    }
+    fs.writeFileSync(destPath, gen.content, 'utf8')
     created++
   }
 

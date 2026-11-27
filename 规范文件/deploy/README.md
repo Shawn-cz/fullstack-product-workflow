@@ -1,12 +1,12 @@
 # S8 生产部署、自动 HTTPS 与数据库备份恢复包 (`deploy/`)
 
-版本：1.3.0｜对应规则：`STD-OPS-01~07`、`STD-DAT-04`、`STD-QA-12`
+版本：1.3.1｜对应规则：`STD-OPS-01~07`、`STD-DAT-04`、`STD-QA-12`
 
 ## 包含文件
 
 | 文件 | 复制到业务项目目标路径 | 用途 |
 |---|---|---|
-| [Dockerfile](Dockerfile) | `Dockerfile` | 多阶段构建（React `dist/` + 预编译 `dist-server/index.mjs` + 版本锁定 Prisma CLI + 非 root `USER node` + `/healthz` 内置探针） |
+| [Dockerfile](Dockerfile) | `Dockerfile` | 基于 `node:22-alpine` 多阶段构建（React `dist/` + 预编译 `dist-server/index.mjs` + 版本锁定 Prisma CLI + 非 root `USER node` + `/healthz` 内置探针），配合 `.dockerignore` 防止污染镜像 |
 | [docker-compose.prod.yml](docker-compose.prod.yml) | `docker-compose.prod.yml` | 生产三容器编排（Caddy 自动 HTTPS + App + 仅内网隔离的 PostgreSQL 16），统一使用 `--env-file .env.production` |
 | [Caddyfile](Caddyfile) | `Caddyfile` | 自动申请/续期 Let's Encrypt HTTPS 证书与安全响应头配置 |
 | [health-probes.ts.tpl](health-probes.ts.tpl) | `server/routes/health-probes.ts` | `/healthz`（进程存活）与 `/readyz`（PostgreSQL `SELECT 1` 就绪校验）双探针 |

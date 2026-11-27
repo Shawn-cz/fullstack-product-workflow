@@ -1,6 +1,6 @@
 // @desc 服务端三层 RBAC 认证、会话校验与对象归属权限中间件骨架 (STD-SEC-05)
 /**
- * 软件产品设计与全栈交付工作流 v1.3.0 — 认证与三层 RBAC 权限中间件模板
+ * 软件产品设计与全栈交付工作流 v1.3.1 — 认证与三层 RBAC 权限中间件模板
  *
  * 三层强制拦截顺序：
  *   1. requireAuth()         → 校验 HttpOnly Cookie 对应的 PostgreSQL 未吊销 Session，失败返回 401

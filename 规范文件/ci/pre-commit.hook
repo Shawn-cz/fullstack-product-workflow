@@ -1,30 +1,36 @@
-#!/bin/sh
-# 软件产品设计与全栈交付工作流 v1.3.0 — 本地 Git Pre-commit 强制前置卡点 (STD-CODE-12 / STD-GOV-05 / STD-QA-13)
-# 启用命令：npm run hooks:install（执行 git config core.hooksPath .githooks）
+#!/usr/bin/env node
+/**
+ * 软件产品设计与全栈交付工作流 v1.3.1 — 跨平台本地 Git Pre-commit 前置卡点 (STD-CODE-12 / STD-GOV-05 / STD-QA-13)
+ * 采用纯 Node.js 执行，避免 Windows CRLF 或 /bin/sh + find 兼容性报错。
+ * 启用命令：npm run hooks:install（执行 git config core.hooksPath .githooks）
+ */
+import { spawnSync } from 'node:child_process'
+import fs from 'node:fs'
 
-set -e
+function runOrExit(cmd, args) {
+  const res = spawnSync(cmd, args, { stdio: 'inherit' })
+  if (res.status !== 0) {
+    process.exit(res.status || 1)
+  }
+}
 
-echo "🛡️ [Pre-commit] 正在执行本地前置门禁检查..."
+console.log('🛡️ [Pre-commit] 正在执行跨平台本地前置门禁检查...')
 
-# 1. 自动刷新项目资产语义索引树并一并暂存（防止忘记刷新导致 Push 后 CI Gate 1 变红）
-if [ -f "scripts/build-index-tree.mjs" ]; then
-  node scripts/build-index-tree.mjs --write
-  if [ -f "PROJECT_INDEX_TREE.md" ]; then
-    git add PROJECT_INDEX_TREE.md
-  fi
-  if [ -f "docs/index-tree.json" ]; then
-    git add docs/index-tree.json
-  fi
-fi
+// 1. 自动刷新项目资产语义索引树并一并暂存
+if (fs.existsSync('scripts/build-index-tree.mjs')) {
+  runOrExit(process.execPath, ['scripts/build-index-tree.mjs', '--write'])
+  if (fs.existsSync('PROJECT_INDEX_TREE.md')) {
+    runOrExit('git', ['add', 'PROJECT_INDEX_TREE.md'])
+  }
+  if (fs.existsSync('docs/index-tree.json')) {
+    runOrExit('git', ['add', 'docs/index-tree.json'])
+  }
+}
 
-# 2. 运行 Gate 2（防作弊、安全红线、前端禁 node:crypto / localStorage 存令牌、禁用旧栈）
-if [ -f "scripts/verify-gates.mjs" ]; then
-  node scripts/verify-gates.mjs --gate=2
+// 2. 运行 Gate 2（静态基线防呆）与 Gate 1（双向 REQ/AC 覆盖、禁 SQLite 与索引树新鲜度；S0 空底座自动豁免测试数）
+if (fs.existsSync('scripts/verify-gates.mjs')) {
+  runOrExit(process.execPath, ['scripts/verify-gates.mjs', '--gate=2'])
+  runOrExit(process.execPath, ['scripts/verify-gates.mjs', '--gate=1'])
+}
 
-  # 若项目中已有测试文件，同步校验 Gate 1（双向 REQ/AC 覆盖、禁用 SQLite 与索引树新鲜度）
-  if [ -d "tests" ] && [ -n "$(find tests -maxdepth 4 \( -name '*.test.ts' -o -name '*.test.tsx' -o -name '*.spec.ts' -o -name '*.spec.tsx' \) 2>/dev/null)" ]; then
-    node scripts/verify-gates.mjs --gate=1
-  fi
-fi
-
-echo "✅ [Pre-commit] 本地前置门禁全部通过，允许提交。"
+console.log('✅ [Pre-commit] 本地前置门禁全部通过，允许提交。')

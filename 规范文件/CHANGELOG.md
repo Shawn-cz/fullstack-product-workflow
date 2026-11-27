@@ -1,5 +1,16 @@
 # 变更日志
 
+## 1.3.1 — 2026-11-27（跨系统 LF 固化、容器隔离、预置认证路由与克隆态自检闭环）
+
+- **跨操作系统（Windows CRLF ↔ Linux CI）稳定性固化**：
+  - 在工作流母版及 `init-project.mjs` 中新增 `.gitattributes`（`* text=auto eol=lf`），并在 `build-index-tree.mjs` 与 `verify-gates.mjs` 中对非二进制文本文件统一做 `\r\n → \n` 归一化后再计算 SHA-256，防止 Windows 与 Ubuntu CI 因换行符差异触发 Gate 1/Gate 4 假漂移。
+  - 将 `规范文件/ci/pre-commit.hook` 改写为纯跨平台 `#!/usr/bin/env node` 脚本，不再依赖 `/bin/sh` + `find`。
+- **容器隔离与预置认证接口开箱对齐**：
+  - `init-project.mjs` 新增生成 `.dockerignore`（防止宿主机 `node_modules` 覆盖 Alpine 依赖或将 `.env` / 备份打入镜像层）及 **预置认证路由 `server/routes/auth.ts`（`POST /api/auth/login`、`POST /api/auth/logout`、`GET /api/auth/me`）**，与 Playwright `auth-contexts.ts` 开箱对齐（总计 33 项映射 + 3 份配置文件，生成 36 文件）。
+  - 修复 `server/index.ts` 中 `app.onError` 未复用请求上下文 `requestTraceId` 的问题，统一封装 `api` 子路由容器防通配路由遮蔽，并在启动时预读 `dist/index.html` 避免同步读盘。
+  - 移除 `ci/docker-compose.postgres.yml` 中写死的 `container_name`（`backup-postgres.mjs` 自动按 Compose 查询容器名），支持单机多项目并行；`Dockerfile` 与 CI 升级至 **Node.js 22 LTS**，文档最低版本对齐 `>= 20.19（推荐 22 LTS）`。
+- **克隆态自检闭环**：移除 `开始使用.md` / `README.md` 对 gitignored 目录的相对链接，并在 `maintain-workflow.mjs --check` 中新增检查：被 Git 跟踪的 Markdown 不得链接到 `.gitignore` 忽略的目标；补正 `build-index-tree.mjs` 硬编码版本号。
+
 ## 1.3.0 — 2026-11-27（可运行全栈底座、生产编译修复与仓库内置维护脚本）
 
 - **P0 修复：脚手架补齐最小可运行前后端入口与预编译生产镜像**：

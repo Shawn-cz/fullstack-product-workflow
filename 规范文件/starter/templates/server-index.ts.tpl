@@ -1,7 +1,7 @@
-// @desc Hono 服务端入口（挂载脱敏日志、全局异常处理、/healthz /readyz 探针与生产 SPA 静态服务）
+// @desc Hono 服务端入口（统一 requestTraceId、预置 /api/auth/*、/healthz /readyz 探针与生产 SPA 静态服务）
 /**
- * 软件产品设计与全栈交付工作流 v1.3.0 — 最小可运行服务端入口骨架
- * 对应规则：STD-ARC-09、STD-API-07、STD-OPS-07、STD-OPS-08
+ * 软件产品设计与全栈交付工作流 v1.3.1 — 最小可运行服务端入口骨架
+ * 对应规则：STD-ARC-09、STD-API-07、STD-SEC-05、STD-OPS-07、STD-OPS-08
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -11,23 +11,29 @@ import { serveStatic } from '@hono/node-server/serve-static'
 import { PrismaClient } from '@prisma/client'
 import { Hono } from 'hono'
 import { logger, logUnhandledError, resolveRequestTraceId } from './middleware/logger-trace'
+import { createAuthRoutes } from './routes/auth'
 import { buildLivenessPayload, buildReadinessPayload } from './routes/health-probes'
 
 const SERVICE_NAME = process.env.SERVICE_NAME || 'team-fullstack-api'
 const APP_VERSION = process.env.APP_VERSION || '0.1.0'
 
+type AppVariables = {
+  requestTraceId: string
+}
+
 let prismaClient: PrismaClient | null = null
-function getPrisma(): PrismaClient {
+export function getPrisma(): PrismaClient {
   if (!prismaClient) {
     prismaClient = new PrismaClient()
   }
   return prismaClient
 }
 
-export const app = new Hono()
+export const app = new Hono<{ Variables: AppVariables }>()
 
 app.use('*', async (c, next) => {
   const requestTraceId = resolveRequestTraceId(c.req.header('x-request-trace-id'))
+  c.set('requestTraceId', requestTraceId)
   c.header('x-request-trace-id', requestTraceId)
   const startedAt = Date.now()
   await next()
@@ -44,7 +50,9 @@ app.use('*', async (c, next) => {
 })
 
 app.onError((err, c) => {
-  const requestTraceId = resolveRequestTraceId(c.req.header('x-request-trace-id'))
+  const requestTraceId =
+    c.get('requestTraceId') || resolveRequestTraceId(c.req.header('x-request-trace-id'))
+  c.header('x-request-trace-id', requestTraceId)
   const { errorFingerprint } = logUnhandledError({
     error: err,
     route: `${c.req.method} ${c.req.path}`,
@@ -73,7 +81,27 @@ app.get('/readyz', async (c) => {
   return c.json(result.body, result.httpStatus)
 })
 
-// 在此处挂载业务 API 路由（示例：app.route('/api/items', itemsRouter)）
+// 统一业务 API 子路由容器（后续新增业务模块请挂载到 api，避免被下方 SPA 静态回退遮蔽）
+export const api = new Hono<{ Variables: AppVariables }>()
+api.route('/auth', createAuthRoutes(getPrisma))
+// 示例：api.route('/items', itemsRouter)
+
+app.route('/api', api)
+
+// 生产环境静态文件与 SPA 路由回退（由 Dockerfile 构建产物 dist/ 提供，启动时预读 index.html 避免同步磁盘阻塞）
+const distDir = path.resolve(process.cwd(), 'dist')
+const indexHtmlPath = path.join(distDir, 'index.html')
+const cachedIndexHtml = fs.existsSync(indexHtmlPath) ? fs.readFileSync(indexHtmlPath, 'utf8') : null
+
+if (cachedIndexHtml !== null) {
+  app.use('/assets/*', serveStatic({ root: './dist' }))
+  app.get('*', async (c, next) => {
+    if (c.req.path.startsWith('/api/') || c.req.path === '/healthz' || c.req.path === '/readyz') {
+      return next()
+    }
+    return c.html(cachedIndexHtml)
+  })
+}
 
 app.notFound((c) => {
   if (c.req.path.startsWith('/api/')) {
@@ -82,7 +110,8 @@ app.notFound((c) => {
         ok: false,
         error: {
           code: 'NOT_FOUND',
-          message: '请求的接口不存在。'
+          message: '请求的接口不存在。',
+          requestTraceId: c.get('requestTraceId')
         }
       },
       404
@@ -90,22 +119,6 @@ app.notFound((c) => {
   }
   return c.text('Not Found', 404)
 })
-
-// 生产环境静态文件与 SPA 路由回退（由 Dockerfile 构建产物 dist/ 提供）
-const distDir = path.resolve(process.cwd(), 'dist')
-if (fs.existsSync(distDir)) {
-  app.use('/assets/*', serveStatic({ root: './dist' }))
-  app.get('*', async (c, next) => {
-    if (c.req.path.startsWith('/api/') || c.req.path === '/healthz' || c.req.path === '/readyz') {
-      return next()
-    }
-    const indexPath = path.join(distDir, 'index.html')
-    if (fs.existsSync(indexPath)) {
-      return c.html(fs.readFileSync(indexPath, 'utf8'))
-    }
-    return next()
-  })
-}
 
 const entryArg = process.argv[1]
 const isMain =
