@@ -1,372 +1,373 @@
 {
-    "version": "1.2.0",
-    "generated_at": "2026-11-26T22:43:23+08:00",
-    "root": "软件产品全栈交付工作流_v1.2.0",
-    "file_count": 72,
-    "excluded": [
-        ".git/",
-        "交付文件清单.json"
-    ],
-    "files": [
-        {
-            "path": ".agents/skills/fullstack-product-delivery/SKILL.md",
-            "size": 11297,
-            "sha256": "6b0ae8889c192c6d444b2c160f0a0c82537d0aab29acdc4bf286bdea234a2d81"
-        },
-        {
-            "path": ".agents/skills/fullstack-product-delivery/references/stage-routing.md",
-            "size": 5893,
-            "sha256": "63c983ae31f4fb149c33fdc66442d0386a94f3529de08a3c7f9e5221d67ae7a0"
-        },
-        {
-            "path": ".gitignore",
-            "size": 168,
-            "sha256": "15da1e6de6333bc4396b8ea8b3ce96fe419b9c536e0c76483bd61904ece8c6e2"
-        },
-        {
-            "path": "AGENTS.md",
-            "size": 4999,
-            "sha256": "82cea63b99305f8e790f0b14241b14afb8eeac0f1898dd5e6e231953e153022c"
-        },
-        {
-            "path": "README.md",
-            "size": 9506,
-            "sha256": "bcf552cd93a31cbfdb9c947c98b8bd8ba2c741d2712c23d937227f9733b98aa7"
-        },
-        {
-            "path": "开始使用.md",
-            "size": 9506,
-            "sha256": "bcf552cd93a31cbfdb9c947c98b8bd8ba2c741d2712c23d937227f9733b98aa7"
-        },
-        {
-            "path": "规范文件/00_主流程.md",
-            "size": 28441,
-            "sha256": "d898c26f6461eaee5312e11f0acb44f96cc05a5b707fa629c1fa34871a2ff1cf"
-        },
-        {
-            "path": "规范文件/01_规则库.md",
-            "size": 51546,
-            "sha256": "7b785786b7a1da2668a51af6e2df49d27e9b9f07784389e4a508e46d68db3fbf"
-        },
-        {
-            "path": "规范文件/02_模板包.md",
-            "size": 39676,
-            "sha256": "682a753e1a38129c26075b921322f305b89fe256e2faa0787a007f103abff217"
-        },
-        {
-            "path": "规范文件/03_贯穿案例_工单.md",
-            "size": 24540,
-            "sha256": "472bd67c64b6c99dacf28e523b104a0c958e58ffaf0db28d2a5cb251c0bc8af1"
-        },
-        {
-            "path": "规范文件/04_AI项目执行说明.md",
-            "size": 13265,
-            "sha256": "33790c2bf56d181392817c9cf8e140b50230fb38774dbad698b0c575f1cd6551"
-        },
-        {
-            "path": "规范文件/05_来源与更新机制.md",
-            "size": 18639,
-            "sha256": "7e4002e72b5a60782b55751019a2c164f5b6518532191bd9b55721f29893b11b"
-        },
-        {
-            "path": "规范文件/06_工程质量与审计验收基线.md",
-            "size": 35106,
-            "sha256": "94615134d22d592c45b72026cfa97c65340bec17f5bef199d2f6ee19aba71101"
-        },
-        {
-            "path": "规范文件/07_项目推进与多agent执行.md",
-            "size": 11468,
-            "sha256": "336a5e57731860341efefebe781c65f406c7db51256cc0d69fa2821811b08aca"
-        },
-        {
-            "path": "规范文件/08_移动App专项.md",
-            "size": 15476,
-            "sha256": "9c95c3be3d7ce15533f5fd518908c827b35230cd603d4d286e08d3133039d4d4"
-        },
-        {
-            "path": "规范文件/ARCHITECTURE.md",
-            "size": 4390,
-            "sha256": "f2a9bc1ed4037cf8fb748c788c0063e7c8c36797e40d5eee69940ffa2764613a"
-        },
-        {
-            "path": "规范文件/CHANGELOG.md",
-            "size": 12721,
-            "sha256": "05fb6b12d6f08552a14a6a375100fa0c960f005b69d93ca2a0119d2afb757c28"
-        },
-        {
-            "path": "规范文件/INDEX_TREE.md",
-            "size": 8384,
-            "sha256": "5b8fd1463b96673ce0da2273d707215f5243e29c45e1df322f29ba369319f4a8"
-        },
-        {
-            "path": "规范文件/README.md",
-            "size": 5880,
-            "sha256": "2ef9080becadc83b04fb386e26502d927f59ad691c14d0c8a8c27d402ce74809"
-        },
-        {
-            "path": "规范文件/ci/README.md",
-            "size": 2480,
-            "sha256": "543c19270042d1ce0821120872295e13ddff2d46e3059246671de0eb81c24192"
-        },
-        {
-            "path": "规范文件/ci/build-index-tree.mjs",
-            "size": 11852,
-            "sha256": "b11bfc52a5af99cc0c437f93cc9bcb3e9d2f4d919c3ef4efb834b7bee9cef351"
-        },
-        {
-            "path": "规范文件/ci/docker-compose.postgres.yml",
-            "size": 857,
-            "sha256": "25613c27f1f55560805f70ae54c2759744d5780d8a86ffd45e795562bfc67095"
-        },
-        {
-            "path": "规范文件/ci/github-actions-ci.yml",
-            "size": 4576,
-            "sha256": "855e088c34924f389571c8288efb0013b44eef3bc2d2e6af1a930a7a61fefc85"
-        },
-        {
-            "path": "规范文件/ci/pre-commit.hook",
-            "size": 1291,
-            "sha256": "c674abef0f350907778706efedf1fb88c898c4176b87f3a22fe7ba6403e43eb4"
-        },
-        {
-            "path": "规范文件/ci/pull_request_template.md",
-            "size": 2124,
-            "sha256": "0f4045d06496998b86d97acb7b05a81dd5b9012c9cb8b4dfdd531136b1ac7ee8"
-        },
-        {
-            "path": "规范文件/ci/verify-gates.mjs",
-            "size": 14743,
-            "sha256": "0182cec490d45c0d4e860c1797e4820fc20d6792fb2d5872fc865b270ead4953"
-        },
-        {
-            "path": "规范文件/contracts/README.md",
-            "size": 3015,
-            "sha256": "10839d467fec1f0bb9a47016ff2ae902c14bcec4f15631963a03f93fda896bd7"
-        },
-        {
-            "path": "规范文件/contracts/auth-rbac-baseline.md",
-            "size": 4385,
-            "sha256": "61505805266edb1565c5513bf6cccf30bc0dcdb7c91dec08e4e4a1a783cad22e"
-        },
-        {
-            "path": "规范文件/contracts/base-contract.schema.ts",
-            "size": 5125,
-            "sha256": "bcb743d8b4a094860e48bb3b0bd80da83f313be1fea5347b1a44260fbdf97231"
-        },
-        {
-            "path": "规范文件/contracts/fingerprint.server.ts",
-            "size": 1240,
-            "sha256": "8237da3fb189771af105c7420d1c846b96d8d48dd36e4860f0531a4e21c725a9"
-        },
-        {
-            "path": "规范文件/contracts/openapi-baseline.yaml",
-            "size": 3807,
-            "sha256": "7cd03996499089ffcedbc006c1b137755b3db71cea1a56613290682c5d65ac98"
-        },
-        {
-            "path": "规范文件/contracts/storage-jobs-baseline.md",
-            "size": 4030,
-            "sha256": "d9a69a66e268849bda5b4e3a24afc93ae6cb247dec63bccab8f8475748b1cdcf"
-        },
-        {
-            "path": "规范文件/deploy/Caddyfile",
-            "size": 701,
-            "sha256": "a6f61419e7549a3ddc41a0a2d8934cf044509ca2e4339fb0abfabf56841e6893"
-        },
-        {
-            "path": "规范文件/deploy/Dockerfile",
-            "size": 1592,
-            "sha256": "79988d98bacf0639193056f56f04140ed6fb4ca70177bef013d4ca4f8ef6f73e"
-        },
-        {
-            "path": "规范文件/deploy/README.md",
-            "size": 2373,
-            "sha256": "3a8705a193fbbe0aef67b0803745e1b4c9afdd33f18d06ea0f7469068c563e61"
-        },
-        {
-            "path": "规范文件/deploy/backup-postgres.mjs",
-            "size": 4771,
-            "sha256": "aa315387629b31213a86c3f4582523be3257180304e2e69efd1e425132d47da0"
-        },
-        {
-            "path": "规范文件/deploy/docker-compose.prod.yml",
-            "size": 2116,
-            "sha256": "404a051fcd696420c04236db37f795a705318f7c4bdadec09ee1a242d8448d3a"
-        },
-        {
-            "path": "规范文件/deploy/health-probes.ts.tpl",
-            "size": 1545,
-            "sha256": "fd0607d332eb80fbbc9087abe78c03409f1893c100ea0fa1f1f3448040c91eb9"
-        },
-        {
-            "path": "规范文件/session_handoff.md",
-            "size": 2422,
-            "sha256": "7d8d471566410cec8918a452e394807b05562a1e01a63df019f6bad1f197d61c"
-        },
-        {
-            "path": "规范文件/starter/README.md",
-            "size": 3330,
-            "sha256": "207d65b7ab33319964ed9c74a6dd0cd44efa65d24357929ebaceca89b817442f"
-        },
-        {
-            "path": "规范文件/starter/examples/rbac-isolation.spec.ts.example",
-            "size": 3064,
-            "sha256": "6a296e5edcb4fd17b83ba16241ff3d14fe604c1d6d60197d348eb8ddd5dfb4fd"
-        },
-        {
-            "path": "规范文件/starter/init-project.mjs",
-            "size": 6882,
-            "sha256": "3ebb7d47dba2b46fde5c6eecd2f3415b349d38a4bfc8e327a90ee2b894678909"
-        },
-        {
-            "path": "规范文件/starter/templates/.env.example.tpl",
-            "size": 391,
-            "sha256": "fd5f3fedc84eed9821428396276a644fa11799268eb0a7fa2a6dea8a3a9bbfb5"
-        },
-        {
-            "path": "规范文件/starter/templates/auth-contexts.ts.tpl",
-            "size": 3299,
-            "sha256": "ba1296014564b3ed2e62d813d0d2c0ca73e7695eaaaef712db2b5454896301d7"
-        },
-        {
-            "path": "规范文件/starter/templates/auth-rbac.ts.tpl",
-            "size": 4191,
-            "sha256": "6e8155a323886828caf5ee35cf656747e18ce3e97470f9847790b2718b691d4b"
-        },
-        {
-            "path": "规范文件/starter/templates/eslint.config.mjs.tpl",
-            "size": 611,
-            "sha256": "8f347ff6b158699c357ec587d4d15ac979a69ecac47453dbb2244d985fc9cdcc"
-        },
-        {
-            "path": "规范文件/starter/templates/logger-trace.ts.tpl",
-            "size": 3474,
-            "sha256": "b613736e2695de9bbff8e5866100dc6138c84ec20ae1f099fc05b74faa5b1deb"
-        },
-        {
-            "path": "规范文件/starter/templates/package.json.tpl",
-            "size": 1990,
-            "sha256": "c7e8cd4a1b6c775c0a826cac1a3a99a71b0a5e5e2fe5cb9f74cab90438afc779"
-        },
-        {
-            "path": "规范文件/starter/templates/playwright.config.ts.tpl",
-            "size": 1083,
-            "sha256": "0b837a4c7b71d35c4c0d3c5310f7fb2f7438bad369efb372acacb778312fd3a4"
-        },
-        {
-            "path": "规范文件/starter/templates/schema.prisma.tpl",
-            "size": 2059,
-            "sha256": "7b4435d7ca43a75a1ccedafe8b8eb3084757c2d6c7695b5927e94e52161847cb"
-        },
-        {
-            "path": "规范文件/starter/templates/seed.ts.tpl",
-            "size": 2049,
-            "sha256": "eee9f856d3c911d7811842589e23c7c2601e05ca7a58e79fc58c33ac41e2c419"
-        },
-        {
-            "path": "规范文件/starter/templates/test-accounts.ts.tpl",
-            "size": 1293,
-            "sha256": "09ea1e6779176d5b3b99bd4ed3bd5176b8df001749fd90901dc73f62f375cb6c"
-        },
-        {
-            "path": "规范文件/starter/templates/theme.css.tpl",
-            "size": 2283,
-            "sha256": "da471a7b52704f5721e4559b68a968869ddf4635984fa1589e4c8a66f5f3b4b2"
-        },
-        {
-            "path": "规范文件/starter/templates/tsconfig.json.tpl",
-            "size": 639,
-            "sha256": "1f1b980d9800c1dc4af735c806d775c4fac4b7a220f243505e1cd2cfb65afe77"
-        },
-        {
-            "path": "规范文件/starter/templates/usePrelineInit.ts.tpl",
-            "size": 1009,
-            "sha256": "391bbe62d05c0bc32e139957547e78295b5c7e8f3d2cc69cb032a5dcb056bc88"
-        },
-        {
-            "path": "规范文件/starter/templates/vite.config.ts.tpl",
-            "size": 680,
-            "sha256": "90d28897879a2f53c2d35c37a766da293925053d3284bb53ce981827c5791898"
-        },
-        {
-            "path": "规范文件/templates/T01_项目启动与裁剪卡.md",
-            "size": 2335,
-            "sha256": "f8eb5e3456506960158fb7bcf26f3f90b95bf0613d31ce1a10ae8919d31333f1"
-        },
-        {
-            "path": "规范文件/templates/T02_问题与证据卡.md",
-            "size": 994,
-            "sha256": "7ad34d403323423f621429dbc9c7f7cb76fef5a8bb12b190ce0418d5e58166a3"
-        },
-        {
-            "path": "规范文件/templates/T03_蓝图与需求规格.md",
-            "size": 2802,
-            "sha256": "ba99a4f41db4e57a77f552b4383d8362f51c4b3a20b65f1c9bf79a5f7e0bcff5"
-        },
-        {
-            "path": "规范文件/templates/T04_业务对象权限状态与行为.md",
-            "size": 1589,
-            "sha256": "3351722a8232a484fdb42a403d3846c310e36f0b47f814ae8ab20609bbd8560b"
-        },
-        {
-            "path": "规范文件/templates/T05_技术决策数据接口与复用.md",
-            "size": 9954,
-            "sha256": "c196d8af2f78c21d7a02493bbe6bde287c1e82559309127ed4fe2568dfd4a1c0"
-        },
-        {
-            "path": "规范文件/templates/T06_交互与组件规格.md",
-            "size": 3832,
-            "sha256": "ec5a8effdcf58a7d59d3baa93f7cddd492d5c7326c1752d6c09d10a7804bded7"
-        },
-        {
-            "path": "规范文件/templates/T07_测试与验收规格.md",
-            "size": 2431,
-            "sha256": "8b89586210f569fda3e9d29aec0e2ed51fa683cd1678767c4294bd2914d5377e"
-        },
-        {
-            "path": "规范文件/templates/T08_实施任务与追溯.md",
-            "size": 3319,
-            "sha256": "53f0fc9a1c9880a5ce753a5a229c90c7d7fafef4e3480a0fb8531a708a9e05fc"
-        },
-        {
-            "path": "规范文件/templates/T09_发布与运行卡.md",
-            "size": 1900,
-            "sha256": "604ba61f4a9999bf084619d1f899244fa153065ca2317f727ba93f2c2faee569"
-        },
-        {
-            "path": "规范文件/templates/T10_复盘变更与交接.md",
-            "size": 1016,
-            "sha256": "0c620ecd927f5a40a557878db366c509e945d0992dc4f8e9de3e1e76be28438f"
-        },
-        {
-            "path": "规范文件/templates/T11_AI产品专项.md",
-            "size": 1198,
-            "sha256": "76d4544fc047f0561364e478941cf71850d1052b9192d3d53b4493544f2f8ad1"
-        },
-        {
-            "path": "规范文件/templates/T12_审计与验收包.md",
-            "size": 4841,
-            "sha256": "e51c61cb0b10eee89ae9888a38c16ef38af4a4466ef1832f5cea9b3659d1a956"
-        },
-        {
-            "path": "规范文件/templates/T13_移动App项目补充卡.md",
-            "size": 4485,
-            "sha256": "9fc9ca7fbe2810f3aea29154c075a2a8ea7920ada5c7da404cc1590ad0e190c8"
-        },
-        {
-            "path": "规范文件/审计报告_v1.1.md",
-            "size": 5380,
-            "sha256": "dd61d2e7f819e1dfe97ab96ad02259e2376595f51f080cda6a432d1e7502f699"
-        },
-        {
-            "path": "规范文件/文档检查结果.json",
-            "size": 3688,
-            "sha256": "e434b326876da831baa305b864859ec37b0f0be44b19a6bf0cc54de52d89281b"
-        },
-        {
-            "path": "规范文件/验证记录.md",
-            "size": 3222,
-            "sha256": "e91b0461f06fbdee6d1ec601a9c0befdc958fe8f93c8f3fd77a26d365f587441"
-        }
-    ]
+    "version":  "1.2.0",
+    "generated_at":  "2026-11-27T08:40:41+08:00",
+    "root":  "软件产品全栈交付工作流_v1.2.0",
+    "file_count":  72,
+    "excluded":  [
+                     ".git/",
+                     "历史归档_勿喂给AI/",
+                     "交付文件清单.json"
+                 ],
+    "files":  [
+                  {
+                      "path":  ".agents/skills/fullstack-product-delivery/references/stage-routing.md",
+                      "size":  5924,
+                      "sha256":  "7804a0d629c93048a178be21d66a94c5810c493f28b6b55a578f58d9d71c929c"
+                  },
+                  {
+                      "path":  ".agents/skills/fullstack-product-delivery/SKILL.md",
+                      "size":  11374,
+                      "sha256":  "0ffc57c89f34cdb3950d71490ac6a7ca19e9a130895e62f3aa7b7ae3453ceb80"
+                  },
+                  {
+                      "path":  ".gitignore",
+                      "size":  168,
+                      "sha256":  "15da1e6de6333bc4396b8ea8b3ce96fe419b9c536e0c76483bd61904ece8c6e2"
+                  },
+                  {
+                      "path":  "AGENTS.md",
+                      "size":  5018,
+                      "sha256":  "0682877c346b8214eb317a7b2a88d5516fb42303ab567a613bce5e15b580c738"
+                  },
+                  {
+                      "path":  "README.md",
+                      "size":  9572,
+                      "sha256":  "0eb6edc3b12cdd5bbfd829299cf8811902d193bf803efa2604a2e6ca3f839905"
+                  },
+                  {
+                      "path":  "规范文件/00_主流程.md",
+                      "size":  28658,
+                      "sha256":  "f7bad2d5fab0f04b29511ff5a54087f9c87614223d82c7122d8196a7dab87e2d"
+                  },
+                  {
+                      "path":  "规范文件/01_规则库.md",
+                      "size":  51802,
+                      "sha256":  "3fc863b89891153c788aaebd58af3526fa98279e41d27dc58f5db94f05dc985c"
+                  },
+                  {
+                      "path":  "规范文件/02_模板包.md",
+                      "size":  40180,
+                      "sha256":  "bac00976c2b53ae5bfd3a85d73cf255656e3c847d4a9083dae42f28414211a2c"
+                  },
+                  {
+                      "path":  "规范文件/03_贯穿案例_工单.md",
+                      "size":  24540,
+                      "sha256":  "472bd67c64b6c99dacf28e523b104a0c958e58ffaf0db28d2a5cb251c0bc8af1"
+                  },
+                  {
+                      "path":  "规范文件/04_AI项目执行说明.md",
+                      "size":  13343,
+                      "sha256":  "f6b7d0d78868c8eb534437e542b822031f4bea1c6a3936543f62e256f42a323f"
+                  },
+                  {
+                      "path":  "规范文件/05_来源与更新机制.md",
+                      "size":  18639,
+                      "sha256":  "7e4002e72b5a60782b55751019a2c164f5b6518532191bd9b55721f29893b11b"
+                  },
+                  {
+                      "path":  "规范文件/06_工程质量与审计验收基线.md",
+                      "size":  35404,
+                      "sha256":  "aacfe121d334f78e2a9b03be859cc9ee6b286c3f6279688e73e733fd2e21dbd7"
+                  },
+                  {
+                      "path":  "规范文件/07_项目推进与多agent执行.md",
+                      "size":  11468,
+                      "sha256":  "336a5e57731860341efefebe781c65f406c7db51256cc0d69fa2821811b08aca"
+                  },
+                  {
+                      "path":  "规范文件/08_移动App专项.md",
+                      "size":  15476,
+                      "sha256":  "9c95c3be3d7ce15533f5fd518908c827b35230cd603d4d286e08d3133039d4d4"
+                  },
+                  {
+                      "path":  "规范文件/ARCHITECTURE.md",
+                      "size":  4425,
+                      "sha256":  "083beee014bb821b3a430d33325e56a81dcd320f8bc27bb2172e3641a163a5c5"
+                  },
+                  {
+                      "path":  "规范文件/CHANGELOG.md",
+                      "size":  13626,
+                      "sha256":  "547ae2ead315be8c517e3078a80dcc5af4807c4eb0f940572ba79abb487d06d4"
+                  },
+                  {
+                      "path":  "规范文件/ci/build-index-tree.mjs",
+                      "size":  12145,
+                      "sha256":  "ca1a30cd06a1fee8e29f4e5ad7e4557ff3c1817e6be818e130de66f78396f497"
+                  },
+                  {
+                      "path":  "规范文件/ci/docker-compose.postgres.yml",
+                      "size":  857,
+                      "sha256":  "25613c27f1f55560805f70ae54c2759744d5780d8a86ffd45e795562bfc67095"
+                  },
+                  {
+                      "path":  "规范文件/ci/github-actions-ci.yml",
+                      "size":  4803,
+                      "sha256":  "abca69ff1ac9171516eba19fc8ae30255bad3695d437fcdf92ea45984165532a"
+                  },
+                  {
+                      "path":  "规范文件/ci/pre-commit.hook",
+                      "size":  1291,
+                      "sha256":  "c674abef0f350907778706efedf1fb88c898c4176b87f3a22fe7ba6403e43eb4"
+                  },
+                  {
+                      "path":  "规范文件/ci/pull_request_template.md",
+                      "size":  2158,
+                      "sha256":  "c6bf612f5276cf36424328ab4388ea8d4f171150ac3bc532978a2149ac641b1b"
+                  },
+                  {
+                      "path":  "规范文件/ci/README.md",
+                      "size":  2509,
+                      "sha256":  "011701d6420ce6aa21f9120013de142d79b2f724aa45c5a578c7e37438b0fceb"
+                  },
+                  {
+                      "path":  "规范文件/ci/verify-gates.mjs",
+                      "size":  15106,
+                      "sha256":  "71cc26b114cd11e7402a9b0f2584e4466f03eaad73eabb6a08c664e6166c6b99"
+                  },
+                  {
+                      "path":  "规范文件/contracts/auth-rbac-baseline.md",
+                      "size":  4427,
+                      "sha256":  "9f878216b95886c8809ee27f3c164cb141d7b951f7e860b30dfd0089e449d4da"
+                  },
+                  {
+                      "path":  "规范文件/contracts/base-contract.schema.ts",
+                      "size":  5125,
+                      "sha256":  "bcb743d8b4a094860e48bb3b0bd80da83f313be1fea5347b1a44260fbdf97231"
+                  },
+                  {
+                      "path":  "规范文件/contracts/fingerprint.server.ts",
+                      "size":  1240,
+                      "sha256":  "8237da3fb189771af105c7420d1c846b96d8d48dd36e4860f0531a4e21c725a9"
+                  },
+                  {
+                      "path":  "规范文件/contracts/openapi-baseline.yaml",
+                      "size":  3807,
+                      "sha256":  "7cd03996499089ffcedbc006c1b137755b3db71cea1a56613290682c5d65ac98"
+                  },
+                  {
+                      "path":  "规范文件/contracts/README.md",
+                      "size":  3015,
+                      "sha256":  "10839d467fec1f0bb9a47016ff2ae902c14bcec4f15631963a03f93fda896bd7"
+                  },
+                  {
+                      "path":  "规范文件/contracts/storage-jobs-baseline.md",
+                      "size":  4030,
+                      "sha256":  "d9a69a66e268849bda5b4e3a24afc93ae6cb247dec63bccab8f8475748b1cdcf"
+                  },
+                  {
+                      "path":  "规范文件/deploy/backup-postgres.mjs",
+                      "size":  4771,
+                      "sha256":  "aa315387629b31213a86c3f4582523be3257180304e2e69efd1e425132d47da0"
+                  },
+                  {
+                      "path":  "规范文件/deploy/Caddyfile",
+                      "size":  701,
+                      "sha256":  "a6f61419e7549a3ddc41a0a2d8934cf044509ca2e4339fb0abfabf56841e6893"
+                  },
+                  {
+                      "path":  "规范文件/deploy/docker-compose.prod.yml",
+                      "size":  2116,
+                      "sha256":  "404a051fcd696420c04236db37f795a705318f7c4bdadec09ee1a242d8448d3a"
+                  },
+                  {
+                      "path":  "规范文件/deploy/Dockerfile",
+                      "size":  1592,
+                      "sha256":  "79988d98bacf0639193056f56f04140ed6fb4ca70177bef013d4ca4f8ef6f73e"
+                  },
+                  {
+                      "path":  "规范文件/deploy/health-probes.ts.tpl",
+                      "size":  1545,
+                      "sha256":  "fd0607d332eb80fbbc9087abe78c03409f1893c100ea0fa1f1f3448040c91eb9"
+                  },
+                  {
+                      "path":  "规范文件/deploy/README.md",
+                      "size":  2373,
+                      "sha256":  "3a8705a193fbbe0aef67b0803745e1b4c9afdd33f18d06ea0f7469068c563e61"
+                  },
+                  {
+                      "path":  "规范文件/INDEX_TREE.md",
+                      "size":  8459,
+                      "sha256":  "e46a3bce7c60a4bf946e1ac7809621e2135a67f1947818a73ae058c2673c65d5"
+                  },
+                  {
+                      "path":  "规范文件/README.md",
+                      "size":  5919,
+                      "sha256":  "e3e841ece64ce393fe548a3aec1882c4285c1aa1411eca1ac850095db98023b2"
+                  },
+                  {
+                      "path":  "规范文件/session_handoff.md",
+                      "size":  2441,
+                      "sha256":  "a34a6f8d06ca09fd0f793c40e8e748077971583e48dbcf3847b16328ebefacb1"
+                  },
+                  {
+                      "path":  "规范文件/starter/examples/rbac-isolation.spec.ts.example",
+                      "size":  3129,
+                      "sha256":  "72a1fc782618554bf7d76988d69ae9b9bcaa1a73d995e99c634d18d8c6d6dcf8"
+                  },
+                  {
+                      "path":  "规范文件/starter/init-project.mjs",
+                      "size":  7009,
+                      "sha256":  "2f660c692a6d240553dd5a31c0b117d32192c0e564e449d6ae2f2f81fedda9d2"
+                  },
+                  {
+                      "path":  "规范文件/starter/README.md",
+                      "size":  3367,
+                      "sha256":  "9d3f0a7627495999b073532d25596c2cd7fca6835462e38bfd554a637db0ce68"
+                  },
+                  {
+                      "path":  "规范文件/starter/templates/.env.example.tpl",
+                      "size":  391,
+                      "sha256":  "fd5f3fedc84eed9821428396276a644fa11799268eb0a7fa2a6dea8a3a9bbfb5"
+                  },
+                  {
+                      "path":  "规范文件/starter/templates/auth-contexts.ts.tpl",
+                      "size":  3524,
+                      "sha256":  "aafbdeafe1d83ce3669d46c8f48dd69f740802f1d1a5482812b3e961de1ff724"
+                  },
+                  {
+                      "path":  "规范文件/starter/templates/auth-rbac.ts.tpl",
+                      "size":  4191,
+                      "sha256":  "6e8155a323886828caf5ee35cf656747e18ce3e97470f9847790b2718b691d4b"
+                  },
+                  {
+                      "path":  "规范文件/starter/templates/eslint.config.mjs.tpl",
+                      "size":  683,
+                      "sha256":  "71eb03df9f18d3f5e076fc4862af38e441395898458c30f8595511d1e53a2120"
+                  },
+                  {
+                      "path":  "规范文件/starter/templates/logger-trace.ts.tpl",
+                      "size":  3474,
+                      "sha256":  "b613736e2695de9bbff8e5866100dc6138c84ec20ae1f099fc05b74faa5b1deb"
+                  },
+                  {
+                      "path":  "规范文件/starter/templates/package.json.tpl",
+                      "size":  2049,
+                      "sha256":  "d4bb80b93ef87265a532a486221c738233aef4153afb5a7e6e7ee87deb988f0a"
+                  },
+                  {
+                      "path":  "规范文件/starter/templates/playwright.config.ts.tpl",
+                      "size":  1117,
+                      "sha256":  "c0b3d95c06a7a20cf5c0e774a891bcc5dcebc76e622f827a9b316eab657a500e"
+                  },
+                  {
+                      "path":  "规范文件/starter/templates/schema.prisma.tpl",
+                      "size":  2059,
+                      "sha256":  "7b4435d7ca43a75a1ccedafe8b8eb3084757c2d6c7695b5927e94e52161847cb"
+                  },
+                  {
+                      "path":  "规范文件/starter/templates/seed.ts.tpl",
+                      "size":  2106,
+                      "sha256":  "85ae946d2584fd1aadfaa51673308ea6dd13b2b3b80f9f6ec33acea54fc9b612"
+                  },
+                  {
+                      "path":  "规范文件/starter/templates/test-accounts.ts.tpl",
+                      "size":  1336,
+                      "sha256":  "7d993cee5799e9c0ca231f29746c235d6440c55f78d4ff699112a158070a7ed0"
+                  },
+                  {
+                      "path":  "规范文件/starter/templates/theme.css.tpl",
+                      "size":  2283,
+                      "sha256":  "da471a7b52704f5721e4559b68a968869ddf4635984fa1589e4c8a66f5f3b4b2"
+                  },
+                  {
+                      "path":  "规范文件/starter/templates/tsconfig.json.tpl",
+                      "size":  669,
+                      "sha256":  "56a15e2d0ce4c24a7b24b0e5e9659c06aed725e30f19a66e839c678539897e3d"
+                  },
+                  {
+                      "path":  "规范文件/starter/templates/usePrelineInit.ts.tpl",
+                      "size":  1009,
+                      "sha256":  "391bbe62d05c0bc32e139957547e78295b5c7e8f3d2cc69cb032a5dcb056bc88"
+                  },
+                  {
+                      "path":  "规范文件/starter/templates/vite.config.ts.tpl",
+                      "size":  707,
+                      "sha256":  "93eebbd98b41055f25f6f611282721ddb8e193c9fb5e3f12176dfb1b03a042c7"
+                  },
+                  {
+                      "path":  "规范文件/templates/T01_项目启动与裁剪卡.md",
+                      "size":  2335,
+                      "sha256":  "c3da877b27e18aaad45a4e451bd369ac187421792d0bbad2a5a557c3a38aa2f2"
+                  },
+                  {
+                      "path":  "规范文件/templates/T02_问题与证据卡.md",
+                      "size":  994,
+                      "sha256":  "9e008eb1a60a5cb865ee9e7bc412d5a78b14301e53bf7ecd68e1fe58bd778790"
+                  },
+                  {
+                      "path":  "规范文件/templates/T03_蓝图与需求规格.md",
+                      "size":  2802,
+                      "sha256":  "907a1501fdaf51baa0febf494f69328122f414e04bf7e160abe463ee1b93e15d"
+                  },
+                  {
+                      "path":  "规范文件/templates/T04_业务对象权限状态与行为.md",
+                      "size":  1589,
+                      "sha256":  "a49c60e8af8125e8d53d503aee4ed9d72a0c5a934e699398637dc27a3832e51d"
+                  },
+                  {
+                      "path":  "规范文件/templates/T05_技术决策数据接口与复用.md",
+                      "size":  9954,
+                      "sha256":  "eb8d5d1bb4460aef262826275d4e25b79e567693ab99f41ac1cdded74b7020c2"
+                  },
+                  {
+                      "path":  "规范文件/templates/T06_交互与组件规格.md",
+                      "size":  3832,
+                      "sha256":  "162946f738db68d5807e9ac5001705ecb7006a7c092aafb6aecba1f2b664e472"
+                  },
+                  {
+                      "path":  "规范文件/templates/T07_测试与验收规格.md",
+                      "size":  2431,
+                      "sha256":  "8b89586210f569fda3e9d29aec0e2ed51fa683cd1678767c4294bd2914d5377e"
+                  },
+                  {
+                      "path":  "规范文件/templates/T08_实施任务与追溯.md",
+                      "size":  3319,
+                      "sha256":  "e3a72f16ecb654d67e539541a7008e9d1b8c93b0121adda516b73f85c05c7c13"
+                  },
+                  {
+                      "path":  "规范文件/templates/T09_发布与运行卡.md",
+                      "size":  1900,
+                      "sha256":  "f06c4b4a8bc1fec8efa9e1e75407cb9a4a33f6b4b741317d5342bd2ba6140d36"
+                  },
+                  {
+                      "path":  "规范文件/templates/T10_复盘变更与交接.md",
+                      "size":  1016,
+                      "sha256":  "2679ccd338496cd8f6b13f3e23144778fe915519aebd62633dff0f924004bad1"
+                  },
+                  {
+                      "path":  "规范文件/templates/T11_AI产品专项.md",
+                      "size":  1198,
+                      "sha256":  "f29986446e77a7741231824e76b081de2863489bff802e91d8bcf3de70b05201"
+                  },
+                  {
+                      "path":  "规范文件/templates/T12_审计与验收包.md",
+                      "size":  4841,
+                      "sha256":  "448bea50bad4dc0deea22a0d9b1743a3ce7298bc8ba25fa25ebeea98bc78224f"
+                  },
+                  {
+                      "path":  "规范文件/templates/T13_移动App项目补充卡.md",
+                      "size":  4485,
+                      "sha256":  "03b2bdf24f1c1c81500e477593bf8a9d633fbfc50629182c5728d5e976e742a0"
+                  },
+                  {
+                      "path":  "规范文件/审计报告_v1.1.md",
+                      "size":  5380,
+                      "sha256":  "dd61d2e7f819e1dfe97ab96ad02259e2376595f51f080cda6a432d1e7502f699"
+                  },
+                  {
+                      "path":  "规范文件/文档检查结果.json",
+                      "size":  4796,
+                      "sha256":  "aee1e28bb65606c643c24aba25dab6c1d6fdcfebf35aab34ea3f74e094b3c1a3"
+                  },
+                  {
+                      "path":  "规范文件/验证记录.md",
+                      "size":  3547,
+                      "sha256":  "fd822befcc61ed71396b070ce007578b9348d6017b55683d314273e43e1571ad"
+                  },
+                  {
+                      "path":  "开始使用.md",
+                      "size":  9572,
+                      "sha256":  "0eb6edc3b12cdd5bbfd829299cf8811902d193bf803efa2604a2e6ca3f839905"
+                  }
+              ]
 }

@@ -9,6 +9,12 @@
 - **CI `Gate 3d` 全自动运行与报告归档**：
   - 启用 `规范文件/ci/github-actions-ci.yml` 中的 `Gate 3a-2`（自动灌入 4 角色测试种子）与 `Gate 3d`（检测 `tests/e2e/*.spec.ts` 时自动安装 Chromium 跑 `npm run test:e2e` 并上传 `playwright-rbac-report` 报告与截图 Artifact）。
   - 同步更新 `STD-QA-12~14`、`contracts/auth-rbac-baseline.md`、`pull_request_template.md`、`T07`、`SKILL.md`、`AGENTS.md`、`INDEX_TREE.md`、`00`/`02`/`04`/`06`、`README.md` 与 `开始使用.md`。
+- **同步审阅与回归修复（本机全仓复核闭环）**：
+  - 修复 `auth-contexts.ts.tpl` 中 `browser.newContext()` 未透传 `{ baseURL }` 导致相对路径请求报 `Invalid URL` 的阻塞缺陷；
+  - `eslint.config.mjs.tpl` `ignores` 新增 `playwright-report`、`docs/evidence/playwright-report`、`test-results`，防止生成报告后 `npm run check` 误报失败；
+  - `vite.config.ts.tpl` `/api` 代理统一为 `http://127.0.0.1:3001`（与 `playwright.config.ts` 一致），避免 Node 20 `localhost` IPv6 解析偏差；
+  - `github-actions-ci.yml` 在 `Gate 3d-2` 前补加幂等 `npm run db:seed`，防止 `Gate 3b` 脏写影响 E2E；
+  - `verify-gates.mjs` Gate 2 新增拦截 Playwright `test.fixme` / `describe.fixme`；同步全套 `templates/T01~T13.md` 至 `v1.2.0`。
 
 ## 1.1.0 — 2026-11-26（全生命周期完整版：补齐 P2+P3 全部 4 项生产部署、协作、可观测性与业务底座）
 

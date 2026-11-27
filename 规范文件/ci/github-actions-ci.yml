@@ -95,6 +95,8 @@ jobs:
       - name: "Gate 3d-2: Install Playwright Chromium & run automated RBAC/IDOR E2E"
         if: steps.detect_e2e.outputs.has_e2e == 'true'
         run: |
+          # Idempotent re-seed in case Vitest mutated database rows during Gate 3b
+          npm run db:seed
           npx playwright install --with-deps chromium
           npm run test:e2e
 

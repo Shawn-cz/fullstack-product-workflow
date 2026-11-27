@@ -12,9 +12,13 @@ export interface RoleSession {
   email: string
 }
 
-async function createLoggedInSession(browser: Browser, role: TestAccountRole): Promise<RoleSession> {
+async function createLoggedInSession(
+  browser: Browser,
+  role: TestAccountRole,
+  baseURL?: string
+): Promise<RoleSession> {
   // 每个角色使用独立 BrowserContext（等价全新无痕窗口，Cookie 与 Storage 完全隔离）
-  const context = await browser.newContext()
+  const context = await browser.newContext({ baseURL })
   const acc = TEST_ACCOUNT_MAP[role]
 
   const res = await context.request.post(LOGIN_ENDPOINT, {
@@ -62,28 +66,28 @@ export const test = base.extend<{
   handler: RoleSession
   admin: RoleSession
 }>({
-  anonContext: async ({ browser }, use) => {
-    const context = await browser.newContext()
+  anonContext: async ({ browser, baseURL }, use) => {
+    const context = await browser.newContext({ baseURL })
     await use(context)
     await context.close()
   },
-  memberA: async ({ browser }, use) => {
-    const session = await createLoggedInSession(browser, 'MEMBER_A')
+  memberA: async ({ browser, baseURL }, use) => {
+    const session = await createLoggedInSession(browser, 'MEMBER_A', baseURL)
     await use(session)
     await session.context.close()
   },
-  memberB: async ({ browser }, use) => {
-    const session = await createLoggedInSession(browser, 'MEMBER_B')
+  memberB: async ({ browser, baseURL }, use) => {
+    const session = await createLoggedInSession(browser, 'MEMBER_B', baseURL)
     await use(session)
     await session.context.close()
   },
-  handler: async ({ browser }, use) => {
-    const session = await createLoggedInSession(browser, 'HANDLER')
+  handler: async ({ browser, baseURL }, use) => {
+    const session = await createLoggedInSession(browser, 'HANDLER', baseURL)
     await use(session)
     await session.context.close()
   },
-  admin: async ({ browser }, use) => {
-    const session = await createLoggedInSession(browser, 'ADMIN')
+  admin: async ({ browser, baseURL }, use) => {
+    const session = await createLoggedInSession(browser, 'ADMIN', baseURL)
     await use(session)
     await session.context.close()
   }

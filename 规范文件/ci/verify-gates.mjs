@@ -208,8 +208,8 @@ function runGate2() {
   for (const file of scanFiles) {
     const rel = path.relative(cwd, file).replace(/\\/g, '/')
     const content = fs.readFileSync(file, 'utf8')
-    if (/\b(?:it|test|describe)\.(?:skip|only)\s*\(/.test(content) || /\bx(?:it|test|describe)\s*\(/.test(content)) {
-      violations.push(`${rel}: 存在 .skip / .only 或 xit 跳过/独占测试`)
+    if (/\b(?:it|test|describe)\.(?:skip|only|fixme)\s*\(/.test(content) || /\bx(?:it|test|describe)\s*\(/.test(content)) {
+      violations.push(`${rel}: 存在 .skip / .only / .fixme 或 xit 跳过/独占测试`)
     }
     if (/catch\s*(?:\([^)]*\))?\s*\{\s*\}/.test(content)) {
       violations.push(`${rel}: 存在空 catch 块吞掉异常 (违反 STD-CODE-08)`)
