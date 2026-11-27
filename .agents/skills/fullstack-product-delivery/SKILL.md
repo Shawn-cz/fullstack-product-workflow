@@ -1,3 +1,8 @@
+---
+name: fullstack-product-delivery
+description: Use when starting, designing, implementing, modifying, verifying, deploying, or auditing any Web or mobile App feature, UI change, or bugfix under the team's full-stack product delivery workflow
+---
+
 # 软件产品设计与全栈交付工作流 (v1.3.1)
 
 面向**零开发经验团队**的 S0–S9 全栈交付规范。成员做业务决策与黑盒验真，AI 负责脚手架铺底、索引树维护、同构契约与 RBAC 落地、测试先行、编码与脱敏日志、Git 快照及门禁校验。

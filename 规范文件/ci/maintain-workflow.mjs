@@ -185,9 +185,23 @@ function runCheck() {
     errors.push('README.md 与 开始使用.md 内容不一致')
   }
 
-  // 6. Always-on rule size budget (< 5KB)
+  // 6. Always-on rule size budget (< 5KB) & SKILL.md frontmatter + LF check
   const agentsBytes = fs.statSync(path.join(repoRoot, 'AGENTS.md')).size
-  const skillBytes = fs.statSync(path.join(repoRoot, '.agents', 'skills', 'fullstack-product-delivery', 'SKILL.md')).size
+  const skillPath = path.join(repoRoot, '.agents', 'skills', 'fullstack-product-delivery', 'SKILL.md')
+  const skillBytes = fs.statSync(skillPath).size
+  const skillRaw = fs.readFileSync(skillPath, 'utf8')
+  if (skillRaw.includes('\r')) {
+    errors.push('SKILL.md 包含 CR/CRLF 换行符，必须统一为 LF')
+  }
+  const fmMatch = skillRaw.match(/^---\n([\s\S]*?)\n---\n/)
+  if (!fmMatch) {
+    errors.push('SKILL.md 缺少合法的 YAML frontmatter (--- ... ---)')
+  } else {
+    const fmBody = fmMatch[1]
+    if (!/^name:\s*\S+/m.test(fmBody) || !/^description:\s*\S+/m.test(fmBody)) {
+      errors.push('SKILL.md YAML frontmatter 必须包含 name 与 description 字段')
+    }
+  }
   if (agentsBytes > MAX_ALWAYS_ON_BYTES) {
     errors.push(`AGENTS.md 体积超出 5KB 上限：${agentsBytes} bytes`)
   }
