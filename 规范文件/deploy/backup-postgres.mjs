@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 软件产品设计与全栈交付工作流 v1.1.0 — PostgreSQL 16 跨平台一键备份与演练恢复脚本
+ * 软件产品设计与全栈交付工作流 v1.3.0 — PostgreSQL 16 跨平台一键备份与演练恢复脚本
  * 对应规则：STD-DAT-04（迁移前备份与恢复验证）、STD-OPS-03（可回退核对）、STD-OPS-07
  *
  * 用法：
@@ -25,7 +25,7 @@ function sha256File(filePath) {
 }
 
 function runSelfCheck() {
-  const digest = createHash('sha256').update('v1.1.0-pg-backup').digest('hex')
+  const digest = createHash('sha256').update('v1.3.0-pg-backup').digest('hex')
   if (digest.length !== 64) {
     console.error('❌ backup-postgres.mjs SHA-256 self-check failed.')
     process.exit(1)

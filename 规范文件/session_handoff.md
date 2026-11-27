@@ -1,19 +1,18 @@
 # Session Handoff
 
-日期：2026-11-26（Asia/Shanghai）｜工作流版本：1.2.0（全生命周期与自动化越权闭环版）
+日期：2026-11-27（Asia/Shanghai）｜工作流版本：1.3.0（可运行全栈底座与维护闭环版）
 
-## 本轮里程碑（1.1.0 → 1.2.0）
+## 本轮里程碑（1.2.0 → 1.3.0）
 
-针对零开发经验团队在真实项目试点中的反馈（人工开双无痕窗口验越权繁琐），本轮完成 **`v1.2.0` Playwright 双隔离上下文自动化越权底座** 落地：
-1. **纯数据账号源 + 无副作用 Seed**：新增 `starter/templates/test-accounts.ts.tpl`（`prisma/test-accounts.ts`），重构 `seed.ts.tpl` 为主模块入口执行且保留 `NODE_ENV=production` 熔断保护。
-2. **Playwright 双无痕窗口 Fixture 与 S6 样板**：新增 `playwright.config.ts.tpl`、`auth-contexts.ts.tpl`（`anonContext`/`memberA`/`memberB`/`handler`/`admin` + `assertHttpOnlySessionAndCleanStorage`）与 `starter/examples/rbac-isolation.spec.ts.example`；`vite.config.ts.tpl` 排除 `tests/e2e/**`，`package.json.tpl` 新增 `dev:server`、`test:e2e`、`test:e2e:fresh`、`test:e2e:report`。
-3. **CI `Gate 3d` 与门禁兼容**：`init-project.mjs` 升级至 28 项映射生成 29 文件（不提前落入假编号 `.spec.ts` 避免触发 Gate 1 幽灵编号报错）；`build-index-tree.mjs` 与 `verify-gates.mjs` 排除 `playwright-report` / `test-results`；`github-actions-ci.yml` 自动灌种子、检测 `tests/e2e/*.spec.ts` 并上传 `playwright-rbac-report` 视觉报告 Artifact。
-4. **规则与技能同步**：同步更新 `STD-QA-12~14`、`contracts/auth-rbac-baseline.md`、`pull_request_template.md`、`T07`、`SKILL.md`、`AGENTS.md`、`INDEX_TREE.md`、`00`/`02`/`04`/`06`、`README.md` 与 `开始使用.md`。
+针对 `v1.2.0` 工程底座深度审阅暴露的 12 项问题（含 3 项 P0、4 项 P1、5 项 P2），本轮全部修复并升级为 **`v1.3.0`**，同步推送至 GitHub `Shawn-cz/fullstack-product-workflow`（标签 `v1.3.0`）：
+1. **最小可运行入口 + 预编译生产容器（P0）**：补齐 `index.html`、`src/main.tsx`、`src/App.tsx`、`server/index.ts`（Hono + `@hono/node-server` + `dist/` 托管）；`Dockerfile` 运行期改用 `node dist-server/index.mjs` 且内置版本锁定 `prisma`。
+2. **Gate 1 空底座兼容 + Gate 4 四重指纹一键锁定（P0/P1）**：S0 空项目跑 `npm run gates` 不再误报；新增 `npm run gates:lock` 写入 `fingerprint-lock.json` 并同时校验契约/Schema/锁文件/源码树四重指纹；文档客观界定 Gate 2 为静态基线提醒。
+3. **运维与入门防呆（P1）**：`deploy/` 统一单文件 `.env.production`；`开始使用.md` 与 `starter/README.md` 补齐 Node 20 / Git / Docker Desktop 前置清单。
+4. **仓库维护闭环（P2）**：新增 `规范文件/ci/maintain-workflow.mjs`；两份生成清单移出 Git 避免多机冲突；`SKILL.md` 与 `AGENTS.md` 均压至 `< 5KB`；统一 `v1.3.0` 版本头并清理夸大措辞。
 
 ## 当前体系规模
 - 10 阶段（S0–S9）｜**124 条**唯一有效规则（含 16 条移动专项）｜13 份独立单文件模板｜50 组第一方来源
-- 5 个工程与技能目录：`starter/`（17 文件：含 `init-project.mjs`、`README.md`、14 份模板与 1 份 S6 E2E 样板）、`contracts/`（6 文件）、`ci/`（7 文件）、`deploy/`（6 文件）、`.agents/skills/`（2 文件）
+- 5 个工程与技能目录：`starter/`（21 文件：含 `init-project.mjs`、`README.md`、18 份模板与 1 份 S6 样板）、`contracts/`（6 文件）、`ci/`（8 文件，含 `maintain-workflow.mjs`）、`deploy/`（6 文件）、`.agents/skills/`（2 文件）
 
-## 后续演进建议
-- 在真实业务项目进入 S6/S7 时实跑 `npm run test:e2e:fresh`，根据实际后端启动脚本或 Cookie 命名微调经验回补模板仓。
-- 面向“团队没人使用 IDE”的长期痛点，下一步可在不重写编码引擎的前提下，外挂“网页/工单入口 + 云端沙箱 + 在线预览链接”的去 IDE 异步交付层。
+## 后续建议
+- 在装有 Docker Desktop 的机器上针对由 `init-project.mjs` 初始化的真实业务项目跑通一次 `docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build` 与 `npm run test:e2e:fresh` 全链路实测（本机未装 Docker，本轮已实测至 `npm install`、`prisma generate`、`tsc`/`eslint`、`vite build`、`esbuild` 及 `node dist-server/index.mjs` HTTP `/healthz`/`/readyz`/`/`）。

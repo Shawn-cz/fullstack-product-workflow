@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 软件产品设计与全栈交付工作流 v1.2.0 — 黄金技术栈全生命周期一键初始化脚手架脚本
+ * 软件产品设计与全栈交付工作流 v1.3.0 — 黄金技术栈全生命周期一键初始化脚手架脚本
  * 对应规则：STD-ARC-09、STD-GOV-05、STD-FE-07、STD-CODE-12、STD-SEC-05、STD-QA-13/14、STD-OPS-07/08
  *
  * 用法：
@@ -17,12 +17,16 @@ const scriptDir = path.dirname(fileURLToPath(import.meta.url))
 const specDir = path.resolve(scriptDir, '..')
 
 const FILE_MAPPINGS = [
-  // Starter 配置、Brand Theme Token 与黄金栈代码底座
+  // Starter 配置、可运行前后端入口、Brand Theme Token 与黄金栈代码底座
   { src: path.join(scriptDir, 'templates', 'package.json.tpl'), dest: 'package.json' },
   { src: path.join(scriptDir, 'templates', 'tsconfig.json.tpl'), dest: 'tsconfig.json' },
   { src: path.join(scriptDir, 'templates', 'vite.config.ts.tpl'), dest: 'vite.config.ts' },
   { src: path.join(scriptDir, 'templates', 'eslint.config.mjs.tpl'), dest: 'eslint.config.mjs' },
   { src: path.join(scriptDir, 'templates', '.env.example.tpl'), dest: '.env.example' },
+  { src: path.join(scriptDir, 'templates', 'index.html.tpl'), dest: 'index.html' },
+  { src: path.join(scriptDir, 'templates', 'main.tsx.tpl'), dest: 'src/main.tsx' },
+  { src: path.join(scriptDir, 'templates', 'App.tsx.tpl'), dest: 'src/App.tsx' },
+  { src: path.join(scriptDir, 'templates', 'server-index.ts.tpl'), dest: 'server/index.ts' },
   { src: path.join(scriptDir, 'templates', 'schema.prisma.tpl'), dest: 'prisma/schema.prisma' },
   { src: path.join(scriptDir, 'templates', 'test-accounts.ts.tpl'), dest: 'prisma/test-accounts.ts' },
   { src: path.join(scriptDir, 'templates', 'seed.ts.tpl'), dest: 'prisma/seed.ts' },
@@ -67,7 +71,7 @@ function runSelfCheck() {
     console.error('❌ base-contract.schema.ts 禁止导入 node:crypto（须隔离至 fingerprint.server.ts）！')
     process.exit(1)
   }
-  console.log(`✅ init-project.mjs self-check passed (${FILE_MAPPINGS.length} full-lifecycle starter assets + S6 RBAC E2E example verified, isomorphic contract clean).`)
+  console.log(`✅ init-project.mjs v1.3.0 self-check passed (${FILE_MAPPINGS.length} starter assets + S6 RBAC E2E example verified, isomorphic contract clean).`)
 }
 
 function runInit(targetDir, force) {
@@ -100,7 +104,22 @@ function runInit(targetDir, force) {
   if (!fs.existsSync(gitignorePath) || force) {
     fs.writeFileSync(
       gitignorePath,
-      ['node_modules/', 'dist/', 'backups/', 'playwright-report/', 'docs/evidence/playwright-report/', 'test-results/', '.env', '.env.local', '.env.production', 'coverage/', '.DS_Store', 'Thumbs.db', ''].join('\n'),
+      [
+        'node_modules/',
+        'dist/',
+        'dist-server/',
+        'backups/',
+        'playwright-report/',
+        'docs/evidence/playwright-report/',
+        'test-results/',
+        '.env',
+        '.env.local',
+        '.env.production',
+        'coverage/',
+        '.DS_Store',
+        'Thumbs.db',
+        ''
+      ].join('\n'),
       'utf8'
     )
     created++
@@ -113,8 +132,8 @@ function runInit(targetDir, force) {
   console.log(`✅ 全生命周期黄金栈项目底座初始化完成：目标=${absTarget}（新建/更新 ${created} 个文件，跳过已存在 ${skipped} 个文件）。`)
   console.log('下一步：')
   console.log('  1. 复制 .env.example 为 .env')
-  console.log('  2. npm run db:up && npm install && npm run hooks:install && npm run db:migrate && npm run db:seed')
-  console.log('  3. npm run index:build && npm run gates（S6 补入 tests/e2e/*.spec.ts 后可运行 npm run test:e2e:fresh）')
+  console.log('  2. npm install && npm run hooks:install && npm run db:up && npm run db:migrate && npm run db:seed')
+  console.log('  3. npm run index:build && npm run gates && npm run check && npm run build')
 }
 
 if (args.includes('--self-check')) {

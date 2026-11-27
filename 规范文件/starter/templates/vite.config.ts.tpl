@@ -18,10 +18,18 @@ export default defineConfig({
       '/api': {
         target: 'http://127.0.0.1:3001',
         changeOrigin: true
+      },
+      '/healthz': {
+        target: 'http://127.0.0.1:3001',
+        changeOrigin: true
+      },
+      '/readyz': {
+        target: 'http://127.0.0.1:3001',
+        changeOrigin: true
       }
     }
   },
   test: {
-    exclude: ['**/node_modules/**', '**/dist/**', 'tests/e2e/**']
+    exclude: ['**/node_modules/**', '**/dist/**', '**/dist-server/**', 'tests/e2e/**']
   }
 })

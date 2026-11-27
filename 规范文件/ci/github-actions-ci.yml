@@ -1,6 +1,6 @@
-# 软件产品设计与全栈交付工作流 v1.2.0 — GitHub Actions CI 四道硬门禁流水线模板
+# 软件产品设计与全栈交付工作流 v1.3.0 — GitHub Actions CI 四道门禁流水线模板
 # 启用方法：通过 starter/init-project.mjs 自动生成，或手动复制到业务项目的 .github/workflows/ci.yml。
-# 对应规则：STD-GOV-05（索引树）、STD-SEC-05（安全红线）、STD-QA-13（双向闭环四道硬门禁）、STD-AUD-07（三重指纹）、STD-ARC-09（PostgreSQL 同构）
+# 对应规则：STD-GOV-05（索引树）、STD-SEC-05（安全红线）、STD-QA-13（双向闭环四道门禁）、STD-AUD-07（指纹锁定）、STD-ARC-09（PostgreSQL 同构）
 
 name: Fullstack Quality & Traceability Gates
 
@@ -54,9 +54,9 @@ jobs:
         run: node scripts/verify-gates.mjs --gate=1
 
       # ============================================================
-      # Gate 2: 静态质量、React/Node 类型检查与防作弊扫描
+      # Gate 2: 静态质量、React/Node 类型检查与前置防呆扫描
       # ============================================================
-      - name: "Gate 2a: Anti-cheat scan (.skip/.only/empty catch/secrets)"
+      - name: "Gate 2a: Static baseline scan (.skip/.only/.fixme/empty catch/secrets)"
         run: node scripts/verify-gates.mjs --gate=2
 
       - name: "Gate 2b: Prisma Schema & TypeScript & ESLint checks"
@@ -66,7 +66,7 @@ jobs:
           npm run check
 
       # ============================================================
-      # Gate 3: PostgreSQL 真实容器迁移与单元/集成/端到端测试
+      # Gate 3: PostgreSQL 真实容器迁移、构建与单元/集成/端到端测试
       # ============================================================
       - name: "Gate 3a: Deploy migrations to PostgreSQL 16 container"
         run: npx prisma migrate deploy
@@ -75,9 +75,15 @@ jobs:
         run: npm run db:seed
 
       - name: "Gate 3b: Run Vitest unit & integration tests against PostgreSQL"
-        run: npm test
+        shell: bash
+        run: |
+          if find tests src -type f \( -name '*.test.ts' -o -name '*.test.tsx' \) 2>/dev/null | grep -q .; then
+            npm test
+          else
+            echo "ℹ️ 当前为 S0 初始底座（尚无 .test.ts 单元测试文件），跳过 Vitest。"
+          fi
 
-      - name: "Gate 3c: Build React + Preline frontend & check bundle"
+      - name: "Gate 3c: Build React frontend (dist/) & compiled Node server (dist-server/)"
         run: npm run build
 
       - name: "Gate 3d-1: Detect Playwright E2E / RBAC specs"
@@ -112,7 +118,7 @@ jobs:
           retention-days: 14
 
       # ============================================================
-      # Gate 4: 三重指纹一致性校验（Commit / Schema / 契约 / 证据）
+      # Gate 4: 四重指纹一致性校验（契约 / Schema / 锁文件 / 源码树）
       # ============================================================
-      - name: "Gate 4: Verify SHA-256 contract, schema & evidence fingerprints"
+      - name: "Gate 4: Verify SHA-256 contract, schema, lockfile & source fingerprints"
         run: node scripts/verify-gates.mjs --gate=4

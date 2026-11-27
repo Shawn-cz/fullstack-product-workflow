@@ -1,6 +1,6 @@
 # 工作流体系结构
 
-版本：1.2.0（全生命周期与自动化越权闭环版）。本项目包含可跨平台使用的 Markdown 规范包、S0–S8 全生命周期一键脚手架（`starter/`，含 Playwright 多角色隔离越权底座）、双索引树（`INDEX_TREE.md` + `build-index-tree.mjs`）、前后端同构契约/RBAC/存储与异步任务基线（`contracts/`）、Pre-commit/PR 模板与双向闭环 CI 四道硬门禁（`ci/`，含 Gate 3d Playwright 自动越权）、S8 生产容器/HTTPS/探针与备份包（`deploy/`），以及面向 Antigravity 等 AI IDE 的原生 `.agents/skills/fullstack-product-delivery/` 技能与根目录 `AGENTS.md` 规则入口。
+版本：1.3.0（可运行全栈底座与维护闭环版）。本项目包含可跨平台使用的 Markdown 规范包、S0–S8 最小可运行全栈脚手架（`starter/`，含 Playwright 多角色隔离越权底座）、双索引树（`INDEX_TREE.md` + `build-index-tree.mjs`）、前后端同构契约/RBAC/存储与异步任务基线（`contracts/`）、Pre-commit/PR 模板/双向闭环 CI 门禁与维护脚本（`ci/`）、S8 预编译生产容器/HTTPS/探针与备份包（`deploy/`），以及精简至 `< 5KB` 的原生 `.agents/skills/fullstack-product-delivery/` 技能与根目录 `AGENTS.md` 规则入口。
 
 ## 信息分层
 

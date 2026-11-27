@@ -1,5 +1,5 @@
 #!/bin/sh
-# 软件产品设计与全栈交付工作流 v1.1.0 — 本地 Git Pre-commit 强制前置卡点 (STD-CODE-12 / STD-GOV-05 / STD-QA-13)
+# 软件产品设计与全栈交付工作流 v1.3.0 — 本地 Git Pre-commit 强制前置卡点 (STD-CODE-12 / STD-GOV-05 / STD-QA-13)
 # 启用命令：npm run hooks:install（执行 git config core.hooksPath .githooks）
 
 set -e

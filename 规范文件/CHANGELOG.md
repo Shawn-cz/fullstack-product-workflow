@@ -1,5 +1,24 @@
 # 变更日志
 
+## 1.3.0 — 2026-11-27（可运行全栈底座、生产编译修复与仓库内置维护脚本）
+
+- **P0 修复：脚手架补齐最小可运行前后端入口与预编译生产镜像**：
+  - 新增 `index.html.tpl`、`main.tsx.tpl`、`App.tsx.tpl`、`server-index.ts.tpl`（Hono + `@hono/node-server`，挂脱敏日志、全局异常指纹、`/healthz` `/readyz` 与生产 `dist/` 静态托管），`init-project.mjs` 升级至 32 项映射生成 33 文件，初始化后可直接执行 `npm install && npm run check && npm run build`。
+  - `package.json.tpl` 新增 `build:server`（`esbuild` 预编译 `dist-server/index.mjs`）、`start`、`gates:lock`，并将 `prisma` 移入 `dependencies`；`deploy/Dockerfile` 运行阶段改为纯 `CMD ["node", "dist-server/index.mjs"]`（无需运行时 `tsx`，支持离线执行 `prisma migrate deploy`）。
+  - 修复 Gate 1 在 S0 空底座（尚无 `docs/` `REQ/AC` 且无测试）直接报错的问题；CI `Gate 3b` 同步适配 S0 尚无单元测试场景。
+- **P1 修复：诚实对齐 Gate 4/Gate 2 能力边界、统一生产环境变量与补齐前置清单**：
+  - `verify-gates.mjs` Gate 4 补齐 `--lock`（`npm run gates:lock`）生成 `docs/evidence/fingerprint-lock.json`，并将锁文件与源码树（`src/server/shared`）纳入四重指纹漂移拦截；文档明确标注 Gate 2 正则扫描为前置静态防呆提醒，不替代运行时权限测试。
+  - `deploy/docker-compose.prod.yml` 与 `deploy/README.md` 统一仅维护单份 `.env.production`（`docker compose --env-file .env.production ...`）。
+  - `开始使用.md` / `README.md` 与 `starter/README.md` 新增本机前置环境准备清单（Node 20、Git、Docker Desktop）。
+- **P2 修复：内置仓库维护脚本、去 Git 清单冲突、精简 `SKILL.md` 与措辞去夸大**：
+  - 新增 `规范文件/ci/maintain-workflow.mjs`（`--split-templates` / `--check` / `--pack`），将拆模板、行号/断链/体积校验与清单生成固化进仓库。
+  - 将 `交付文件清单.json` 与 `规范文件/文档检查结果.json` 加入 `.gitignore` 仅在本地打包时生成，消除多机交替升级冲突。
+  - 精简 `SKILL.md` 与 `AGENTS.md` 均至 `< 5KB`（符合 `ARCHITECTURE.md` 上限约定）；统一全仓活动文件版本号至 `v1.3.0`，清理过度绝对化表述，并在临时目录执行真实的 `npm install` → `check` → `build` → `node dist-server/index.mjs` HTTP 探针实测。
+- **真实安装编译期额外捕获并修复的 4 处模板缺陷**：
+  - 修复 `package.json.tpl` `prepare` 钩子 `|| true` 在 Windows 非 Git 目录下导致 `npm install` 报错退出（改为跨平台 Node 检测 `.git`）；
+  - 修复 `seed.ts.tpl` 与 `server-index.ts.tpl` 在 `noUncheckedIndexedAccess: true` 下 `process.argv[1]` 未窄化导致的 `tsc` 报错；
+  - 修复 `eslint.config.mjs.tpl` 缺少 `scripts/*.mjs` Node 全局变量及 `react-hooks` 误扫 Playwright Fixture `use` 参数导致的 105 条 ESLint 报错（`react-hooks` 现仅作用于 `src/**`）。
+
 ## 1.2.0 — 2026-11-26（全生命周期与自动化越权闭环版：接入 Playwright Gate 3d 双账号隔离自动验收）
 
 - **Playwright 双隔离上下文自动化越权底座（替代人工双无痕窗口与 F12 核验）**：

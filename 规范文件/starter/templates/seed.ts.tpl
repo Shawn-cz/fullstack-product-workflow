@@ -45,9 +45,10 @@ export async function seedTestAccounts(): Promise<void> {
   }
 }
 
+const entryArg = process.argv[1]
 const isMain =
-  Boolean(process.argv[1]) &&
-  path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))
+  entryArg !== undefined &&
+  path.resolve(entryArg) === path.resolve(fileURLToPath(import.meta.url))
 
 if (isMain) {
   seedTestAccounts().catch((err) => {

@@ -1,5 +1,7 @@
-# 软件产品设计与全栈交付工作流 v1.1.0 — 生产编排模板 (STD-OPS-01 / STD-OPS-07)
-# 架构：Caddy（自动 HTTPS）→ App（React 静态 + Node API）→ PostgreSQL 16（仅内网访问，禁止暴露公网 5432 端口）
+# 软件产品设计与全栈交付工作流 v1.3.0 — 生产编排模板 (STD-OPS-01 / STD-OPS-07)
+# 架构：Caddy（自动 HTTPS）→ App（预编译 Node API + React dist 静态托管）→ PostgreSQL 16（仅内网访问，禁止暴露公网 5432 端口）
+# 启动方式（统一只维护一份 .env.production，避免同时维护根目录 .env）：
+#   docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
 
 services:
   caddy:
@@ -10,7 +12,7 @@ services:
       - "80:80"
       - "443:443"
     environment:
-      APP_DOMAIN: ${APP_DOMAIN:?请在生产 .env 配置域名，如 app.example.com}
+      APP_DOMAIN: ${APP_DOMAIN:?请在 .env.production 配置域名，如 app.example.com}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
@@ -50,9 +52,9 @@ services:
     container_name: prod_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:?必填 POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?必填强随机 POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB:?必填 POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER:?请在 .env.production 填写 POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?请在 .env.production 填写强随机 POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:?请在 .env.production 填写 POSTGRES_DB}
     # 严禁在生产环境对外映射 ports: 5432:5432，数据库仅允许 internal_db_net 内网访问
     volumes:
       - postgres_prod_data:/var/lib/postgresql/data
