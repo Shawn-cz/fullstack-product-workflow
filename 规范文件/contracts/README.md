@@ -1,6 +1,6 @@
 # 通用契约包、权限与业务专项基线 (`contracts/`)
 
-版本：1.3.1｜对应规则：`STD-API-06`、`STD-API-07`、`STD-API-08`、`STD-DAT-05`、`STD-SEC-05`、`STD-AUD-07`
+版本：1.4.0｜对应规则：`STD-API-06`、`STD-API-07`、`STD-API-08`、`STD-DAT-05`、`STD-SEC-05`、`STD-AUD-07`
 
 ## 为什么提供本目录？
 为防止各项目重复发明不同的分页格式、错误码、成功信封、鉴权方式、上传/后台任务幂等与去重逻辑，并让 **React Web 前端**、**Node.js 服务端** 与 **移动 App（既有 App 对接或新建 App）** 共享唯一权威契约源（SSOT），新项目在 `S0`/`S4` 通过 `starter/init-project.mjs` 或手动复制直接继承本目录中的基线文件。
@@ -9,7 +9,7 @@
 
 | 文件 | 用途 | 运行环境与适用对象 |
 |---|---|---|
-| [base-contract.schema.ts](base-contract.schema.ts) | **浏览器/Node 同构** Zod 通用响应信封、错误码字典、分页、乐观锁、认证主体 `AuthenticatedActor` 及 `canonicalizeJsonValue`（零 Node 内置依赖） | React + Vite Web、Node.js 服务端、React Native |
+| [base-contract.schema.ts](base-contract.schema.ts) | **浏览器/Node 同构** Zod 通用响应信封（含 `buildApiSuccess`/`buildApiError` 构造函数）、错误码字典、分页、乐观锁、认证主体 `AuthenticatedActor` 及 `canonicalizeJsonValue`（零 Node 内置依赖） | React + Vite Web、Node.js 服务端、React Native |
 | [fingerprint.server.ts](fingerprint.server.ts) | Node.js 服务端专用同步 SHA-256 载荷指纹计算器 `computePayloadFingerprint`（物理隔离 `node:crypto`，彻底避免前端 Vite 打包报错） | Node.js (Hono/Fastify) 服务端、Vitest 测试 |
 | [openapi-baseline.yaml](openapi-baseline.yaml) | OpenAPI 3.1.0 公共组件（BearerAuth、分页、RFC 9457 兼容错误响应、409 冲突定义） | iOS (Swift) / Android (Kotlin) 既有原生 App 接口生成与联调 |
 | [auth-rbac-baseline.md](auth-rbac-baseline.md) | 认证、可吊销 PostgreSQL 会话、`HttpOnly` Cookie 与三层 RBAC 权限拦截基线（配套代码模板在 `starter/templates/auth-rbac.ts.tpl`） | 所有带登录与权限控制的全栈产品 |

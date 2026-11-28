@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 软件产品设计与全栈交付工作流 v1.3.1 — 工作流母版仓库维护、校验与发版清单脚本
+ * 软件产品设计与全栈交付工作流 v1.4.0 — 工作流母版仓库维护、校验与发版清单脚本
  *
  * 用法：
  *   node 规范文件/ci/maintain-workflow.mjs --split-templates   # 从 02_模板包.md 重新拆分 T01~T13 单文件模板
@@ -13,7 +13,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const WORKFLOW_VERSION = '1.3.1'
+const WORKFLOW_VERSION = '1.4.0'
 const BASELINE_MANIFEST = '../历史归档_勿喂给AI/2026-11-14_至_2026-11-26/v1.3.0-manifest.json'
 const MAX_ALWAYS_ON_BYTES = 5120 // ARCHITECTURE.md 约定常驻规则 < 5KB
 
@@ -110,6 +110,26 @@ function runCheck() {
     }
     if (!hookRaw.startsWith('#!/usr/bin/env node')) {
       errors.push('规范文件/ci/pre-commit.hook 必须使用跨平台 #!/usr/bin/env node')
+    }
+    const hookSyntax = spawnSync(process.execPath, ['--input-type=module', '--check'], {
+      input: hookRaw.replace(/^#!.*\n/, ''),
+      encoding: 'utf8'
+    })
+    if (hookSyntax.status !== 0) {
+      errors.push(`语法检查失败: 规范文件/ci/pre-commit.hook -> ${hookSyntax.stderr}`)
+    }
+    if (
+      /spawnSync\s*\(\s*['"]git['"]\s*,\s*\[\s*['"]add['"]/.test(hookRaw) ||
+      /runOrExit\s*\(\s*['"]git['"]\s*,\s*\[\s*['"]add['"]/.test(hookRaw)
+    ) {
+      errors.push('规范文件/ci/pre-commit.hook 禁止自动执行 git add 破坏部分提交一致性')
+    }
+  }
+  const initDbUserSh = path.join(specDir, 'deploy', 'init-app-user.sh')
+  if (fs.existsSync(initDbUserSh)) {
+    const shRaw = fs.readFileSync(initDbUserSh, 'utf8')
+    if (shRaw.includes('\r')) {
+      errors.push('规范文件/deploy/init-app-user.sh 包含 CR/CRLF，必须统一为 LF')
     }
   }
 
@@ -209,7 +229,15 @@ function runCheck() {
     errors.push(`SKILL.md 体积超出 5KB 上限：${skillBytes} bytes`)
   }
 
-  // 7. Exact structural counts
+  // 7. Exact dynamic structural counts
+  const mainFlowText = fs.readFileSync(path.join(specDir, '00_主流程.md'), 'utf8')
+  const packText = fs.readFileSync(path.join(specDir, '02_模板包.md'), 'utf8')
+  const baselineText = fs.readFileSync(path.join(specDir, '06_工程质量与审计验收基线.md'), 'utf8')
+  const stagesCount = (mainFlowText.match(/^### S\d+\s/gm) || []).length
+  const stageObjectivesCount = (mainFlowText.match(/^- \*\*本步目标：\*\*/gm) || []).length
+  const templatesCount = (packText.match(/^## T\d{2}\s/gm) || []).length
+  const qualityGatesCount = (baselineText.match(/^\s*- \*\*Gate \d+（/gm) || []).length
+
   const ruleText = fs.readFileSync(path.join(specDir, '01_规则库.md'), 'utf8')
   const ruleIds = [...ruleText.matchAll(/^\|\s*(STD-[A-Z0-9]+-\d+)\s*\|/gm)].map((m) => m[1])
   const uniqueRules = new Set(ruleIds)
@@ -225,16 +253,25 @@ function runCheck() {
     ci_files: walkFiles(path.join(specDir, 'ci')).length,
     deploy_files: walkFiles(path.join(specDir, 'deploy')).length,
     skill_and_agent_files: walkFiles(path.join(repoRoot, '.agents', 'skills')).length + 1,
-    stages: 10,
-    stage_task_objectives: 10,
+    stages: stagesCount,
+    stage_task_objectives: stageObjectivesCount,
     rules: ruleIds.length,
     unique_rule_ids: uniqueRules.size,
-    templates: 13,
+    templates: templatesCount,
     sources: uniqueSources.size,
-    quality_gates: 4,
+    quality_gates: qualityGatesCount,
     mobile_rules: mobileRules.length
   }
 
+  if (stagesCount === 0 || stagesCount !== stageObjectivesCount) {
+    errors.push(`00_主流程.md 阶段数与目标数不一致: stages=${stagesCount}, objectives=${stageObjectivesCount}`)
+  }
+  if (templatesCount !== counts.standalone_template_files) {
+    errors.push(`02_模板包.md 与 templates/ 数量不一致: pack=${templatesCount}, files=${counts.standalone_template_files}`)
+  }
+  if (qualityGatesCount < 4) {
+    errors.push(`06_工程质量与审计验收基线.md 门禁数不足 4 道: ${qualityGatesCount}`)
+  }
   if (uniqueRules.size !== ruleIds.length) {
     errors.push(`01_规则库.md 存在重复规则编号: total=${ruleIds.length}, unique=${uniqueRules.size}`)
   }
@@ -249,9 +286,9 @@ function runCheck() {
   }
 
   console.log(
-    `✅ [maintain-workflow] 全部校验通过：${mjsFiles.length} 个脚本语法 OK，${mdFiles.length} 份 Git 活动 Markdown 0 断链，` +
+    `✅ [maintain-workflow] 母版结构检查通过（仅覆盖母版脚本语法/自检、断链、换行与规则计数；未执行脚手架安装/编译/容器实测）：${mjsFiles.length} 个脚本语法 OK，${mdFiles.length} 份 Git 活动 Markdown 0 断链，` +
       `AGENTS.md=${(agentsBytes / 1024).toFixed(1)}KB，SKILL.md=${(skillBytes / 1024).toFixed(1)}KB，` +
-      `规则=${counts.unique_rule_ids}（移动=${counts.mobile_rules}），来源=${counts.sources}。`
+      `阶段=${counts.stages}，模板=${counts.templates}，门禁=${counts.quality_gates}，规则=${counts.unique_rule_ids}（移动=${counts.mobile_rules}），来源=${counts.sources}。`
   )
   return counts
 }
@@ -265,7 +302,7 @@ function runPack() {
   const docCheck = {
     date: new Date().toISOString().slice(0, 10),
     workflow_version: WORKFLOW_VERSION,
-    scope: '跨系统 LF 归一化、.dockerignore、预置 /api/auth/* 路由与新克隆自检闭环版',
+    scope: '安全认证中间件、清库保护、门禁防绕过与最小权限生产部署闭环版',
     status: 'passed',
     counts,
     errors: [],

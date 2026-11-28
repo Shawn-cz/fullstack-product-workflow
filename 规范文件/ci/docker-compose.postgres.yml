@@ -1,7 +1,7 @@
-# 本地 PostgreSQL 16 同构容器配置 (v1.3.1)
+# 本地 PostgreSQL 16 同构容器配置 (v1.4.0)
 # 替代 SQLite，使本地开发、黑盒查库与 CI/生产保持同一 PostgreSQL 16 引擎。
-# 不写死 container_name，允许同一台电脑并行开发多个项目（按目录名自动隔离容器与数据卷）。
-# 使用方式：在项目根目录运行 `docker compose -f docker-compose.postgres.yml up -d`
+# 默认仅绑定 127.0.0.1（防同网段/公网暴露），不写死 container_name；并行多项目可通过 POSTGRES_PORT 区分端口。
+# 使用方式：在项目根目录运行 `docker compose -f docker-compose.postgres.yml up -d --wait`
 
 services:
   postgres:
@@ -12,7 +12,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-app_local_dev}
       POSTGRES_DB: ${POSTGRES_DB:-app_dev_db}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:

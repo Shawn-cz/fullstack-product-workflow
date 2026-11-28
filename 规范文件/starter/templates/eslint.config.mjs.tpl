@@ -12,7 +12,10 @@ export default tseslint.config(
       'coverage',
       'playwright-report',
       'docs/evidence/playwright-report',
-      'test-results'
+      'test-results',
+      '规范文件/**',
+      '.agents/**',
+      '历史归档_勿喂给AI/**'
     ]
   },
   js.configs.recommended,

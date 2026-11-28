@@ -1,6 +1,11 @@
 // @desc Playwright 自动化双账号越权与端到端视觉验收配置 (STD-QA-12 / STD-QA-13)
 import { defineConfig } from '@playwright/test'
 
+const apiPort = process.env.PORT || '3001'
+const webPort = process.env.FRONTEND_PORT || '5173'
+const baseURL = process.env.E2E_BASE_URL || `http://127.0.0.1:${webPort}`
+const healthURL = process.env.E2E_HEALTH_URL || `http://127.0.0.1:${apiPort}/readyz`
+
 export default defineConfig({
   testDir: './tests/e2e',
   timeout: 30_000,
@@ -12,7 +17,7 @@ export default defineConfig({
   ],
   outputDir: 'test-results',
   use: {
-    baseURL: process.env.E2E_BASE_URL || 'http://127.0.0.1:5173',
+    baseURL,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure'
   },
@@ -20,13 +25,13 @@ export default defineConfig({
   webServer: [
     {
       command: process.env.E2E_SERVER_CMD || 'npm run dev:server',
-      url: process.env.E2E_HEALTH_URL || 'http://127.0.0.1:3001/readyz',
+      url: healthURL,
       reuseExistingServer: !process.env.CI,
       timeout: 30_000
     },
     {
       command: process.env.E2E_WEB_CMD || 'npm run dev',
-      url: process.env.E2E_BASE_URL || 'http://127.0.0.1:5173',
+      url: baseURL,
       reuseExistingServer: !process.env.CI,
       timeout: 30_000
     }

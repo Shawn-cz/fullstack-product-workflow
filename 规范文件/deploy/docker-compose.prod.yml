@@ -1,6 +1,6 @@
-# 软件产品设计与全栈交付工作流 v1.3.1 — 生产编排模板 (STD-OPS-01 / STD-OPS-07)
-# 架构：Caddy（自动 HTTPS）→ App（预编译 Node API + React dist 静态托管）→ PostgreSQL 16（仅内网访问，禁止暴露公网 5432 端口）
-# 启动方式（统一只维护一份 .env.production，避免同时维护根目录 .env）：
+# 软件产品设计与全栈交付工作流 v1.4.0 — 生产编排模板 (STD-OPS-01 / STD-OPS-07)
+# 架构：Caddy（自动 HTTPS）→ App（最小权限 APP_DB_USER）→ Migrate（启动前迁移且失败即停）→ PostgreSQL 16（仅内网隔离）
+# 启动方式（统一维护单份 .env.production）：
 #   docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
 
 services:
@@ -23,6 +23,25 @@ services:
     networks:
       - public_net
 
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: prod_migrate
+    restart: "no"
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+    command: ["node", "scripts/run-migrate.mjs"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - internal_db_net
+
   app:
     build:
       context: .
@@ -34,10 +53,13 @@ services:
     environment:
       NODE_ENV: production
       PORT: "3001"
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
     depends_on:
       postgres:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3001/readyz || exit 1"]
       interval: 15s
@@ -52,12 +74,15 @@ services:
     container_name: prod_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:?请在 .env.production 填写 POSTGRES_USER}
+      POSTGRES_USER: ${POSTGRES_USER:?请在 .env.production 填写迁移管理账号 POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?请在 .env.production 填写强随机 POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB:?请在 .env.production 填写 POSTGRES_DB}
+      APP_DB_USER: ${APP_DB_USER:?请在 .env.production 填写最小权限应用账号 APP_DB_USER}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?请在 .env.production 填写强随机 APP_DB_PASSWORD}
     # 严禁在生产环境对外映射 ports: 5432:5432，数据库仅允许 internal_db_net 内网访问
     volumes:
       - postgres_prod_data:/var/lib/postgresql/data
+      - ./deploy/init-app-user.sh:/docker-entrypoint-initdb.d/01-init-app-user.sh:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s

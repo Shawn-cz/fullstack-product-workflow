@@ -1,33 +1,98 @@
 #!/usr/bin/env node
 /**
- * 软件产品设计与全栈交付工作流 v1.3.1 — 跨平台本地 Git Pre-commit 前置卡点 (STD-CODE-12 / STD-GOV-05 / STD-QA-13)
+ * 软件产品设计与全栈交付工作流 v1.4.0 — 跨平台本地 Git Pre-commit 前置卡点 (STD-CODE-12 / STD-GOV-05 / STD-QA-13)
  * 采用纯 Node.js 执行，避免 Windows CRLF 或 /bin/sh + find 兼容性报错。
+ * 本钩子仅做只读校验，严禁自动修改工作区或自动执行 git add 破坏部分提交的一致性。
  * 启用命令：npm run hooks:install（执行 git config core.hooksPath .githooks）
  */
 import { spawnSync } from 'node:child_process'
 import fs from 'node:fs'
 
-function runOrExit(cmd, args) {
+function runOrExit(cmd, args, customErrorMsg = '') {
   const res = spawnSync(cmd, args, { stdio: 'inherit' })
   if (res.status !== 0) {
+    if (customErrorMsg) console.error(customErrorMsg)
     process.exit(res.status || 1)
   }
 }
 
-console.log('🛡️ [Pre-commit] 正在执行跨平台本地前置门禁检查...')
+const INDEX_FILES = new Set(['PROJECT_INDEX_TREE.md', 'docs/index-tree.json'])
+const WATCHED_PREFIXES = ['src/', 'server/', 'shared/', 'prisma/', 'tests/', 'test/', 'docs/']
+const WATCHED_ROOT_FILES = new Set([
+  'PROJECT_INDEX_TREE.md',
+  'package.json',
+  'vite.config.ts',
+  'tsconfig.json',
+  'Dockerfile',
+  'docker-compose.prod.yml',
+  'Caddyfile'
+])
 
-// 1. 自动刷新项目资产语义索引树并一并暂存
-if (fs.existsSync('scripts/build-index-tree.mjs')) {
-  runOrExit(process.execPath, ['scripts/build-index-tree.mjs', '--write'])
-  if (fs.existsSync('PROJECT_INDEX_TREE.md')) {
-    runOrExit('git', ['add', 'PROJECT_INDEX_TREE.md'])
+function isWatchedPath(relPath) {
+  return WATCHED_ROOT_FILES.has(relPath) || WATCHED_PREFIXES.some((prefix) => relPath.startsWith(prefix))
+}
+
+function checkPartialStaging() {
+  const res = spawnSync('git', ['-c', 'core.quotepath=false', 'status', '--porcelain', '--untracked-files=all'], {
+    encoding: 'utf8'
+  })
+  if (res.status !== 0) return
+
+  const unstagedIndex = []
+  const unstagedTracked = []
+
+  for (const line of (res.stdout || '').split(/\r?\n/)) {
+    if (!line || line.length < 4) continue
+    const status = line.slice(0, 2)
+    let filePath = line.slice(3)
+    if (filePath.includes(' -> ')) {
+      filePath = filePath.split(' -> ').pop() || filePath
+    }
+    filePath = filePath.replace(/^"|"$/g, '').replace(/\\/g, '/')
+
+    if (INDEX_FILES.has(filePath)) {
+      if (status === '??' || status[1] !== ' ') {
+        unstagedIndex.push(`${status} ${filePath}`)
+      }
+      continue
+    }
+
+    if (status !== '??' && status[1] !== ' ' && isWatchedPath(filePath)) {
+      unstagedTracked.push(`${status} ${filePath}`)
+    }
   }
-  if (fs.existsSync('docs/index-tree.json')) {
-    runOrExit('git', ['add', 'docs/index-tree.json'])
+
+  if (unstagedIndex.length > 0 || unstagedTracked.length > 0) {
+    console.error('❌ [Pre-commit] 检测到工作区存在未暂存变更（为保护部分提交一致性，钩子不自动执行 git add）：')
+    if (unstagedIndex.length > 0) {
+      console.error('   - 索引文件尚未暂存:')
+      unstagedIndex.forEach((item) => console.error('     ' + item))
+      console.error('     请显式运行：npm run index:build && git add PROJECT_INDEX_TREE.md docs/index-tree.json')
+    }
+    if (unstagedTracked.length > 0) {
+      console.error('   - 受 Gate 1/2 校验的已跟踪文件存在未暂存修改:')
+      unstagedTracked.forEach((item) => console.error('     ' + item))
+      console.error('     Gate 1/2 与索引检查基于工作区执行；请先暂存相关改动 (git add ...) 或使用 git stash push -k 暂存工作区未提交内容后再提交。')
+    }
+    process.exit(1)
   }
 }
 
-// 2. 运行 Gate 2（静态基线防呆）与 Gate 1（双向 REQ/AC 覆盖、禁 SQLite 与索引树新鲜度；S0 空底座自动豁免测试数）
+console.log('🛡️ [Pre-commit] 正在执行只读跨平台本地前置门禁检查...')
+
+// 1. 校验不存在破坏部分提交一致性的未暂存工作区漂移
+checkPartialStaging()
+
+// 2. 只读核验索引树新鲜度（不再自动写入或自动 git add）
+if (fs.existsSync('scripts/build-index-tree.mjs')) {
+  runOrExit(
+    process.execPath,
+    ['scripts/build-index-tree.mjs', '--check'],
+    '❌ [Pre-commit] 索引树已过期，请先显式运行：npm run index:build && git add PROJECT_INDEX_TREE.md docs/index-tree.json 后再提交。'
+  )
+}
+
+// 3. 运行 Gate 2（静态基线防呆）与 Gate 1（双向 REQ/AC 覆盖、PostgreSQL 校验与索引树一致性）
 if (fs.existsSync('scripts/verify-gates.mjs')) {
   runOrExit(process.execPath, ['scripts/verify-gates.mjs', '--gate=2'])
   runOrExit(process.execPath, ['scripts/verify-gates.mjs', '--gate=1'])

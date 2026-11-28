@@ -4,6 +4,10 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vitest/config'
 
+const frontendPort = Number(process.env.FRONTEND_PORT || 5173)
+const apiPort = Number(process.env.PORT || 3001)
+const apiTarget = `http://127.0.0.1:${apiPort}`
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
@@ -13,18 +17,18 @@ export default defineConfig({
     }
   },
   server: {
-    port: 5173,
+    port: frontendPort,
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:3001',
+        target: apiTarget,
         changeOrigin: true
       },
       '/healthz': {
-        target: 'http://127.0.0.1:3001',
+        target: apiTarget,
         changeOrigin: true
       },
       '/readyz': {
-        target: 'http://127.0.0.1:3001',
+        target: apiTarget,
         changeOrigin: true
       }
     }

@@ -1,6 +1,6 @@
 // @desc 前后端同构通用契约基线（纯 Zod，无 Node 内置依赖，React/Vite/Node/RN 均可安全导入） | @api API-000
 /**
- * 软件产品设计与全栈交付工作流 v1.3.1 — 同构通用契约包基线 (STD-API-07 / STD-API-08)
+ * 软件产品设计与全栈交付工作流 v1.4.0 — 同构通用契约包基线 (STD-API-07 / STD-API-08)
  *
  * 注意：本文件严禁导入 node:crypto 等 Node 专属内置模块，以确保 React + Vite 浏览器构建 100% 安全。
  * 服务端同步 SHA-256 载荷指纹计算请从同目录 `./fingerprint.server` 导入 `computePayloadFingerprint`。
@@ -58,6 +58,51 @@ export const ApiErrorResponseSchema = z.object({
 })
 
 export type ApiErrorResponse = z.infer<typeof ApiErrorResponseSchema>
+
+export interface ApiSuccessEnvelope<T> {
+  code: 'OK'
+  message: string
+  data: T
+  requestTraceId: string
+  timestamp: string
+}
+
+/**
+ * 构造符合 createApiResponseSchema 的标准成功响应信封
+ */
+export function buildApiSuccess<T>(
+  data: T,
+  requestTraceId: string,
+  message: string = 'ok'
+): ApiSuccessEnvelope<T> {
+  return {
+    code: 'OK',
+    message,
+    data,
+    requestTraceId,
+    timestamp: new Date().toISOString()
+  }
+}
+
+/**
+ * 构造符合 ApiErrorResponseSchema 的标准错误响应体
+ */
+export function buildApiError(params: {
+  code: Exclude<ErrorCode, 'OK'>
+  message: string
+  status: number
+  requestTraceId: string
+  details?: Array<{ field: string; reason: string }>
+}): ApiErrorResponse {
+  return {
+    code: params.code,
+    message: params.message,
+    requestTraceId: params.requestTraceId,
+    timestamp: new Date().toISOString(),
+    status: params.status,
+    ...(params.details ? { details: params.details } : {})
+  }
+}
 
 /**
  * 统一分页请求与响应契约

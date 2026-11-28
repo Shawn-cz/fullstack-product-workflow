@@ -1,11 +1,11 @@
-// @desc 结构化脱敏日志、requestTraceId 全链路追踪与线上异常指纹生成器 (STD-OPS-08 / STD-AUD-02)
+// @desc 结构化字段脱敏日志、requestTraceId 全链路追踪与安全异常摘要生成器 (STD-OPS-08 / STD-AUD-02)
 /**
- * 软件产品设计与全栈交付工作流 v1.3.1 — 服务端日志与异常指纹中间件底座
+ * 软件产品设计与全栈交付工作流 v1.4.0 — 服务端日志与异常指纹中间件底座
  *
- * 核心能力：
- * 1. 基于 pino 输出结构化 JSON 日志，内置 sensitive 字段自动脱敏（[REDACTED]），防止密码/Token/Cookie 落盘；
+ * 核心能力（结构化字段脱敏 + 安全异常摘要，非任意文本语义识别）：
+ * 1. 基于 pino 输出结构化 JSON 日志，对常见凭据字段路径进行 `[REDACTED]` 脱敏；
  * 2. 生成或透传 `x-request-trace-id` (`requestTraceId`)，将前端报错提示、HTTP 响应与后端日志 1:1 串联；
- * 3. `computeErrorFingerprint(err, route)` 为同类线上异常生成稳定的 16 位 SHA-256 摘要，便于告警聚合与回归定位。
+ * 3. `computeErrorFingerprint(err, route)` 为同类线上异常生成稳定的 16 位 SHA-256 摘要，并经 `sanitizeErrorMessage` 剔除 URI 凭据与 Bearer Token 后记录白名单摘要。
  */
 import { createHash, randomUUID } from 'node:crypto'
 import pino from 'pino'
@@ -19,15 +19,33 @@ export const logger = pino({
       'token',
       'accessToken',
       'refreshToken',
+      'idToken',
       'secret',
+      'apiKey',
       'authorization',
       'cookie',
+      'databaseUrl',
+      'DATABASE_URL',
       '*.password',
       '*.passwordHash',
       '*.token',
+      '*.accessToken',
+      '*.refreshToken',
+      '*.idToken',
       '*.secret',
+      '*.apiKey',
+      '*.authorization',
+      '*.cookie',
       'req.headers.authorization',
-      'req.headers.cookie'
+      'req.headers.cookie',
+      'res.headers["set-cookie"]',
+      'req.body.password',
+      'req.body.token',
+      'req.body.secret',
+      'data.accessToken',
+      'data.refreshToken',
+      'data.token',
+      'data.password'
     ],
     censor: '[REDACTED]'
   },
@@ -37,6 +55,17 @@ export const logger = pino({
   },
   timestamp: pino.stdTimeFunctions.isoTime
 })
+
+/**
+ * 清洗异常消息中可能夹带的数据库连接串凭据、Bearer Token 或敏感键值，仅保留安全摘要
+ */
+export function sanitizeErrorMessage(rawMessage: string): string {
+  return rawMessage
+    .replace(/(postgresql|postgres|mysql|redis|https?):\/\/[^:\s/@]+:[^@\s/]+@/gi, '$1://[REDACTED]@')
+    .replace(/\bBearer\s+[A-Za-z0-9._~+/=-]+\b/gi, 'Bearer [REDACTED]')
+    .replace(/\b(password|token|secret|authorization|cookie)\s*[:=]\s*[^\s,;]+/gi, '$1=[REDACTED]')
+    .slice(0, 240)
+}
 
 /**
  * 读取或生成单次请求的追踪 ID（与客户端幂等 requestId 严格区分）
@@ -55,7 +84,7 @@ export function resolveRequestTraceId(incomingHeader?: string | null): string {
  */
 export function computeErrorFingerprint(error: unknown, routeKey: string): string {
   const errName = error instanceof Error ? error.name : 'UnknownError'
-  const rawMessage = error instanceof Error ? error.message : String(error)
+  const rawMessage = error instanceof Error ? sanitizeErrorMessage(error.message) : 'NonErrorThrown'
   const normalizedMsg = rawMessage
     .replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi, '<UUID>')
     .replace(/\b\d{4}-\d{2}-\d{2}T[\d:.+-Z]+\b/g, '<ISO_TIME>')
@@ -74,7 +103,7 @@ export function computeErrorFingerprint(error: unknown, routeKey: string): strin
 }
 
 /**
- * 统一记录脱敏后的服务端异常日志并返回可写入响应的关联信息
+ * 统一记录脱敏后的服务端异常安全摘要并返回可写入响应的关联信息
  */
 export function logUnhandledError(params: {
   error: unknown
@@ -83,13 +112,18 @@ export function logUnhandledError(params: {
   actorId?: string
 }): { requestTraceId: string; errorFingerprint: string } {
   const errorFingerprint = computeErrorFingerprint(params.error, params.route)
+  const safeSummary =
+    params.error instanceof Error
+      ? { name: params.error.name, message: sanitizeErrorMessage(params.error.message) }
+      : { name: 'NonErrorThrown', message: 'Unhandled non-Error value thrown' }
+
   logger.error(
     {
       requestTraceId: params.requestTraceId,
       errorFingerprint,
       route: params.route,
       actorId: params.actorId || 'anonymous',
-      err: params.error instanceof Error ? { name: params.error.name, message: params.error.message } : String(params.error)
+      err: safeSummary
     },
     'Unhandled server error captured'
   )

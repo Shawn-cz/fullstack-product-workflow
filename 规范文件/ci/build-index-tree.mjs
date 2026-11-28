@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 软件产品设计与全栈交付工作流 v1.3.1 — 项目资产索引树自动生成与新鲜度校验脚本
+ * 软件产品设计与全栈交付工作流 v1.4.0 — 项目资产索引树自动生成与新鲜度校验脚本
  * 对应规则：STD-GOV-05（项目资产索引树自动生成与首读纪律）、STD-CODE-01（复用优先）、STD-QA-13（CI Gate 1）
  *
  * 头部元信息标注约定（AI 创建源码/契约/测试文件时写入前 12 行内）：
@@ -14,6 +14,7 @@
 import { createHash } from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 const args = process.argv.slice(2)
 const cwd = process.cwd()
@@ -40,6 +41,8 @@ const TRACKED_EXTS = new Set([
   '.jsx',
   '.mjs',
   '.prisma',
+  '.sql',
+  '.css',
   '.yaml',
   '.yml',
   '.md'
@@ -48,7 +51,7 @@ const TRACKED_EXTS = new Set([
 const DOMAIN_BUCKETS = [
   { key: 'docs', label: '1. 需求、设计与验收文档 (docs/)', test: (p) => /^docs\/.+\.md$/i.test(p) && !/^docs\/index-tree\.json$/i.test(p) },
   { key: 'contracts', label: '2. 通用与业务契约 (contracts/)', test: (p) => /^(?:shared\/contracts|src\/contracts|contracts)\//.test(p) },
-  { key: 'database', label: '3. 数据库模型与迁移 (prisma/)', test: (p) => /^prisma\/schema\.prisma$/i.test(p) },
+  { key: 'database', label: '3. 数据库模型、迁移与种子 (prisma/)', test: (p) => /^prisma\/(?:schema\.prisma|migrations\/.+\.sql|seed\.ts|test-accounts\.ts)$/i.test(p) },
   { key: 'server', label: '4. 服务端入口与接口 (server / api)', test: (p) => /^(?:server|src\/server|src\/api|backend)\//.test(p) },
   { key: 'frontend_pages', label: '5. React 前端页面与路由 (pages / routes)', test: (p) => /^src\/(?:pages|routes|views|app)\//.test(p) },
   { key: 'frontend_components', label: '6. 可复用组件与 Hooks (components / hooks / stores)', test: (p) => /^src\/(?:components|hooks|stores|lib|utils)\//.test(p) },
@@ -166,7 +169,7 @@ function buildIndexData(rootDir) {
   const treeFingerprintSha256 = sha256Text(fingerprintSource)
 
   return {
-    workflowVersion: '1.3.1',
+    workflowVersion: '1.4.0',
     treeFingerprintSha256,
     totalIndexedFiles: Object.values(buckets).reduce((acc, arr) => acc + arr.length, 0),
     missingDescFiles: missingDesc,
@@ -267,20 +270,25 @@ function runCheck() {
     process.exit(1)
   }
 
-  const saved = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
-  if (saved.treeFingerprintSha256 !== current.treeFingerprintSha256) {
-    console.error('❌ [Index Tree] 检测到项目文件已变更，但索引树尚未刷新（指纹不一致）！')
-    console.error(`   已记录指纹: ${saved.treeFingerprintSha256}`)
-    console.error(`   当前实际指纹: ${current.treeFingerprintSha256}`)
+  const expectedJson = JSON.stringify(current, null, 2) + '\n'
+  const expectedMd = renderMarkdown(current)
+  const actualJson = fs.readFileSync(jsonPath, 'utf8').replace(/\r\n/g, '\n')
+  const actualMd = fs.readFileSync(mdPath, 'utf8').replace(/\r\n/g, '\n')
+
+  if (actualJson !== expectedJson || actualMd !== expectedMd) {
+    console.error('❌ [Index Tree] 检测到项目文件已变更或索引文件被篡改，与最新扫描结果不一致！')
     console.error('   请运行刷新命令：node scripts/build-index-tree.mjs --write')
     process.exit(1)
   }
 
-  console.log(`✅ [Index Tree] 索引树新鲜度校验通过（${current.totalIndexedFiles} 个文件，指纹 ${current.treeFingerprintSha256.slice(0, 12)} 一致）。`)
+  console.log(`✅ [Index Tree] 索引树新鲜度与内容校验通过（${current.totalIndexedFiles} 个文件，指纹 ${current.treeFingerprintSha256.slice(0, 12)} 一致）。`)
 }
 
-// 仅作为主脚本执行时解析 CLI 参数
-const isMain = process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'))
+// 仅作为主脚本执行时解析 CLI 参数（使用 fileURLToPath 兼容中文/空格路径与 Windows）
+const entryArg = process.argv[1]
+const isMain =
+  entryArg !== undefined &&
+  path.resolve(entryArg) === path.resolve(fileURLToPath(import.meta.url))
 if (isMain) {
   if (args.includes('--self-check')) {
     runSelfCheck()

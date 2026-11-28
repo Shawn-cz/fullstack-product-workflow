@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 软件产品设计与全栈交付工作流 v1.3.1 — 黄金技术栈全生命周期一键初始化脚手架脚本
+ * 软件产品设计与全栈交付工作流 v1.4.0 — 黄金技术栈全生命周期一键初始化脚手架脚本
  * 对应规则：STD-ARC-09、STD-GOV-05、STD-FE-07、STD-CODE-12、STD-SEC-05、STD-QA-13/14、STD-OPS-07/08
  *
  * 用法：
@@ -27,6 +27,7 @@ const FILE_MAPPINGS = [
   { src: path.join(scriptDir, 'templates', 'main.tsx.tpl'), dest: 'src/main.tsx' },
   { src: path.join(scriptDir, 'templates', 'App.tsx.tpl'), dest: 'src/App.tsx' },
   { src: path.join(scriptDir, 'templates', 'server-index.ts.tpl'), dest: 'server/index.ts' },
+  { src: path.join(scriptDir, 'templates', 'server-env.ts.tpl'), dest: 'server/config/env.ts' },
   { src: path.join(scriptDir, 'templates', 'auth-routes.ts.tpl'), dest: 'server/routes/auth.ts' },
   { src: path.join(scriptDir, 'templates', 'schema.prisma.tpl'), dest: 'prisma/schema.prisma' },
   { src: path.join(scriptDir, 'templates', 'test-accounts.ts.tpl'), dest: 'prisma/test-accounts.ts' },
@@ -48,10 +49,13 @@ const FILE_MAPPINGS = [
   { src: path.join(specDir, 'ci', 'pre-commit.hook'), dest: '.githooks/pre-commit' },
   { src: path.join(specDir, 'ci', 'verify-gates.mjs'), dest: 'scripts/verify-gates.mjs' },
   { src: path.join(specDir, 'ci', 'build-index-tree.mjs'), dest: 'scripts/build-index-tree.mjs' },
+  { src: path.join(specDir, 'ci', 'safe-db-reset.mjs'), dest: 'scripts/safe-db-reset.mjs' },
   // S8 生产容器部署、自动 HTTPS、双探针与数据库备份恢复脚本
   { src: path.join(specDir, 'deploy', 'Dockerfile'), dest: 'Dockerfile' },
   { src: path.join(specDir, 'deploy', 'docker-compose.prod.yml'), dest: 'docker-compose.prod.yml' },
   { src: path.join(specDir, 'deploy', 'Caddyfile'), dest: 'Caddyfile' },
+  { src: path.join(specDir, 'deploy', 'init-app-user.sh'), dest: 'deploy/init-app-user.sh' },
+  { src: path.join(specDir, 'deploy', 'run-migrate.mjs'), dest: 'scripts/run-migrate.mjs' },
   { src: path.join(specDir, 'deploy', 'health-probes.ts.tpl'), dest: 'server/routes/health-probes.ts' },
   { src: path.join(specDir, 'deploy', 'backup-postgres.mjs'), dest: 'scripts/backup-postgres.mjs' }
 ]
@@ -139,7 +143,7 @@ function runSelfCheck() {
     process.exit(1)
   }
   console.log(
-    `✅ init-project.mjs v1.3.1 self-check passed (${FILE_MAPPINGS.length} mapped + ${GENERATED_FILES.length} generated assets + S6 RBAC E2E example verified, isomorphic contract clean).`
+    `✅ init-project.mjs v1.4.0 self-check passed (${FILE_MAPPINGS.length} mapped + ${GENERATED_FILES.length} generated assets + S6 RBAC E2E example verified, isomorphic contract clean).`
   )
 }
 
@@ -162,7 +166,7 @@ function runInit(targetDir, force) {
     const raw = fs.readFileSync(m.src)
     const out = raw.includes(0) ? raw : Buffer.from(raw.toString('utf8').replace(/\r\n/g, '\n'), 'utf8')
     fs.writeFileSync(destPath, out)
-    if (m.dest === '.githooks/pre-commit') {
+    if (m.dest === '.githooks/pre-commit' || m.dest === 'deploy/init-app-user.sh') {
       try {
         fs.chmodSync(destPath, 0o755)
       } catch {
@@ -188,9 +192,11 @@ function runInit(targetDir, force) {
 
   console.log(`✅ 全生命周期黄金栈项目底座初始化完成：目标=${absTarget}（新建/更新 ${created} 个文件，跳过已存在 ${skipped} 个文件）。`)
   console.log('下一步：')
-  console.log('  1. 复制 .env.example 为 .env')
-  console.log('  2. npm install && npm run hooks:install && npm run db:up && npm run db:migrate && npm run db:seed')
-  console.log('  3. npm run index:build && npm run gates && npm run check && npm run build')
+  console.log('  1. 若尚未初始化 Git 仓库先运行 `git init`，并复制 .env.example 为 .env')
+  console.log('  2. npm install && npm run hooks:install')
+  console.log('  3. npm run db:up && npm run db:migrate && npm run db:seed（db:up 已包含 --wait 健康等待）')
+  console.log('  4. npm run index:build && npm run gates && npm run check && npm run build')
+  console.log('  5. 首次跑 Playwright E2E 前先安装浏览器：npx playwright install chromium && npm run test:e2e:fresh')
 }
 
 if (args.includes('--self-check')) {

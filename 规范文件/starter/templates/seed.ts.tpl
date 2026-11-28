@@ -9,12 +9,14 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { PrismaClient } from '@prisma/client'
+import { loadDotEnvIfNeeded } from '../server/config/env'
 import { hashPassword } from '../server/middleware/auth-rbac'
 import { TEST_ACCOUNT_MAP, TEST_ACCOUNTS } from './test-accounts'
 
 export { TEST_ACCOUNT_MAP, TEST_ACCOUNTS }
 
 export async function seedTestAccounts(): Promise<void> {
+  loadDotEnvIfNeeded()
   // 强制安全熔断：严禁在生产环境运行合成测试种子脚本
   if (process.env.NODE_ENV === 'production') {
     console.error('❌ [Seed Guard] 检测到 NODE_ENV=production，已强制中止测试种子写入以防污染生产数据！')

@@ -1,4 +1,4 @@
-# 软件产品设计与全栈交付工作流 v1.3.1 — GitHub Actions CI 四道门禁流水线模板
+# 软件产品设计与全栈交付工作流 v1.4.0 — GitHub Actions CI 四道门禁流水线模板
 # 启用方法：通过 starter/init-project.mjs 自动生成，或手动复制到业务项目的 .github/workflows/ci.yml。
 # 对应规则：STD-GOV-05（索引树）、STD-SEC-05（安全红线）、STD-QA-13（双向闭环四道门禁）、STD-AUD-07（指纹锁定）、STD-ARC-09（PostgreSQL 同构）
 
@@ -75,12 +75,15 @@ jobs:
         run: npm run db:seed
 
       - name: "Gate 3b: Run Vitest unit & integration tests against PostgreSQL"
+        id: vitest_check
         shell: bash
         run: |
-          if find tests src -type f \( -name '*.test.ts' -o -name '*.test.tsx' \) 2>/dev/null | grep -q .; then
+          if find tests test src -type f \( -name '*.test.ts' -o -name '*.test.tsx' -o -name '*.spec.ts' -o -name '*.spec.tsx' \) -not -path 'tests/e2e/*' 2>/dev/null | grep -q .; then
+            echo "has_vitest=true" >> "$GITHUB_OUTPUT"
             npm test
           else
-            echo "ℹ️ 当前为 S0 初始底座（尚无 .test.ts 单元测试文件），跳过 Vitest。"
+            echo "has_vitest=false" >> "$GITHUB_OUTPUT"
+            echo "ℹ️ 当前尚无非 E2E 单元/集成测试文件，跳过 Vitest。"
           fi
 
       - name: "Gate 3c: Build React frontend (dist/) & compiled Node server (dist-server/)"
@@ -95,7 +98,17 @@ jobs:
             echo "✅ 检测到 tests/e2e/*.spec.ts，将自动执行 Playwright 双账号越权与端到端验收。"
           else
             echo "has_e2e=false" >> "$GITHUB_OUTPUT"
-            echo "ℹ️ 当前尚未进入 S6 E2E 用例编写阶段（tests/e2e/ 无 .spec.ts），跳过 Gate 3d。"
+            echo "ℹ️ 未检测到 tests/e2e/*.spec.ts，跳过 Gate 3d。"
+          fi
+
+      - name: "Gate 3-enforce: Fail if S2+ REQ/AC exist without any runnable tests"
+        shell: bash
+        run: |
+          if [ "${{ steps.vitest_check.outputs.has_vitest }}" != "true" ] && [ "${{ steps.detect_e2e.outputs.has_e2e }}" != "true" ]; then
+            if [ -d "docs" ] && find docs -type f -name '*.md' -not -path 'docs/evidence/*' -not -path 'docs/archive/*' -exec grep -Eq '\b(REQ|AC)-[0-9]+\b' {} + 2>/dev/null; then
+              echo "❌ docs/ 已声明 REQ/AC，但未检测到任何可执行的 Vitest 或 Playwright 测试！"
+              exit 1
+            fi
           fi
 
       - name: "Gate 3d-2: Install Playwright Chromium & run automated RBAC/IDOR E2E"
@@ -118,7 +131,7 @@ jobs:
           retention-days: 14
 
       # ============================================================
-      # Gate 4: 四重指纹一致性校验（契约 / Schema / 锁文件 / 源码树）
+      # Gate 4: 五重指纹一致性校验（契约 / Schema / 锁文件 / 源码树 / 交付资产）
       # ============================================================
       - name: "Gate 4: Verify SHA-256 contract, schema, lockfile & source fingerprints"
         run: node scripts/verify-gates.mjs --gate=4

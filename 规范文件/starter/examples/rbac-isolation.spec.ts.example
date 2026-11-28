@@ -55,11 +55,29 @@ test.describe('三层 RBAC 隔离与会话安全自动化验收 (STD-SEC-05 / ST
     })
   })
 
-  test('退出登录后 PostgreSQL 会话立即吊销，旧 Cookie 失效', async ({ memberA }) => {
+  test('退出登录后 PostgreSQL 会话立即吊销，隔离重放旧 Cookie 必须 401', async ({
+    browser,
+    memberA
+  }, testInfo) => {
+    // 1. 退出前先保存真实会话 Cookie 原始值
+    const beforeCookies = await memberA.context.cookies()
+    const sessionCookie = beforeCookies.find((c) => /sid|session/i.test(c.name))
+    expect(sessionCookie, '退出前应存在有效会话 Cookie').toBeDefined()
+    const savedCookieHeader = `${sessionCookie!.name}=${sessionCookie!.value}`
+
+    // 2. 执行退出登录，断言服务端吊销成功
     const logoutRes = await memberA.context.request.post('/api/auth/logout')
     expect(logoutRes.ok()).toBeTruthy()
 
-    const afterLogout = await memberA.context.request.get('/api/items')
-    expect(afterLogout.status()).toBe(401)
+    // 3. 在全新隔离上下文中显式重放退出前的旧 Cookie，证明服务端 PostgreSQL Session 已吊销而非仅清除了浏览器 Cookie
+    const replayContext = await browser.newContext({ baseURL: testInfo.project.use.baseURL })
+    try {
+      const replayMe = await replayContext.request.get('/api/auth/me', {
+        headers: { Cookie: savedCookieHeader }
+      })
+      expect(replayMe.status()).toBe(401)
+    } finally {
+      await replayContext.close()
+    }
   })
 })

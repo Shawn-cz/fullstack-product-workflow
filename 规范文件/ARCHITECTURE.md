@@ -1,6 +1,6 @@
 # 工作流体系结构
 
-版本：1.3.1（跨端固化与预置认证路由版）。本项目包含可跨平台使用的 Markdown 规范包、S0–S8 最小可运行全栈脚手架（`starter/`，含预置 `/api/auth/*`、`.dockerignore`、`.gitattributes` 与 Playwright 多角色隔离越权底座）、双索引树（`INDEX_TREE.md` + `build-index-tree.mjs`）、前后端同构契约/RBAC/存储与异步任务基线（`contracts/`）、跨平台 Pre-commit/PR 模板/双向闭环 CI 门禁与维护脚本（`ci/`）、S8 `node:22` 预编译生产容器/HTTPS/探针与备份包（`deploy/`），以及精简至 `< 5KB` 的原生 `.agents/skills/fullstack-product-delivery/` 技能与根目录 `AGENTS.md` 规则入口。
+版本：1.4.0（安全加固与门禁防绕过闭环版）。本项目包含可跨平台使用的 Markdown 规范包、S0–S8 最小可运行全栈脚手架（`starter/`，含 `server/config/env.ts`、`safe-db-reset.mjs`、预置 `/api/auth/*`、`createRequireAuth`/`requireRole`、`.dockerignore`、`.gitattributes` 与 Playwright 多角色隔离越权底座）、双索引树（`INDEX_TREE.md` + `build-index-tree.mjs`）、前后端同构契约/RBAC/存储与异步任务基线（`contracts/`）、跨平台 Pre-commit/PR 模板/五重指纹 CI 门禁与维护脚本（`ci/`）、S8 `node:22` 预编译生产容器/先迁移后启服务/最小权限 DB/HTTPS 与流式备份包（`deploy/`），以及精简至 `< 5KB` 的原生 `.agents/skills/fullstack-product-delivery/` 技能与根目录 `AGENTS.md` 规则入口。
 
 ## 信息分层
 

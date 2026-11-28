@@ -1,4 +1,4 @@
-# 软件产品设计与全栈交付工作流 v1.3.1 — 生产多阶段 Dockerfile (STD-OPS-05 / STD-OPS-07)
+# 软件产品设计与全栈交付工作流 v1.4.0 — 生产多阶段 Dockerfile (STD-OPS-05 / STD-OPS-07)
 # 特点：干净环境可重建、前后端均在构建阶段预编译、运行时纯 node 启动（无需 tsx）、内置版本锁定 prisma CLI、非 root 运行用户、/healthz 探针
 
 # ============================================================
@@ -34,6 +34,7 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/dist-server ./dist-server
 COPY --from=builder /app/shared ./shared
+COPY --from=builder /app/scripts/run-migrate.mjs ./scripts/run-migrate.mjs
 
 # 非 root 运行用户（安全最小权限原则）
 RUN chown -R node:node /app

@@ -1,5 +1,29 @@
 # 变更日志
 
+## 1.4.0 — 2026-11-27（安全加固、清库保护、门禁防绕过与最小权限生产部署闭环版）
+
+依据本机 `codex-cli 0.153.4` 独立只读审计暴露的 **3 项 P0 + 16 项 P1 工程与安全缺口**完成全面整改：
+- **P0 修复（清库保护、ESLint 阻断与本地数据库端口暴露）**：
+  - 新增 `规范文件/ci/safe-db-reset.mjs`（生成 `scripts/safe-db-reset.mjs`），在 `db:reset` 与 `test:e2e:fresh` 执行 `prisma migrate reset --force` **之前**强制核验 `NODE_ENV !== 'production'`、本地主机白名单与目标库名，支持独立 `TEST_DATABASE_URL`。
+  - `eslint.config.mjs.tpl` 显式忽略 `规范文件/**`、`.agents/**` 与 `历史归档_勿喂给AI/**`，消除按 README 模式 A 放入 `规范文件/` 后运行 `npm run check` 触发母版脚本 `no-undef` 报错的阻断。
+  - `ci/docker-compose.postgres.yml` 将端口映射锁定为 `127.0.0.1:${POSTGRES_PORT:-5432}:5432`，防止同网段/公网扫描连接默认开发库。
+- **P1 认证安全、环境配置与共享契约对齐**：
+  - 新增 `server/config/env.ts`（`server-env.ts.tpl`），在模块加载前统一读取 `.env` 并用 Zod 严格校验端口、Cookie、限流参数与数据库 URL 安全 percent-encoding；同步动态化 `vite.config.ts.tpl` 与 `playwright.config.ts.tpl` 端口配置。
+  - `contracts/base-contract.schema.ts` 新增 `buildApiSuccess`/`buildApiError` 构造函数；`auth-routes.ts.tpl` 与 `server-index.ts.tpl` 全面对齐共享契约信封及 `422 VALIDATION_FAILED`，补齐 JSON `Content-Type`、`bodyLimit`、`csrf` + 写请求 `Origin` 防护、IP/账号双维度限流、恒定时间异步 `verifyPasswordConstantTime`（防事件循环阻塞与邮箱枚举），并移除 `POST /logout` 的 `.catch(() => null)` 假成功；`rbac-isolation.spec.ts.example` 升级为在全新隔离上下文重放退出前 Cookie 验证真吊销。
+  - `auth-rbac.ts.tpl` 补齐真正的 Hono `createRequireAuth`、`requireRole` 中间件与 `server-index.ts.tpl` `protectedApi` 受保护子容器，`checkObjectScope`/`assertOwnerOrRole` 默认特权角色收紧为 `[]`。
+  - `logger-trace.ts.tpl` 扩充敏感字段脱敏路径并新增 `sanitizeErrorMessage`，`logUnhandledError` 仅记录安全异常摘要。
+- **P1 门禁防绕过、跨平台排序与索引内容校验**：
+  - `build-index-tree.mjs` 修复 URL `.pathname` 在中文/空格路径下 `isMain` 静默不执行的缺陷（改用 `fileURLToPath`），纳入 `.css`/`.sql` 迁移文件，并在 `--check` 校验 `PROJECT_INDEX_TREE.md` 与 `docs/index-tree.json` 全量一致。
+  - `verify-gates.mjs` 修复路径先排序后转 `/` 导致的 Windows/POSIX 指纹差异；移除 Gate 1 在 `docs/` 为空时豁免幽灵编号的漏洞；Gate 4 升级为**五重指纹**（纳入迁移/测试/构建配置与部署文件），严格校验 `fingerprint-lock.json` 结构以拒绝 `{}` 空锁绕过。
+  - `github-actions-ci.yml` 统一 Vitest 测试发现范围（含 `tests/test/src` 排除 `tests/e2e`），并在 `docs/` 存在 `REQ/AC` 但无任何可执行测试时阻断通过。
+- **P1 生产最小权限与先迁移后启服务**：
+  - 新增 `deploy/init-app-user.sh` 与 `scripts/run-migrate.mjs`；`docker-compose.prod.yml` 将应用运行账号拆分为非超级用户 `APP_DB_USER`，并在 `app` 启动前通过一次性 `migrate` 服务执行迁移；`/readyz` 同步核验核心 `User` 表就绪；`backup-postgres.mjs` 强制显式 `--env dev|prod`（读 `.env.production`）、改为无 256MB 上限的流式备份与 `--single-transaction` 单事务恢复。
+- **脚手架升级**：`init-project.mjs` 升级至 37 项映射 + 3 份生成文件（共 **40 文件**）。
+- **P2 体验优化与裁剪一致性闭环（22/22 审计项全部收口）**：
+  - **Pre-commit 只读卡点**：`ci/pre-commit.hook` 移除 `--write` 与自动 `git add`，提交前检测索引/源码/契约/测试工作区未暂存漂移并只读核验 `build-index-tree.mjs --check`，保护部分提交一致性。
+  - **三级裁剪与已有工程兼容**：`verify-gates.mjs` 支持 `.workflow-profile.json`（`existing-web` / `mobile-mode-a` 需提供 `legacyApprovalRef`，仅豁免已登记既有依赖/文件，仍拦未授权新引入禁用栈）与 `--scope=minor`（低风险文案/样式小变更），与 `00_主流程.md` / `04_AI项目执行说明.md` / `AGENTS.md` / `SKILL.md` 保持一致。
+  - **启动指引诚实化与母版隔离冒烟 CI**：`package.json.tpl` `db:up` 增加 `--wait` 等待健康；`README.md` / `starter/README.md` / `init-project.mjs` 补齐 `git init` 与 `npx playwright install chromium`；`maintain-workflow.mjs --check` 改为动态提取阶段/模板/门禁计数并如实输出“母版结构检查通过”；新增母版仓库 `.github/workflows/workflow-smoke.yml` 在真实 Node 22 + PostgreSQL 16 + Docker 环境持续验证生成底座编译、真实会话吊销与镜像构建。
+
 ## 1.3.1 — 2026-11-27（跨系统 LF 固化、容器隔离、预置认证路由与克隆态自检闭环）
 
 - **跨操作系统（Windows CRLF ↔ Linux CI）稳定性固化**：

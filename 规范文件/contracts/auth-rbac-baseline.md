@@ -1,6 +1,6 @@
 # 认证、会话与 RBAC 统一权限底座 (`auth-rbac-baseline.md`)
 
-版本：1.3.1｜对应规则：`STD-BIZ-03`、`STD-SEC-01`、`STD-SEC-04`、`STD-SEC-05`
+版本：1.4.0｜对应规则：`STD-BIZ-03`、`STD-SEC-01`、`STD-SEC-04`、`STD-SEC-05`
 
 ## 1. 为什么必须统一权限底座？
 零开发经验团队从 0 开发带登录的产品时，AI 若无明确安全基线，极易写出以下高危漏洞（直接触发 D0 严重缺陷）：
@@ -20,17 +20,17 @@
 
 ## 3. 服务端三层 RBAC 强制拦截模型
 
-所有受保护接口在服务端必须依次通过三层检查（配套代码骨架见 [auth-rbac.ts.tpl](../starter/templates/auth-rbac.ts.tpl)）：
+所有受保护接口在服务端必须依次通过三层检查（配套 Hono 中间件 `createRequireAuth` / `requireRole` / `assertOwnerOrRole` 与 `protectedApi` 容器见 [auth-rbac.ts.tpl](../starter/templates/auth-rbac.ts.tpl) 与 [server-index.ts.tpl](../starter/templates/server-index.ts.tpl)）：
 
-1. **第一层：身份认证（`requireAuth`）**
+1. **第一层：身份认证（`createRequireAuth` / `protectedApi`）**
    - 从 `HttpOnly` Cookie 或可信鉴权头读取会话 ID，查询 PostgreSQL `Session`（校验未过期、未吊销）挂载 `actor: AuthenticatedActor`。
-   - 未通过立即返回 **`401 UNAUTHENTICATED`**。
+   - 未通过立即返回 **`401 UNAUTHENTICATED`**（统一使用 `buildApiError`）。
 2. **第二层：角色动作权限（`requireRole(['HANDLER', 'ADMIN'])`）**
    - 检查 `actor.role` 是否在当前接口允许的角色白名单内（默认拒绝原则）。
    - 未通过立即返回 **`403 FORBIDDEN`**。
-3. **第三层：对象数据范围隔离（`assertOwnerOrRole` / 查询加 `where`）**
+3. **第三层：对象数据范围隔离（`assertOwnerOrRole` / 查询加 `where`，默认特权角色为 `[]`）**
    - 列表查询必须在 PostgreSQL `where` 条件直接限制数据范围（如 `MEMBER` 强制 `where: { creatorId: actor.id }`）；
-   - 详情/修改/删除查询先核对对象归属，跨用户越权按业务安全策略返回 **`404 NOT_FOUND`**（防止探测他人资源 ID 是否存在）或 `403 FORBIDDEN`。
+   - 详情/修改/删除查询先核对对象归属（特权角色须由具体业务显式传入），跨用户越权按业务安全策略返回 **`404 NOT_FOUND`**（防止探测他人资源 ID 是否存在）或 `403 FORBIDDEN`。
 
 ## 4. 配套 Playwright 自动化双上下文与越权负向测试样板（必做）
 
