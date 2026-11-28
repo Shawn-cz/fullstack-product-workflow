@@ -1,6 +1,6 @@
 # 开始使用：软件产品设计与全栈交付工作流
 
-交付版本：1.4.0（安全加固与门禁防绕过闭环版）｜整理日期：2026-11-27｜形式：内置 Antigravity Skill（`.agents/skills/` + `AGENTS.md`）、S0–S8 最小可运行全栈脚手架（`starter/`）、双索引树（`INDEX_TREE.md` + `build-index-tree.mjs`）、前后端同构契约/RBAC/存储与任务基线（`contracts/`）、跨平台 Pre-commit/双向门禁与维护脚本（`ci/`）、S8 预编译生产容器/HTTPS/备份包（`deploy/`）及可跨工具使用的 Markdown 规范包。
+交付版本：1.4.1（生产凭据白名单、E2E 双库隔离与 CI 全单测闭环版）｜整理日期：2026-11-28｜形式：内置 Antigravity Skill（`.agents/skills/` + `AGENTS.md`）、S0–S8 最小可运行全栈脚手架（`starter/`）、双索引树（`INDEX_TREE.md` + `build-index-tree.mjs`）、前后端同构契约/RBAC/存储与任务基线（`contracts/`）、跨平台 Pre-commit/双向门禁与维护脚本（`ci/`）、S8 预编译生产容器/HTTPS/备份包（`deploy/`）及可跨工具使用的 Markdown 规范包。
 
 专为**零开发工作经验的全栈产品设计团队**打造，覆盖 Web、后端接口、移动 App（既有 App 修改对接 / 条件从 0 新建 App）及生产容器运维上线。当前含 **10 阶段、124 条有效规则、13 份独立模板、一键最小可运行脚手架（37 项映射 + `.gitignore`/`.dockerignore`/`.gitattributes` 共生成 40 文件）、50 组官方来源**及工单设计案例。
 
@@ -33,10 +33,10 @@
 |---|---|---|
 | **Web 前端与品牌主题** | **React 19 + TypeScript (`strict`) + Vite + Tailwind CSS v4 + Preline UI**（内置 `index.html`、`main.tsx`、`App.tsx`、`usePrelineInit` 与 `src/styles/theme.css` `STD-FE-07`）+ Zustand / TanStack Query | 浏览器实际渲染对照、`npm run check`（已忽略 `规范文件/**` 不冲突）；前端只导入同构 `base-contract.schema.ts` |
 | **后端、契约与安全认证** | **Node.js 22 LTS + Hono（Zod 环境校验 + `csrf`/Origin 校验）+ `@hono/node-server` + TypeScript + Zod + Pino**（`/api/auth/login|logout|me` 对齐共享契约、限流、恒定时间异步 `scrypt` 与严格吊销；`protectedApi` + `createRequireAuth`/`requireRole`） | 与 Playwright `auth-contexts.ts` 开箱对齐；`requestTraceId` 全链路透传与异常安全摘要；严禁 `localStorage` 存令牌 |
-| **数据库、安全清库与自动化越权** | **PostgreSQL 16 + Prisma ORM**（本地仅绑定 `127.0.0.1` 防暴露，支持 `POSTGRES_PORT` 多项目并行）+ `prisma/test-accounts.ts` & `seed.ts` + `safe-db-reset.mjs` 清库守卫 + Playwright 多角色 Fixture | `npm run test:e2e:fresh` 先核验目标库再重置并跑双上下文越权与旧 Cookie 重放测试；`npm run db:studio` 可视化查库 |
+| **数据库、安全清库与自动化越权** | **PostgreSQL 16 + Prisma ORM**（本地仅绑定 `127.0.0.1` 防暴露，支持 `POSTGRES_PORT` 多项目并行）+ `prisma/test-accounts.ts` & `seed.ts` + `safe-db-reset.mjs` 双库隔离守卫 + Playwright 多角色 Fixture | S0 无 E2E 用例时 `test:e2e:fresh` 安全跳过；S6 补齐 `tests/e2e/*.spec.ts` 后强隔离 `TEST_DATABASE_URL` 并独享端口跑双账号越权；`npm run db:studio` 可视化查库 |
 | **移动 App（双模式）** | **模式 A（常规）**：既有 App 修改优化并对接 `contracts/openapi-baseline.yaml`<br>**模式 B（条件：明确从 0 新建）**：优先 **React Native + TS** 或原生 | 模式 A 严格继承原工程风格；模式 B 才调用新建与提审分支 |
-| **跨端防呆、门禁与五重指纹** | **`.gitattributes` + POSIX 排序与 LF 归一化哈希** + 显式刷新索引树（`npm run index:build`）+ 只读 Node Pre-commit（不自动 `git add`）+ 门禁（`npm run gates`，支持 `.workflow-profile.json` 与 `--scope=minor`）+ 五重指纹严格锁定（`npm run gates:lock`） | 含迁移/测试/构建配置指纹，拒绝 `{}` 空锁绕过与空文档幽灵标签；已有工程/小变更可按规则裁剪，仍拦未授权新引入旧栈 |
-| **S8 生产部署与流式备份** | **`deploy/` 生产基线**：`.dockerignore` + `node:22-alpine` 预编译非 root `Dockerfile` + 独立 `migrate` 先迁移后启 `app` + 最小权限 `APP_DB_USER` + `Caddyfile` + 流式备份 | 单 `.env.production` 管理；先迁移再放行 `/readyz`；`npm run db:backup:prod` 流式生成 `.sql` + `.sha256` 并支持单事务恢复 |
+| **跨端防呆、门禁与五重指纹** | **`.gitattributes` + POSIX 排序与 LF 归一化哈希** + 显式刷新索引树（`npm run index:build`）+ 只读 Node Pre-commit（不自动 `git add`）+ 门禁（`npm run gates` 跑 Gate 1/2/4，支持 `.workflow-profile.json` 与 `--scope=minor`）+ 五重指纹严格锁定（`npm run gates:lock`） | 含迁移/测试/构建配置指纹，拒绝 `{}` 空锁绕过与空文档幽灵标签；已有工程/小变更可按规则裁剪，仍拦未授权新引入旧栈 |
+| **S8 生产部署与流式备份** | **`deploy/` 生产基线**：`.dockerignore` + `node:22-alpine` 预编译非 root `Dockerfile` + `app` 环境变量白名单 + 独立 `migrate` 先迁移并同步 `APP_DB_USER` 表权限 + `Caddyfile` + 流式备份 | 超管密码不进入 `app` 容器；先迁移并锁定 `_prisma_migrations` 再放行 `/readyz`；`npm run db:backup:prod` 流式生成 `.sql` + `.sha256` 并支持单事务恢复 |
 
 ## 3. 日常执行入口与工具包导航
 
@@ -57,7 +57,7 @@
 
 ## 4. 网页端/跨工具备用启动说明
 
-> 请使用《软件产品设计与全栈交付工作流 v1.4.0》协助我推进实际项目。
+> 请使用《软件产品设计与全栈交付工作流 v1.4.1》协助我推进实际项目。
 >
 > 本次任务：[填写要解决的问题或要开发/修改的功能]。
 > 需求性质：[团队负责人明确指令（直接登记 DEC 进 S2，免外部访谈） / 探索型需求]。

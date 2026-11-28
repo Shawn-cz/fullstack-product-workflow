@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 软件产品设计与全栈交付工作流 v1.4.0 — PostgreSQL 16 跨平台流式备份与事务原子恢复脚本
+ * 软件产品设计与全栈交付工作流 v1.4.1 — PostgreSQL 16 跨平台流式备份与事务原子恢复脚本
  * 对应规则：STD-DAT-04（迁移前备份与恢复验证）、STD-OPS-03（可回退核对）、STD-OPS-07
  *
  * 用法：
@@ -104,7 +104,7 @@ function sha256FileStream(filePath) {
 }
 
 function runSelfCheck() {
-  const digest = createHash('sha256').update('v1.4.0-pg-backup').digest('hex')
+  const digest = createHash('sha256').update('v1.4.1-pg-backup').digest('hex')
   if (digest.length !== 64) {
     console.error('❌ backup-postgres.mjs SHA-256 self-check failed.')
     process.exit(1)
@@ -119,7 +119,7 @@ function runSelfCheck() {
     console.error('❌ backup-postgres.mjs target guard self-check failed.')
     process.exit(1)
   }
-  console.log('✅ backup-postgres.mjs v1.4.0 self-check passed (Node ' + process.version + ', explicit --env + streaming + atomic restore ready).')
+  console.log('✅ backup-postgres.mjs v1.4.1 self-check passed (Node ' + process.version + ', explicit --env + streaming + atomic restore ready).')
 }
 
 async function runBackup() {

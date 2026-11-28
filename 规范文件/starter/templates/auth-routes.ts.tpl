@@ -1,6 +1,6 @@
 // @desc 服务端标准认证路由（/api/auth/login、/logout、/me；对齐共享契约、限流、恒定时间核验与严格吊销，STD-SEC-05）
 /**
- * 软件产品设计与全栈交付工作流 v1.4.0 — 与 Playwright auth-contexts.ts 及 base-contract.schema.ts 对齐的认证路由
+ * 软件产品设计与全栈交付工作流 v1.4.1 — 与 Playwright auth-contexts.ts 及 base-contract.schema.ts 对齐的认证路由
  * 对应规则：STD-SEC-05、STD-API-07、STD-QA-12
  */
 import { randomBytes } from 'node:crypto'
@@ -38,6 +38,10 @@ function consumeRateLimit(key: string, maxRequests: number, windowMs: number): b
     for (const [k, v] of rateBuckets.entries()) {
       if (v.resetAt <= now) rateBuckets.delete(k)
     }
+  }
+  if (rateBuckets.size >= 10000) {
+    const oldest = rateBuckets.keys().next().value
+    if (oldest !== undefined) rateBuckets.delete(oldest)
   }
   const existing = rateBuckets.get(key)
   if (!existing || existing.resetAt <= now) {
@@ -84,8 +88,9 @@ export function createAuthRoutes(getPrisma: () => PrismaClient) {
     const env = getServerEnv()
     const requestTraceId = c.get('requestTraceId') || 'trc_missing'
 
-    const contentType = c.req.header('content-type') || ''
-    if (!contentType.toLowerCase().includes('application/json')) {
+    const rawContentType = c.req.header('content-type') || ''
+    const mediaType = rawContentType.split(';')[0]?.trim().toLowerCase()
+    if (mediaType !== 'application/json') {
       return c.json(
         buildApiError({
           code: 'VALIDATION_FAILED',

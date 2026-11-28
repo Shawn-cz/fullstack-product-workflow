@@ -1,4 +1,4 @@
-# 软件产品设计与全栈交付工作流 v1.4.0 — GitHub Actions CI 四道门禁流水线模板
+# 软件产品设计与全栈交付工作流 v1.4.1 — GitHub Actions CI 四道门禁流水线模板
 # 启用方法：通过 starter/init-project.mjs 自动生成，或手动复制到业务项目的 .github/workflows/ci.yml。
 # 对应规则：STD-GOV-05（索引树）、STD-SEC-05（安全红线）、STD-QA-13（双向闭环四道门禁）、STD-AUD-07（指纹锁定）、STD-ARC-09（PostgreSQL 同构）
 
@@ -78,11 +78,30 @@ jobs:
         id: vitest_check
         shell: bash
         run: |
-          if find tests test src -type f \( -name '*.test.ts' -o -name '*.test.tsx' -o -name '*.spec.ts' -o -name '*.spec.tsx' \) -not -path 'tests/e2e/*' 2>/dev/null | grep -q .; then
-            echo "has_vitest=true" >> "$GITHUB_OUTPUT"
+          HAS_VITEST=$(node -e '
+            const fs = require("node:fs");
+            const path = require("node:path");
+            function walk(dir, out = []) {
+              if (!fs.existsSync(dir)) return out;
+              for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
+                if (ent.name === "node_modules" || ent.name === "dist" || ent.name === "dist-server") continue;
+                const full = path.join(dir, ent.name);
+                if (ent.isDirectory()) {
+                  if (full.replace(/\\/g, "/").startsWith("tests/e2e")) continue;
+                  walk(full, out);
+                } else if (/\.(?:test|spec)\.tsx?$/.test(ent.name)) {
+                  out.push(full);
+                }
+              }
+              return out;
+            }
+            const files = ["tests", "test", "src", "server"].flatMap((d) => walk(d));
+            process.stdout.write(files.length > 0 ? "true" : "false");
+          ')
+          echo "has_vitest=$HAS_VITEST" >> "$GITHUB_OUTPUT"
+          if [ "$HAS_VITEST" = "true" ]; then
             npm test
           else
-            echo "has_vitest=false" >> "$GITHUB_OUTPUT"
             echo "ℹ️ 当前尚无非 E2E 单元/集成测试文件，跳过 Vitest。"
           fi
 
@@ -93,11 +112,24 @@ jobs:
         id: detect_e2e
         shell: bash
         run: |
-          if [ -d "tests/e2e" ] && find tests/e2e -type f \( -name '*.spec.ts' -o -name '*.spec.tsx' \) | grep -q .; then
-            echo "has_e2e=true" >> "$GITHUB_OUTPUT"
+          HAS_E2E=$(node -e '
+            const fs = require("node:fs");
+            const path = require("node:path");
+            function walk(dir, out = []) {
+              if (!fs.existsSync(dir)) return out;
+              for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
+                const full = path.join(dir, ent.name);
+                if (ent.isDirectory()) walk(full, out);
+                else if (/\.spec\.tsx?$/.test(ent.name)) out.push(full);
+              }
+              return out;
+            }
+            process.stdout.write(walk("tests/e2e").length > 0 ? "true" : "false");
+          ')
+          echo "has_e2e=$HAS_E2E" >> "$GITHUB_OUTPUT"
+          if [ "$HAS_E2E" = "true" ]; then
             echo "✅ 检测到 tests/e2e/*.spec.ts，将自动执行 Playwright 双账号越权与端到端验收。"
           else
-            echo "has_e2e=false" >> "$GITHUB_OUTPUT"
             echo "ℹ️ 未检测到 tests/e2e/*.spec.ts，跳过 Gate 3d。"
           fi
 
@@ -105,7 +137,27 @@ jobs:
         shell: bash
         run: |
           if [ "${{ steps.vitest_check.outputs.has_vitest }}" != "true" ] && [ "${{ steps.detect_e2e.outputs.has_e2e }}" != "true" ]; then
-            if [ -d "docs" ] && find docs -type f -name '*.md' -not -path 'docs/evidence/*' -not -path 'docs/archive/*' -exec grep -Eq '\b(REQ|AC)-[0-9]+\b' {} + 2>/dev/null; then
+            HAS_REQ=$(node -e '
+              const fs = require("node:fs");
+              const path = require("node:path");
+              function walk(dir, out = []) {
+                if (!fs.existsSync(dir)) return out;
+                for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
+                  const full = path.join(dir, ent.name);
+                  const rel = full.replace(/\\/g, "/");
+                  if (ent.isDirectory()) {
+                    if (rel === "docs/evidence" || rel === "docs/archive") continue;
+                    walk(full, out);
+                  } else if (ent.name.endsWith(".md")) {
+                    out.push(full);
+                  }
+                }
+                return out;
+              }
+              const found = walk("docs").some((f) => /\b(REQ|AC)-[0-9]+\b/.test(fs.readFileSync(f, "utf8")));
+              process.stdout.write(found ? "true" : "false");
+            ')
+            if [ "$HAS_REQ" = "true" ]; then
               echo "❌ docs/ 已声明 REQ/AC，但未检测到任何可执行的 Vitest 或 Playwright 测试！"
               exit 1
             fi

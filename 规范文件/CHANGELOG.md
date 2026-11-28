@@ -1,5 +1,13 @@
 # 变更日志
 
+## 1.4.1 — 2026-11-28（生产凭据白名单、E2E 双库隔离与 CI 全单测闭环封版）
+
+依据本轮 Codex 独立复审报告与架构师取舍评审，保持 **40 文件极简脚手架零新增文件**，精准修复 4 项真痛点并封版：
+- **CI `pipefail` 漏跑 Vitest 修复**：`github-actions-ci.yml` 的 `Gate 3b` / `Gate 3d-1` / `Gate 3-enforce` 改用跨平台 Node 文件遍历替代 `find tests test src | grep`，彻底消除因无 `test/` 目录导致 `find` 返回 1 进而跳过全部单元测试的问题；`verify-gates.mjs` Gate 2 同步纳入 `test/` 扫描。
+- **`test:e2e:fresh` 双库/端口强隔离与词边界守卫**：`.env.example.tpl` 默认开启独立 `TEST_DATABASE_URL`；`safe-db-reset.mjs` 修正词边界（拦截 `contest`）与 `[::1]` IPv6 解析，在 `--test --run-e2e` 模式下**先查 `tests/e2e` 有无用例**（S0 安全跳过零清库），再强制核验测试库与开发库不同名并用同一测试库 + 独立端口（`3101`/`5273`，关闭开发服复用）注入清库、种子与 Playwright；`seed.ts.tpl` 同步校验目标库名安全性。
+- **生产 `app` 环境变量白名单与迁移后表权限同步**：`deploy/docker-compose.prod.yml` 移除 `app` 的整份 `env_file: .env.production`，改为显式变量白名单使超管 `POSTGRES_USER`/`POSTGRES_PASSWORD` 不进入 `app` 进程；`run-migrate.mjs` 在 `prisma migrate deploy` 后通过 `prisma db execute` 幂等同步 `APP_DB_USER` 表/序列读写权限并收回 `_prisma_migrations` 写权限（兼顾旧卷升级与新增表）；`server-env.ts.tpl` 生产环境不再注入 `localhost` 来源，`auth-routes.ts.tpl` 补齐限流桶 `10,000` 硬上限及精确 `application/json` 解析。
+- **工具链读取 `.env` 与 S0/S6 口径澄清**：`vite.config.ts.tpl`（`loadEnv`）与 `playwright.config.ts.tpl`（`loadDotEnvIfNeeded`）自动读取 `.env` 端口，`rbac-isolation.spec.ts.example` 优先匹配 `SESSION_COOKIE_NAME`；文档统一澄清 S0 空底座 vs S6 E2E 运行边界。
+
 ## 1.4.0 — 2026-11-27（安全加固、清库保护、门禁防绕过与最小权限生产部署闭环版）
 
 依据本机 `codex-cli 0.153.4` 独立只读审计暴露的 **3 项 P0 + 16 项 P1 工程与安全缺口**完成全面整改：

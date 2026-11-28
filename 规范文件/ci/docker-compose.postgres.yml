@@ -1,4 +1,4 @@
-# 本地 PostgreSQL 16 同构容器配置 (v1.4.0)
+# 本地 PostgreSQL 16 同构容器配置 (v1.4.1)
 # 替代 SQLite，使本地开发、黑盒查库与 CI/生产保持同一 PostgreSQL 16 引擎。
 # 默认仅绑定 127.0.0.1（防同网段/公网暴露），不写死 container_name；并行多项目可通过 POSTGRES_PORT 区分端口。
 # 使用方式：在项目根目录运行 `docker compose -f docker-compose.postgres.yml up -d --wait`

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 软件产品设计与全栈交付工作流 v1.4.0 — 黄金技术栈全生命周期一键初始化脚手架脚本
+ * 软件产品设计与全栈交付工作流 v1.4.1 — 黄金技术栈全生命周期一键初始化脚手架脚本
  * 对应规则：STD-ARC-09、STD-GOV-05、STD-FE-07、STD-CODE-12、STD-SEC-05、STD-QA-13/14、STD-OPS-07/08
  *
  * 用法：
@@ -143,7 +143,7 @@ function runSelfCheck() {
     process.exit(1)
   }
   console.log(
-    `✅ init-project.mjs v1.4.0 self-check passed (${FILE_MAPPINGS.length} mapped + ${GENERATED_FILES.length} generated assets + S6 RBAC E2E example verified, isomorphic contract clean).`
+    `✅ init-project.mjs v1.4.1 self-check passed (${FILE_MAPPINGS.length} mapped + ${GENERATED_FILES.length} generated assets + S6 RBAC E2E example verified, isomorphic contract clean).`
   )
 }
 
@@ -195,8 +195,8 @@ function runInit(targetDir, force) {
   console.log('  1. 若尚未初始化 Git 仓库先运行 `git init`，并复制 .env.example 为 .env')
   console.log('  2. npm install && npm run hooks:install')
   console.log('  3. npm run db:up && npm run db:migrate && npm run db:seed（db:up 已包含 --wait 健康等待）')
-  console.log('  4. npm run index:build && npm run gates && npm run check && npm run build')
-  console.log('  5. 首次跑 Playwright E2E 前先安装浏览器：npx playwright install chromium && npm run test:e2e:fresh')
+  console.log('  4. npm run index:build && npm run gates && npm run check && npm run build（注：gates 运行 Gate 1/2/4；S0 尚无 E2E 用例时 test:e2e:fresh 会安全跳过清库）')
+  console.log('  5. 进入 S6 并补齐 tests/e2e/*.spec.ts 后，安装浏览器并运行全流程越权：npx playwright install chromium && npm run test:e2e:fresh')
 }
 
 if (args.includes('--self-check')) {

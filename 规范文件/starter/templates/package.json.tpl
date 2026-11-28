@@ -14,7 +14,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "test:e2e:fresh": "node scripts/safe-db-reset.mjs --test && npx playwright test",
+    "test:e2e:fresh": "node scripts/safe-db-reset.mjs --test --run-e2e",
     "test:e2e:report": "npx playwright show-report docs/evidence/playwright-report",
     "db:up": "docker compose -f docker-compose.postgres.yml up -d --wait",
     "db:down": "docker compose -f docker-compose.postgres.yml down",

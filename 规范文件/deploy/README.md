@@ -1,15 +1,15 @@
 # S8 生产部署、自动 HTTPS 与数据库备份恢复包 (`deploy/`)
 
-版本：1.4.0｜对应规则：`STD-OPS-01~07`、`STD-DAT-04`、`STD-QA-12`
+版本：1.4.1｜对应规则：`STD-OPS-01~07`、`STD-DAT-04`、`STD-QA-12`
 
 ## 包含文件
 
 | 文件 | 复制到业务项目目标路径 | 用途 |
 |---|---|---|
 | [Dockerfile](Dockerfile) | `Dockerfile` | 基于 `node:22-alpine` 多阶段构建（React `dist/` + 预编译 `dist-server/index.mjs` + `scripts/run-migrate.mjs` + 版本锁定 Prisma CLI + 非 root `USER node` + `/healthz` 内置探针） |
-| [docker-compose.prod.yml](docker-compose.prod.yml) | `docker-compose.prod.yml` | 生产四服务编排（Caddy 自动 HTTPS → App〔最小权限 `APP_DB_USER`〕→ 一次性 `migrate` 先迁移后启动 → 内网隔离 PostgreSQL 16） |
-| [init-app-user.sh](init-app-user.sh) | `deploy/init-app-user.sh` | 容器首次建库时创建非超级用户 `APP_DB_USER`，与迁移管理账号 `POSTGRES_USER` 权限隔离（含未来表默认授权） |
-| [run-migrate.mjs](run-migrate.mjs) | `scripts/run-migrate.mjs` | 在应用启动前执行 `prisma migrate deploy`（URL percent-encoding 特殊字符密码，迁移失败立即中止发布） |
+| [docker-compose.prod.yml](docker-compose.prod.yml) | `docker-compose.prod.yml` | 生产四服务编排（Caddy 自动 HTTPS → App〔显式环境变量白名单，仅持最小权限 `APP_DB_USER`〕→ 一次性 `migrate` 先迁移并同步表权限后再启动 → 内网隔离 PostgreSQL 16） |
+| [init-app-user.sh](init-app-user.sh) | `deploy/init-app-user.sh` | 容器首次建库时创建非超级用户 `APP_DB_USER`，与迁移管理账号 `POSTGRES_USER` 权限隔离（含未来表默认授权与迁移表收回） |
+| [run-migrate.mjs](run-migrate.mjs) | `scripts/run-migrate.mjs` | 在应用启动前执行 `prisma migrate deploy`，随后幂等同步 `APP_DB_USER` 表/序列读写权限并收回 `_prisma_migrations` 写权限（兼顾旧卷升级与新增表，失败立即中止） |
 | [Caddyfile](Caddyfile) | `Caddyfile` | 自动申请/续期 Let's Encrypt HTTPS 证书与安全响应头配置 |
 | [health-probes.ts.tpl](health-probes.ts.tpl) | `server/routes/health-probes.ts` | `/healthz`（进程存活）与 `/readyz`（PostgreSQL `SELECT 1` + 核心表 `User` 就绪校验）双探针 |
 | [backup-postgres.mjs](backup-postgres.mjs) | `scripts/backup-postgres.mjs` | 强制 `--env dev|prod` 隔离目标库、流式 `pg_dump`（无 256MB 内存上限）与 `--single-transaction` 单事务原子恢复脚本 |

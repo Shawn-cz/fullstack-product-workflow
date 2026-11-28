@@ -1,6 +1,6 @@
 // @desc Hono 服务端入口（环境校验、CSRF/Origin 防护、requestTraceId、/api/auth/*、protectedApi RBAC 容器与 Schema 就绪探针）
 /**
- * 软件产品设计与全栈交付工作流 v1.4.0 — 最小可运行服务端入口骨架
+ * 软件产品设计与全栈交付工作流 v1.4.1 — 最小可运行服务端入口骨架
  * 对应规则：STD-ARC-09、STD-API-07、STD-SEC-05、STD-OPS-07、STD-OPS-08
  */
 import fs from 'node:fs'

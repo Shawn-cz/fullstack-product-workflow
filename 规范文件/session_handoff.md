@@ -1,8 +1,17 @@
 # Session Handoff
 
-日期：2026-11-27（Asia/Shanghai）｜工作流版本：1.4.0（安全加固与门禁防绕过闭环版）
+日期：2026-11-28（Asia/Shanghai）｜工作流版本：1.4.1（生产凭据白名单、E2E 双库隔离与 CI 全单测闭环封版）
 
-## 本轮里程碑（1.3.1 → 1.4.0）
+## 本轮里程碑（1.4.0 → 1.4.1 封版收口）
+
+对照 `v1.4.0` Codex 复审报告（`2 P0 + 12 P1 + 4 P2`），经资深工程取舍后精准解决 **4 项真实工程痛点（0 新增文件，保持 40 文件底座）**：
+1. **CI `pipefail` 漏跑单测修复（P1-08）**：`github-actions-ci.yml` 改用跨平台 Node 文件发现，`verify-gates.mjs` Gate 1/2 同步覆盖 `tests/test/src/server`。
+2. **`test:e2e:fresh` 双库隔离闭环（P0-02 / P1-01）**：`.env.example` 默认开启独立 `TEST_DATABASE_URL`；`safe-db-reset.mjs` 修复 `contest` 词边界与 `[::1]`，S0 无用例安全跳过，S6 同链注入独立测试库与隔离端口 `3101/5273` 并禁复用开发服；`seed.ts` 复用库名保护。
+3. **生产凭据隔离与迁移权限同步（P0-01 / P1-10 / P1-03）**：`docker-compose.prod.yml` 的 `app` 服务改为显式环境变量白名单（超管密码不进 `app`）；`run-migrate.mjs` 迁移后幂等同步 `APP_DB_USER` 表权限并收回 `_prisma_migrations` 写权限；生产 `ALLOWED_ORIGINS` 剔除 `localhost`，登录限流加 `10,000` 桶上限并精确匹配 `application/json`。
+4. **配置读取与口径对齐（P2-02 / P2-01）**：`vite.config.ts` / `playwright.config.ts` 自动读 `.env` 端口，E2E 重放样例按 `SESSION_COOKIE_NAME` 匹配 Cookie；明确 S0 vs S6 E2E 执行时机。
+- **架构师明示不采纳的过度设计项**：保留脱敏后异常 `error.message` 保障零经验成员排障能力；开发期不强制 `--strict-lock` 阻断常规提交；不做复杂 Git 底层暂存快照检出树、Redis 多节点限流或演示业务表。
+
+## 此前里程碑（1.3.1 → 1.4.0）
 
 根据本机 `codex-cli 0.153.4`（`-s read-only`）对 `v1.3.1` 仓库的独立交叉审计结果，完成全部 **3 项 P0 + 16 项 P1 + 3 项 P2（共 22/22 项）**整改并升级至 **`v1.4.0`**：
 1. **P0 阻断与安全止血**：新增 `scripts/safe-db-reset.mjs` 清库前置守卫（支持独立 `TEST_DATABASE_URL`）；`eslint.config.mjs` 排除 `规范文件/**` 避免 `npm run check` 报错；本地 PostgreSQL 端口收紧绑定 `127.0.0.1`。

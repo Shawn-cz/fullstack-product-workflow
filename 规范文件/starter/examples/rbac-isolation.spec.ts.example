@@ -59,9 +59,12 @@ test.describe('三层 RBAC 隔离与会话安全自动化验收 (STD-SEC-05 / ST
     browser,
     memberA
   }, testInfo) => {
-    // 1. 退出前先保存真实会话 Cookie 原始值
+    // 1. 退出前先保存真实会话 Cookie 原始值（优先匹配 SESSION_COOKIE_NAME）
+    const cookieName = process.env.SESSION_COOKIE_NAME || 'app_sid'
     const beforeCookies = await memberA.context.cookies()
-    const sessionCookie = beforeCookies.find((c) => /sid|session/i.test(c.name))
+    const sessionCookie = beforeCookies.find(
+      (c) => c.name === cookieName || /sid|session/i.test(c.name)
+    )
     expect(sessionCookie, '退出前应存在有效会话 Cookie').toBeDefined()
     const savedCookieHeader = `${sessionCookie!.name}=${sessionCookie!.value}`
 

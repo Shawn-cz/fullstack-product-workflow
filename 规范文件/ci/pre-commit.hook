@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 软件产品设计与全栈交付工作流 v1.4.0 — 跨平台本地 Git Pre-commit 前置卡点 (STD-CODE-12 / STD-GOV-05 / STD-QA-13)
+ * 软件产品设计与全栈交付工作流 v1.4.1 — 跨平台本地 Git Pre-commit 前置卡点 (STD-CODE-12 / STD-GOV-05 / STD-QA-13)
  * 采用纯 Node.js 执行，避免 Windows CRLF 或 /bin/sh + find 兼容性报错。
  * 本钩子仅做只读校验，严禁自动修改工作区或自动执行 git add 破坏部分提交的一致性。
  * 启用命令：npm run hooks:install（执行 git config core.hooksPath .githooks）

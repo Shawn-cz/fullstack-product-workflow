@@ -1,6 +1,6 @@
 // @desc 前后端同构通用契约基线（纯 Zod，无 Node 内置依赖，React/Vite/Node/RN 均可安全导入） | @api API-000
 /**
- * 软件产品设计与全栈交付工作流 v1.4.0 — 同构通用契约包基线 (STD-API-07 / STD-API-08)
+ * 软件产品设计与全栈交付工作流 v1.4.1 — 同构通用契约包基线 (STD-API-07 / STD-API-08)
  *
  * 注意：本文件严禁导入 node:crypto 等 Node 专属内置模块，以确保 React + Vite 浏览器构建 100% 安全。
  * 服务端同步 SHA-256 载荷指纹计算请从同目录 `./fingerprint.server` 导入 `computePayloadFingerprint`。

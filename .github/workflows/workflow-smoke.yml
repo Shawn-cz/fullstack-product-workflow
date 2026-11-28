@@ -1,4 +1,4 @@
-# 软件产品设计与全栈交付工作流 v1.4.0 — 母版仓库洁净底座隔离冒烟流水线
+# 软件产品设计与全栈交付工作流 v1.4.1 — 母版仓库洁净底座隔离冒烟流水线
 # 职责：每次 Push / PR 自动在隔离环境运行 maintain-workflow --check、Mode A 初始化、依赖安装、数据库迁移/种子、门禁、编译构建、真实认证吊销与生产 Dockerfile 构建冒烟验证。
 
 name: Workflow Template Clean-Room Smoke
@@ -31,7 +31,7 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://app_user:app_password_ci@127.0.0.1:5432/app_test_db?schema=public
-      TEST_DATABASE_URL: postgresql://app_user:app_password_ci@127.0.0.1:5432/app_test_db?schema=public
+      TEST_DATABASE_URL: postgresql://app_user:app_password_ci@127.0.0.1:5432/app_e2e_test_db?schema=public
       PORT: "3001"
       FRONTEND_PORT: "5173"
 
@@ -71,6 +71,7 @@ jobs:
           npm run db:seed
           npm run index:build
           npm run gates
+          npm run test:e2e:fresh
           npm run check
           npm run build
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 软件产品设计与全栈交付工作流 v1.4.0 — 项目资产索引树自动生成与新鲜度校验脚本
+ * 软件产品设计与全栈交付工作流 v1.4.1 — 项目资产索引树自动生成与新鲜度校验脚本
  * 对应规则：STD-GOV-05（项目资产索引树自动生成与首读纪律）、STD-CODE-01（复用优先）、STD-QA-13（CI Gate 1）
  *
  * 头部元信息标注约定（AI 创建源码/契约/测试文件时写入前 12 行内）：
@@ -169,7 +169,7 @@ function buildIndexData(rootDir) {
   const treeFingerprintSha256 = sha256Text(fingerprintSource)
 
   return {
-    workflowVersion: '1.4.0',
+    workflowVersion: '1.4.1',
     treeFingerprintSha256,
     totalIndexedFiles: Object.values(buckets).reduce((acc, arr) => acc + arr.length, 0),
     missingDescFiles: missingDesc,

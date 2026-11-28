@@ -1,11 +1,12 @@
 #!/usr/bin/env node
-// @desc 安全数据库重置守卫（先核验非生产/本地主机/目标库名，再执行 prisma migrate reset 与 seed，STD-QA-14）
+// @desc 安全数据库重置与 E2E 隔离执行守卫（先核验非生产/本地主机/目标库名，再执行 reset/seed/Playwright，STD-QA-14）
 /**
- * 对应规则：STD-QA-14（测试种子与安全重置）、STD-DAT-04
+ * 软件产品设计与全栈交付工作流 v1.4.1 — 数据库安全重置与独立 E2E 闭环执行器
  * 用法：
  *   node scripts/safe-db-reset.mjs --self-check
- *   node scripts/safe-db-reset.mjs            # 重置开发环境数据库（读取 DATABASE_URL）
- *   node scripts/safe-db-reset.mjs --test     # 重置测试数据库（优先读取 TEST_DATABASE_URL，否则回退 DATABASE_URL）
+ *   node scripts/safe-db-reset.mjs                 # 重置开发环境数据库（读取 DATABASE_URL）
+ *   node scripts/safe-db-reset.mjs --test          # 仅重置独立测试数据库（强制读取与开发库不同的 TEST_DATABASE_URL）
+ *   node scripts/safe-db-reset.mjs --test --run-e2e # 先核验 tests/e2e 用例与双库隔离，再同链执行 reset/seed/Playwright
  */
 import { spawnSync } from 'node:child_process'
 import fs from 'node:fs'
@@ -53,7 +54,7 @@ export function validateResetTarget({
     return { ok: false, reason: '目标数据库连接串格式无效，无法解析主机与库名。' }
   }
 
-  const host = parsed.hostname.toLowerCase()
+  const host = parsed.hostname.toLowerCase().replace(/^\[|\]$/g, '')
   const dbName = parsed.pathname.replace(/^\/+/, '').split('/')[0] || ''
   if (!dbName) {
     return { ok: false, reason: '连接串缺少数据库名称。' }
@@ -64,17 +65,73 @@ export function validateResetTarget({
   if (!allowNonLocal && !LOCAL_HOSTS.has(host)) {
     return {
       ok: false,
-      reason: `目标主机 "${host}" 非本地地址（仅允许 localhost/127.0.0.1/postgres；如确需重置请显式加 --allow-non-local）。`
+      reason: `目标主机 "${host}" 非本地地址（仅允许 localhost/127.0.0.1/::1/postgres；如确需重置请显式加 --allow-non-local）。`
     }
   }
-  if (!allowAnyName && !/(?:^|_|-)(?:dev|test|local)(?:$|_|-)/i.test(dbName) && !/(dev|test|local)/i.test(dbName)) {
+  if (!allowAnyName && !/(?:^|[_-])(?:dev|test|local)(?:$|[_-])/i.test(dbName)) {
     return {
       ok: false,
-      reason: `目标数据库名 "${dbName}" 未包含 dev/test/local 标识（如确需重置请显式加 --allow-any-name）。`
+      reason: `目标数据库名 "${dbName}" 未包含独立的 dev/test/local 词边界标识（如确需重置请显式加 --allow-any-name）。`
     }
   }
 
   return { ok: true, host, dbName }
+}
+
+export function validateTestIsolation({ databaseUrl, testDatabaseUrl }) {
+  if (!testDatabaseUrl) {
+    return {
+      ok: false,
+      reason: 'TEST_DATABASE_URL 未配置！`npm run test:e2e:fresh` 必须指向独立测试库，严禁回退清空日常开发库。'
+    }
+  }
+  let parsedTest
+  try {
+    parsedTest = new URL(testDatabaseUrl)
+  } catch {
+    return { ok: false, reason: 'TEST_DATABASE_URL 格式无效。' }
+  }
+  const testHost = parsedTest.hostname.toLowerCase().replace(/^\[|\]$/g, '')
+  const testPort = parsedTest.port || '5432'
+  const testDbName = parsedTest.pathname.replace(/^\/+/, '').split('/')[0] || ''
+  if (!testDbName) {
+    return { ok: false, reason: 'TEST_DATABASE_URL 缺少数据库名称。' }
+  }
+  if (databaseUrl) {
+    try {
+      const parsedDev = new URL(databaseUrl)
+      const devHost = parsedDev.hostname.toLowerCase().replace(/^\[|\]$/g, '')
+      const devPort = parsedDev.port || '5432'
+      const devDbName = parsedDev.pathname.replace(/^\/+/, '').split('/')[0] || ''
+      if (testHost === devHost && testPort === devPort && testDbName === devDbName) {
+        return {
+          ok: false,
+          reason: `TEST_DATABASE_URL 与 DATABASE_URL 指向同一数据库 (${testHost}:${testPort}/${testDbName})，禁止共用开发库执行 E2E 清库！`
+        }
+      }
+    } catch {
+      // 主连接串不可解析时，交由后续目标校验处理
+    }
+  }
+  return { ok: true, host: testHost, dbName: testDbName }
+}
+
+function hasE2eSpecs(rootDir = process.cwd()) {
+  const e2eDir = path.join(rootDir, 'tests', 'e2e')
+  if (!fs.existsSync(e2eDir)) return false
+  const stack = [e2eDir]
+  while (stack.length > 0) {
+    const cur = stack.pop()
+    for (const ent of fs.readdirSync(cur, { withFileTypes: true })) {
+      const full = path.join(cur, ent.name)
+      if (ent.isDirectory()) {
+        stack.push(full)
+      } else if (/\.spec\.tsx?$/.test(ent.name)) {
+        return true
+      }
+    }
+  }
+  return false
 }
 
 function runSelfCheck() {
@@ -90,23 +147,72 @@ function runSelfCheck() {
     nodeEnv: 'development',
     databaseUrl: 'postgresql://u:p@127.0.0.1:5432/app_prod_db'
   })
-  const rOk = validateResetTarget({
-    nodeEnv: 'test',
-    databaseUrl: 'postgresql://u:p@127.0.0.1:5432/app_test_db'
+  const rContest = validateResetTarget({
+    nodeEnv: 'development',
+    databaseUrl: 'postgresql://u:p@127.0.0.1:5432/contest'
   })
-  if (rProd.ok || rRemote.ok || rProdName.ok || !rOk.ok) {
-    console.error('❌ safe-db-reset.mjs self-check failed:', { rProd, rRemote, rProdName, rOk })
+  const rIpv6 = validateResetTarget({
+    nodeEnv: 'test',
+    databaseUrl: 'postgresql://u:p@[::1]:5432/app_test_db'
+  })
+  const rIsoMissing = validateTestIsolation({
+    databaseUrl: 'postgresql://u:p@127.0.0.1:5432/app_dev_db',
+    testDatabaseUrl: ''
+  })
+  const rIsoSame = validateTestIsolation({
+    databaseUrl: 'postgresql://u:p@127.0.0.1:5432/app_dev_db',
+    testDatabaseUrl: 'postgresql://u:p@127.0.0.1:5432/app_dev_db'
+  })
+  const rIsoOk = validateTestIsolation({
+    databaseUrl: 'postgresql://u:p@127.0.0.1:5432/app_dev_db',
+    testDatabaseUrl: 'postgresql://u:p@127.0.0.1:5432/app_test_db'
+  })
+  if (
+    rProd.ok ||
+    rRemote.ok ||
+    rProdName.ok ||
+    rContest.ok ||
+    !rIpv6.ok ||
+    rIsoMissing.ok ||
+    rIsoSame.ok ||
+    !rIsoOk.ok
+  ) {
+    console.error('❌ safe-db-reset.mjs self-check failed:', {
+      rProd,
+      rRemote,
+      rProdName,
+      rContest,
+      rIpv6,
+      rIsoMissing,
+      rIsoSame,
+      rIsoOk
+    })
     process.exit(1)
   }
-  console.log('✅ safe-db-reset.mjs self-check passed (production / remote / prod-db guards verified).')
+  console.log('✅ safe-db-reset.mjs v1.4.1 self-check passed (word-boundary / IPv6 / dual-DB isolation verified).')
 }
 
 function runReset(args) {
+  const runE2e = args.includes('--run-e2e')
+  if (runE2e && !hasE2eSpecs(process.cwd())) {
+    console.log('ℹ️ [E2E Fresh] tests/e2e/ 下尚无 .spec.ts(x) 用例（S0 初始底座；进入 S6 添加用例后再执行），已安全跳过清库与 Playwright。')
+    process.exit(0)
+  }
+
   loadDotEnvMissing()
   const useTestDb = args.includes('--test')
-  const databaseUrl = useTestDb
-    ? process.env.TEST_DATABASE_URL || process.env.DATABASE_URL
-    : process.env.DATABASE_URL
+  let databaseUrl = process.env.DATABASE_URL
+  if (useTestDb) {
+    const iso = validateTestIsolation({
+      databaseUrl: process.env.DATABASE_URL,
+      testDatabaseUrl: process.env.TEST_DATABASE_URL
+    })
+    if (!iso.ok) {
+      console.error(`❌ [Safe Reset Guard] ${iso.reason}`)
+      process.exit(1)
+    }
+    databaseUrl = process.env.TEST_DATABASE_URL
+  }
 
   const verdict = validateResetTarget({
     nodeEnv: process.env.NODE_ENV || 'development',
@@ -139,6 +245,22 @@ function runReset(args) {
   })
   if (seedRes.status !== 0) {
     process.exit(seedRes.status || 1)
+  }
+
+  if (runE2e) {
+    const e2eApiPort = process.env.E2E_PORT || '3101'
+    const e2eWebPort = process.env.E2E_FRONTEND_PORT || '5273'
+    console.log(`🎭 [E2E Fresh] 启动隔离测试服务 (API=${e2eApiPort}, Web=${e2eWebPort}, DB=${verdict.dbName}) 并运行 Playwright...`)
+    const pwRes = spawnSync(npxBin, ['playwright', 'test'], {
+      stdio: 'inherit',
+      env: {
+        ...envWithTarget,
+        PORT: e2eApiPort,
+        FRONTEND_PORT: e2eWebPort,
+        E2E_FORCE_FRESH_SERVER: '1'
+      }
+    })
+    process.exit(pwRes.status ?? 1)
   }
 }
 

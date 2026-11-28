@@ -1,6 +1,6 @@
 # CI 流水线、本地 Pre-commit 门禁、PR 模板与仓库维护脚本 (`ci/`)
 
-版本：1.4.0｜对应规则：`STD-GOV-05`、`STD-CODE-12`、`STD-SEC-05`、`STD-QA-13`、`STD-AUD-07`、`STD-ARC-09`
+版本：1.4.1｜对应规则：`STD-GOV-05`、`STD-CODE-12`、`STD-SEC-05`、`STD-QA-13`、`STD-AUD-07`、`STD-ARC-09`
 
 本目录提供可由 [starter/init-project.mjs](../starter/README.md) 铺入业务项目的本地 PostgreSQL 同构容器（无固定容器名，支持多项目并行）、项目资产索引树自动生成脚本、**跨平台 Node 本地 Git Pre-commit 钩子**、多人协作 PR 审核模板与 GitHub Actions 四道门禁配置，以及工作流母版自身维护脚本 `maintain-workflow.mjs`。
 

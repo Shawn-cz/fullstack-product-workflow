@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 软件产品设计与全栈交付工作流 v1.4.0 — 工作流母版仓库维护、校验与发版清单脚本
+ * 软件产品设计与全栈交付工作流 v1.4.1 — 工作流母版仓库维护、校验与发版清单脚本
  *
  * 用法：
  *   node 规范文件/ci/maintain-workflow.mjs --split-templates   # 从 02_模板包.md 重新拆分 T01~T13 单文件模板
@@ -13,7 +13,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const WORKFLOW_VERSION = '1.4.0'
+const WORKFLOW_VERSION = '1.4.1'
 const BASELINE_MANIFEST = '../历史归档_勿喂给AI/2026-11-14_至_2026-11-26/v1.3.0-manifest.json'
 const MAX_ALWAYS_ON_BYTES = 5120 // ARCHITECTURE.md 约定常驻规则 < 5KB
 

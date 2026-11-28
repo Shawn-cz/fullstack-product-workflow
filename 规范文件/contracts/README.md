@@ -1,6 +1,6 @@
 # 通用契约包、权限与业务专项基线 (`contracts/`)
 
-版本：1.4.0｜对应规则：`STD-API-06`、`STD-API-07`、`STD-API-08`、`STD-DAT-05`、`STD-SEC-05`、`STD-AUD-07`
+版本：1.4.1｜对应规则：`STD-API-06`、`STD-API-07`、`STD-API-08`、`STD-DAT-05`、`STD-SEC-05`、`STD-AUD-07`
 
 ## 为什么提供本目录？
 为防止各项目重复发明不同的分页格式、错误码、成功信封、鉴权方式、上传/后台任务幂等与去重逻辑，并让 **React Web 前端**、**Node.js 服务端** 与 **移动 App（既有 App 对接或新建 App）** 共享唯一权威契约源（SSOT），新项目在 `S0`/`S4` 通过 `starter/init-project.mjs` 或手动复制直接继承本目录中的基线文件。

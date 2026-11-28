@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 软件产品设计与全栈交付工作流 v1.4.0 — 生产迁移执行器（安全 URL 编码管理账号密码，先迁移后放行应用，STD-OPS-07）
+ * 软件产品设计与全栈交付工作流 v1.4.1 — 生产迁移与运行权限同步执行器（安全 URL 编码、先迁移后授权、再放行应用，STD-OPS-07）
  * 用法：
  *   node scripts/run-migrate.mjs --self-check
  *   node scripts/run-migrate.mjs
@@ -22,6 +22,22 @@ export function buildMigrationDatabaseUrl(env = process.env) {
   return env.DATABASE_URL
 }
 
+export function buildPrivilegeReconcileSql(appDbUser) {
+  if (typeof appDbUser !== 'string' || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(appDbUser)) {
+    return {
+      ok: false,
+      reason: 'APP_DB_USER 仅允许字母、数字与下划线，且不能以数字开头'
+    }
+  }
+  const sql = [
+    `GRANT USAGE ON SCHEMA public TO "${appDbUser}";`,
+    `GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO "${appDbUser}";`,
+    `GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO "${appDbUser}";`,
+    `DO $$ BEGIN IF to_regclass('public."_prisma_migrations"') IS NOT NULL THEN EXECUTE 'REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON TABLE public."_prisma_migrations" FROM "${appDbUser}"'; END IF; END $$;`
+  ].join('\n')
+  return { ok: true, sql }
+}
+
 function runSelfCheck() {
   const encoded = buildMigrationDatabaseUrl({
     POSTGRES_USER: 'migrator',
@@ -37,7 +53,13 @@ function runSelfCheck() {
     console.error('❌ run-migrate.mjs URL encoding self-check failed:', encoded)
     process.exit(1)
   }
-  console.log('✅ run-migrate.mjs self-check passed (special-char percent-encoding verified).')
+  const privOk = buildPrivilegeReconcileSql('app_runtime')
+  const privBad = buildPrivilegeReconcileSql('bad"; DROP')
+  if (!privOk.ok || !privOk.sql.includes('REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON TABLE public."_prisma_migrations"') || privBad.ok) {
+    console.error('❌ run-migrate.mjs privilege reconcile SQL self-check failed:', { privOk, privBad })
+    process.exit(1)
+  }
+  console.log('✅ run-migrate.mjs v1.4.1 self-check passed (special-char percent-encoding & privilege reconcile SQL verified).')
 }
 
 const entryArg = process.argv[1]
@@ -61,6 +83,31 @@ if (isMain) {
       stdio: 'inherit',
       env: { ...process.env, DATABASE_URL: migrationUrl }
     })
-    process.exit(res.status ?? 1)
+    if ((res.status ?? 1) !== 0) {
+      process.exit(res.status ?? 1)
+    }
+
+    const appDbUser = (process.env.APP_DB_USER || '').trim()
+    if (appDbUser) {
+      const rec = buildPrivilegeReconcileSql(appDbUser)
+      if (!rec.ok) {
+        console.error(`❌ [run-migrate] 权限同步中止：${rec.reason}`)
+        process.exit(1)
+      }
+      console.log(`🔒 [run-migrate] 正在为最小权限账号 "${appDbUser}" 幂等同步表/序列权限并锁定迁移历史表...`)
+      const execRes = spawnSync(
+        npxBin,
+        ['prisma', 'db', 'execute', '--stdin', '--schema', 'prisma/schema.prisma'],
+        {
+          input: rec.sql,
+          stdio: ['pipe', 'inherit', 'inherit'],
+          env: { ...process.env, DATABASE_URL: migrationUrl }
+        }
+      )
+      if ((execRes.status ?? 1) !== 0) {
+        process.exit(execRes.status ?? 1)
+      }
+    }
+    process.exit(0)
   }
 }

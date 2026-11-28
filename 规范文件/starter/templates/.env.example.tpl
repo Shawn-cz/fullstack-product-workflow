@@ -3,8 +3,8 @@
 POSTGRES_PORT="5432"
 DATABASE_URL="postgresql://app_user:app_local_dev@127.0.0.1:5432/app_dev_db?schema=public"
 
-# 可选：独立的 E2E 测试数据库（运行 npm run test:e2e:fresh 时优先使用，避免清空日常开发库）
-# TEST_DATABASE_URL="postgresql://app_user:app_local_dev@127.0.0.1:5432/app_test_db?schema=public"
+# 独立的 E2E 测试数据库（运行 npm run test:e2e:fresh 时强制使用，严禁回退清空日常开发库）
+TEST_DATABASE_URL="postgresql://app_user:app_local_dev@127.0.0.1:5432/app_test_db?schema=public"
 
 # 服务端与前端端口配置（本地复制为 .env；严禁将真实 .env 提交进 Git）
 NODE_ENV="development"

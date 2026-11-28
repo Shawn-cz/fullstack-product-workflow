@@ -1,4 +1,4 @@
-# 软件产品设计与全栈交付工作流 v1.4.0 — 生产编排模板 (STD-OPS-01 / STD-OPS-07)
+# 软件产品设计与全栈交付工作流 v1.4.1 — 生产编排模板 (STD-OPS-01 / STD-OPS-07)
 # 架构：Caddy（自动 HTTPS）→ App（最小权限 APP_DB_USER）→ Migrate（启动前迁移且失败即停）→ PostgreSQL 16（仅内网隔离）
 # 启动方式（统一维护单份 .env.production）：
 #   docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
@@ -48,13 +48,23 @@ services:
       dockerfile: Dockerfile
     container_name: prod_app
     restart: unless-stopped
-    env_file:
-      - .env.production
+    # 仅显式注入运行账号与业务配置白名单，严禁把 POSTGRES_USER / POSTGRES_PASSWORD 暴露给 app 容器
     environment:
       NODE_ENV: production
       PORT: "3001"
+      SERVICE_NAME: ${SERVICE_NAME:-team-fullstack-api}
+      APP_VERSION: ${APP_VERSION:-0.1.0}
+      APP_DOMAIN: ${APP_DOMAIN:?请在 .env.production 配置域名，如 app.example.com}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
+      SESSION_COOKIE_NAME: ${SESSION_COOKIE_NAME:-app_sid}
+      SESSION_TTL_HOURS: ${SESSION_TTL_HOURS:-168}
+      AUTH_LOGIN_RATE_LIMIT_MAX: ${AUTH_LOGIN_RATE_LIMIT_MAX:-10}
+      AUTH_LOGIN_RATE_LIMIT_WINDOW_MS: ${AUTH_LOGIN_RATE_LIMIT_WINDOW_MS:-60000}
       POSTGRES_HOST: postgres
       POSTGRES_PORT: "5432"
+      POSTGRES_DB: ${POSTGRES_DB:?请在 .env.production 填写 POSTGRES_DB}
+      APP_DB_USER: ${APP_DB_USER:?请在 .env.production 填写最小权限应用账号 APP_DB_USER}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?请在 .env.production 填写强随机 APP_DB_PASSWORD}
     depends_on:
       postgres:
         condition: service_healthy

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 软件产品设计与全栈交付工作流 v1.4.0 — CI 四道门禁、双向闭环与五重指纹校验脚本
+ * 软件产品设计与全栈交付工作流 v1.4.1 — CI 四道门禁、双向闭环与五重指纹校验脚本
  * 对应规则：STD-GOV-03（闭环）、STD-GOV-05（索引树）、STD-SEC-05（安全红线）、STD-QA-13（四道门禁）、STD-AUD-07（指纹锁定）
  *
  * 用法：
@@ -284,7 +284,7 @@ function runSelfCheck() {
       if (res.status !== 0) process.exit(res.status || 1)
     }
   }
-  console.log('✅ verify-gates.mjs v1.4.0 self-check passed (Node ' + process.version + ', POSIX sort + strict lock + Gate 1/2/4 ready).')
+  console.log('✅ verify-gates.mjs v1.4.1 self-check passed (Node ' + process.version + ', POSIX sort + strict lock + Gate 1/2/4 ready).')
 }
 
 function runGate1(profile, changeScope = 'standard') {
@@ -308,7 +308,7 @@ function runGate1(profile, changeScope = 'standard') {
     }
   }
 
-  const testDirs = ['tests', 'test', 'src'].map((d) => path.join(cwd, d))
+  const testDirs = ['tests', 'test', 'src', 'server'].map((d) => path.join(cwd, d))
   const testFiles = testDirs.flatMap((d) =>
     walkFiles(d, ['.test.ts', '.test.tsx', '.spec.ts', '.spec.tsx'])
   )
@@ -396,7 +396,10 @@ function runGate2(profile) {
   console.log('🔍 [Gate 2] 扫描静态基线防呆 (.skip/.only/.fixme / 空 catch / 前端禁 node:crypto 与常见 localStorage 存令牌 / 禁旧栈)...')
   const srcFiles = walkFiles(path.join(cwd, 'src'), ['.ts', '.tsx', '.js', '.jsx'])
   const serverFiles = walkFiles(path.join(cwd, 'server'), ['.ts', '.tsx', '.js', '.jsx'])
-  const testFiles = walkFiles(path.join(cwd, 'tests'), ['.ts', '.tsx', '.js', '.jsx'])
+  const testFiles = [
+    ...walkFiles(path.join(cwd, 'tests'), ['.ts', '.tsx', '.js', '.jsx']),
+    ...walkFiles(path.join(cwd, 'test'), ['.ts', '.tsx', '.js', '.jsx'])
+  ]
   const scanFiles = [...srcFiles, ...serverFiles, ...testFiles]
 
   const violations = []

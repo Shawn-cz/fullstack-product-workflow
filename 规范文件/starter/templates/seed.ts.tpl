@@ -9,7 +9,7 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { PrismaClient } from '@prisma/client'
-import { loadDotEnvIfNeeded } from '../server/config/env'
+import { getServerEnv, loadDotEnvIfNeeded, resolveDatabaseUrl } from '../server/config/env'
 import { hashPassword } from '../server/middleware/auth-rbac'
 import { TEST_ACCOUNT_MAP, TEST_ACCOUNTS } from './test-accounts'
 
@@ -17,13 +17,34 @@ export { TEST_ACCOUNT_MAP, TEST_ACCOUNTS }
 
 export async function seedTestAccounts(): Promise<void> {
   loadDotEnvIfNeeded()
-  // 强制安全熔断：严禁在生产环境运行合成测试种子脚本
+  // 强制安全熔断：严禁在生产环境或非测试/开发库运行合成测试种子脚本
   if (process.env.NODE_ENV === 'production') {
     console.error('❌ [Seed Guard] 检测到 NODE_ENV=production，已强制中止测试种子写入以防污染生产数据！')
     process.exit(1)
   }
 
-  const prisma = new PrismaClient()
+  const dbUrl = resolveDatabaseUrl(getServerEnv()) || process.env.DATABASE_URL
+  if (!dbUrl) {
+    console.error('❌ [Seed Guard] 缺少 DATABASE_URL，已中止测试种子写入！')
+    process.exit(1)
+  }
+  let dbName = ''
+  try {
+    dbName = new URL(dbUrl).pathname.replace(/^\/+/, '').split('/')[0] || ''
+  } catch {
+    console.error('❌ [Seed Guard] DATABASE_URL 格式无效，已中止测试种子写入！')
+    process.exit(1)
+  }
+  if (/prod|production/i.test(dbName)) {
+    console.error(`❌ [Seed Guard] 目标库名 "${dbName}" 包含 prod/production，严禁写入合成测试账号！`)
+    process.exit(1)
+  }
+  if (process.env.ALLOW_ANY_SEED_DB !== '1' && !/(?:^|[_-])(?:dev|test|local)(?:$|[_-])/i.test(dbName)) {
+    console.error(`❌ [Seed Guard] 目标库名 "${dbName}" 未包含 dev/test/local 词边界标识，已中止种子写入！`)
+    process.exit(1)
+  }
+
+  const prisma = new PrismaClient({ datasources: { db: { url: dbUrl } } })
   try {
     for (const acc of TEST_ACCOUNTS) {
       await prisma.user.upsert({

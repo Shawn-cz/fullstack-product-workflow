@@ -1,6 +1,6 @@
 // @desc 服务端环境变量统一加载、Zod 校验与安全数据库 URL 组装 (STD-SEC-03 / STD-OPS-01)
 /**
- * 软件产品设计与全栈交付工作流 v1.4.0 — 服务端配置加载与校验底座
+ * 软件产品设计与全栈交付工作流 v1.4.1 — 服务端配置加载与校验底座
  * 说明：
  * 1. 非生产环境下自动读取根目录 `.env`（仅填充未在进程环境设置的键值，不覆盖 CI/测试显式传参）；
  * 2. 使用 Zod 严格校验端口、Cookie 名称、会话有效期、限流阈值与数据库连接字段；
@@ -91,12 +91,13 @@ export function resolveDatabaseUrl(env: ServerEnv): string | undefined {
 }
 
 export function resolveAllowedOrigins(env: ServerEnv): string[] {
-  const origins = new Set<string>([
-    `http://127.0.0.1:${env.FRONTEND_PORT}`,
-    `http://localhost:${env.FRONTEND_PORT}`,
-    `http://127.0.0.1:${env.PORT}`,
-    `http://localhost:${env.PORT}`
-  ])
+  const origins = new Set<string>()
+  if (env.NODE_ENV !== 'production') {
+    origins.add(`http://127.0.0.1:${env.FRONTEND_PORT}`)
+    origins.add(`http://localhost:${env.FRONTEND_PORT}`)
+    origins.add(`http://127.0.0.1:${env.PORT}`)
+    origins.add(`http://localhost:${env.PORT}`)
+  }
   if (env.APP_DOMAIN) {
     origins.add(`https://${env.APP_DOMAIN}`)
   }

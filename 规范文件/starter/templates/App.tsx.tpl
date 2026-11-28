@@ -27,7 +27,7 @@ export default function App() {
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6 py-12">
       <section className="rounded-card border border-border-subtle bg-surface-card p-8 shadow-card">
-        <p className="text-sm font-medium text-brand-600">全栈产品交付工作流 v1.4.0 底座</p>
+        <p className="text-sm font-medium text-brand-600">全栈产品交付工作流 v1.4.1 底座</p>
         <h1 className="mt-2 text-2xl font-semibold text-text-primary">项目初始化已就绪</h1>
         <p className="mt-3 text-sm leading-6 text-text-secondary">
           当前已预置 React 19、Tailwind CSS v4 品牌 Token、Preline UI、Hono 服务端、PostgreSQL +
